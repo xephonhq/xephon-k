@@ -23,6 +23,8 @@ CREATE KEYSPACE IF NOT EXISTS {{keyspace}}
   };
 ````
 
+Metrics
+
 ````
 CREATE TABLE IF NOT EXISTS {{keyspace}}.metrics (
   metric_key blob,

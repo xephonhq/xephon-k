@@ -18,7 +18,7 @@ Keyspace
 
 - NOTE: the replication_factor is 1, and it is a fixed number in `CREATE_KEYSPACE` in `CassandraDatastore.java`
 
-````
+````sql
 CREATE KEYSPACE IF NOT EXISTS {{keyspace}}
   WITH REPLICATION = {
     'class' : 'SimpleStrategy',
@@ -31,7 +31,7 @@ Metrics
 - NOTE: it seems KairosDB has omitted keyspace when creating tables
 - NOTE: column1 is not a typo, it might be the legacy problem of using Thrift protocol
 
-````
+````sql
 CREATE TABLE IF NOT EXISTS data_points (
     key blob,
     column1 blob,
@@ -40,47 +40,67 @@ CREATE TABLE IF NOT EXISTS data_points (
   ) WITH COMPACT STORAGE;
 ````
 
-public static final String DATA_POINTS_TABLE = "" +
-    "CREATE TABLE IF NOT EXISTS data_points (\n" +
-    "  key blob,\n" +
-    "  column1 blob,\n" +
-    "  value blob,\n" +
-    "  PRIMARY KEY ((key), column1)\n" +
-    ") WITH COMPACT STORAGE";
+Row key index
 
-public static final String ROW_KEY_INDEX_TABLE = "" +
-    "CREATE TABLE IF NOT EXISTS row_key_index (\n" +
-    "  key blob,\n" +
-    "  column1 blob,\n" +
-    "  value blob,\n" +
-    "  PRIMARY KEY ((key), column1)\n" +
-    ") WITH COMPACT STORAGE";
+- [ ] TODO: what is it used for, tags?
 
-public static final String ROW_KEY_TIME_INDEX = "" +
-    "CREATE TABLE IF NOT EXISTS row_key_time_index (\n" +
-    "  metric text,\n" +
-    "  row_time timestamp,\n" +
-    "  value text,\n" +
-    "  PRIMARY KEY ((metric), row_time)\n" +
-    ")";
+````sql
+CREATE TABLE IF NOT EXISTS row_key_index (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY ((key), column1)
+  ) WITH COMPACT STORAGE;
+````
 
-public static final String ROW_KEYS = "" +
-    "CREATE TABLE IF NOT EXISTS row_keys (\n" +
-    "  metric text,\n" +
-    "  row_time timestamp,\n" +
-    "  data_type text,\n" +
-    "  tags frozen<map<text, text>>,\n" +
-    "  value text,\n" +
-    "  PRIMARY KEY ((metric, row_time), data_type, tags)\n" +
-    ")";
+Row key time index
 
-public static final String STRING_INDEX_TABLE = "" +
-    "CREATE TABLE IF NOT EXISTS string_index (\n" +
-    "  key blob,\n" +
-    "  column1 blob,\n" +
-    "  value blob,\n" +
-    "  PRIMARY KEY ((key), column1)\n" +
-    ") WITH COMPACT STORAGE";
+- [ ] TODO: what is it used for
+- NOTE: it does not use compact storage
+  - [ ] TODO: why ...
+
+````sql
+CREATE TABLE IF NOT EXISTS row_key_time_index (
+    metric text,
+    row_time timestamp,
+    value text,
+    PRIMARY KEY ((metric), row_time)
+  )
+````
+
+Row keys
+
+- NOTE: no compact storage
+- [ ] TODO: metric is text instead of blob
+- [ ] TODO: what is frozen<map<text, text>>
+- [ ] TODO: compound primary key? http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCompoundPrimaryKey.html
+- [ ] TODO: composite partition key https://docs.datastax.com/en/cql/3.1/cql/cql_reference/refCompositePk.html
+
+````sql
+CREATE TABLE IF NOT EXISTS row_keys (
+    metric text,
+    row_time timestamp,
+    data_type text,
+    tags frozen<map<text, text>>,
+    value text,
+    PRIMARY KEY ((metric, row_time), data_type, tags)
+  )
+````
+
+String index
+
+- [ ] TODO: what is it used for
+- [ ] TODO: why they are similar, string_index, row_key_index, data_points
+
+````sql
+CREATE TABLE IF NOT EXISTS string_index (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY ((key), column1)
+  ) WITH COMPACT STORAGE
+````
+
 ### Meta Schema
 
 ### Extra Schema
