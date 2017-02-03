@@ -13,13 +13,17 @@
 
 ### Metrics Schema
 
+Keyspace
+
 ````
 CREATE KEYSPACE IF NOT EXISTS {{keyspace}}
   WITH REPLICATION = {
     'class' : 'SimpleStrategy',
     'replication_factor' : 3
   };
+````
 
+````
 CREATE TABLE IF NOT EXISTS {{keyspace}}.metrics (
   metric_key blob,
   data_timestamp_offset int,
