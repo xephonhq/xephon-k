@@ -13,6 +13,7 @@ TSDBs
 - [KairosDB](kairosdb.md)
 - [OpenTSDB](opentsdb.md)
 - [Heroic](heroic.md)
+- [Newts](newts.md)
 
 ## TODO
 
