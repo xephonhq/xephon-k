@@ -15,7 +15,7 @@
 
 Keyspace
 
-````
+````sql
 CREATE KEYSPACE IF NOT EXISTS {{keyspace}}
   WITH REPLICATION = {
     'class' : 'SimpleStrategy',
@@ -25,7 +25,7 @@ CREATE KEYSPACE IF NOT EXISTS {{keyspace}}
 
 Metrics
 
-````
+````sql
 CREATE TABLE IF NOT EXISTS {{keyspace}}.metrics (
   metric_key blob,
   data_timestamp_offset int,

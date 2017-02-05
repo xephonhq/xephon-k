@@ -14,6 +14,8 @@ TSDBs
 - [OpenTSDB](opentsdb.md)
 - [Heroic](heroic.md)
 - [Newts](newts.md)
+- [Khronus](khronus.md)
+- [Blueflood](blueflood.md)
 
 ## TODO
 
