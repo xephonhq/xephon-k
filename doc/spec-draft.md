@@ -2,6 +2,8 @@
 
 ## Naive
 
+- [implementation](../pkg/bin/xnaive/main.go)
+
 ### Requirement
 
 - don't consider tags
@@ -58,3 +60,7 @@ SELECT * FROM "xephonnaive".metrics
   - > Column names that contain characters that CQL cannot parse need to be enclosed in double quotation marks in CQL
   - > Dates, IP addresses, and strings need to be enclosed in single quotation marks. To use a single quotation mark itself in a string literal, escape it using a single quotation mark.
 - `select * from "xephonnaive".metrics`
+  - `Cannot execute this query as it might involve data filtering and thus may have unpredictable performance.If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING`
+  - http://stackoverflow.com/questions/38350656/cassandra-asks-for-allow-filtering-even-though-column-is-clustering-key
+  - need to specify row key
+  - `2017/02/05 11:11:45 gocql: not enough columns to scan into: have 2 want 3` when using `SELECT *`

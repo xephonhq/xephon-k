@@ -1,2 +1,5 @@
 install:
   - go install ./pkg/bin/xnaive
+scripts:
+  naive:
+    - sudo /home/at15/workspace/bin/xnaive
