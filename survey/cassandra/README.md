@@ -14,7 +14,9 @@ Datastax
 - Data model
   - [x] [Data Model](1.0-about-data-model.md) [link](http://docs.datastax.com/en/archived/cassandra/1.0/docs/ddl/index.html)
 - Storage engine
-  - [ ] [Storage engine 3.0 (2015)](3.0-storage-engine.md) [link](http://www.datastax.com/2015/12/storage-engine-30)
+  - [x] [Storage engine 3.0 (2015)](3.0-storage-engine.md) [link](http://www.datastax.com/2015/12/storage-engine-30)
+  - [ ] http://stackoverflow.com/questions/34570367/cassandra-3-0-updated-sstable-format
+  - [ ] http://thelastpickle.com/blog/2016/03/04/introductiont-to-the-apache-cassandra-3-storage-engine.html
 
 stackoverflow
 
