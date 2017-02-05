@@ -1,0 +1,16 @@
+hash: a432a762b8886378189208630f9670e2cd25a06118ccd6fcee1c8cc8a1d54c5a
+updated: 2017-02-04T23:40:59.794509805-08:00
+imports:
+- name: github.com/dyweb/gommon
+  version: 7aad4c9c1ff32b9473a816ba27158bf59bfec307
+  vcs: git
+- name: github.com/gocql/gocql
+  version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
+  vcs: git
+- name: github.com/spf13/cobra
+  version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
+  vcs: git
+testImports:
+- name: github.com/stretchr/testify
+  version: 2402e8e7a02fc811447d11f881aa9746cdc57983
+  vcs: git
