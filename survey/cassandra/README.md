@@ -20,6 +20,6 @@ Datastax
 
 stackoverflow
 
-- http://stackoverflow.com/questions/24949676/difference-between-partition-key-composite-key-and-clustering-key-in-cassandra
-- http://stackoverflow.com/questions/15857779/commitlog-and-sstables-in-cassandra-database
+- [ ] http://stackoverflow.com/questions/24949676/difference-between-partition-key-composite-key-and-clustering-key-in-cassandra
+- [ ] http://stackoverflow.com/questions/15857779/commitlog-and-sstables-in-cassandra-database
   - it tells sstable structure

@@ -10,3 +10,5 @@ A time series database using Cassandra as backend, modeled after KairosDB
 - storing metrics
 - query metrics as it is
 - query aggregation
+- index text without using external search engine
+  - i.e. https://github.com/balzaczyy/golucene

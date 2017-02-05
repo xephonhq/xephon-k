@@ -1,7 +1,7 @@
 # Survey
 
-This folder contains doc and code snippets from related projects (other time series
-databases using Cassandra as backend).
+This folder contains doc and code snippets from [time series
+databases using Cassandra as backend(https://github.com/xephonhq/awesome-time-series-database#cassandra).
 
 C*
 
