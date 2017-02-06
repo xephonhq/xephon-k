@@ -2,6 +2,10 @@
 
 ## Naive
 
+Naive schema pretty looks like [Heroic's schema](../survey/heroic.md), except their row key is actually
+a mix of metric name of tags, I don't know if they have bucket (time range) in the
+row key
+
 - [implementation](../pkg/bin/xnaive/main.go)
 
 ### Requirement
@@ -64,3 +68,6 @@ SELECT * FROM "xephonnaive".metrics
   - http://stackoverflow.com/questions/38350656/cassandra-asks-for-allow-filtering-even-though-column-is-clustering-key
   - need to specify row key
   - `2017/02/05 11:11:45 gocql: not enough columns to scan into: have 2 want 3` when using `SELECT *`
+  - need to have enough variables when use `iter.Scan`
+
+## Bucket 
