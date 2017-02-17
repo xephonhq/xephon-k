@@ -71,3 +71,15 @@ SELECT * FROM "xephonnaive".metrics
   - need to have enough variables when use `iter.Scan`
 
 ## Bucket 
+
+Keyspace and Metrics table remain the same, the main is bucket
+
+- the naive schema simply use user provided name directly, which won't scale, we now add bucket to `metric_name`
+- the bucket value is the start of time of this physical row, i.e. `cpu-load-1487315000`, in other word **each physical row is a bucket**
+- use fixed bucket size, though using dynmaic one would be more efficient, but it requires more work
+
+Meta table is used for the following
+
+- keep track of buckets, so if someone only provide one side of the range (only start or only end), you can specify the right row keys to looking for
+- [ ] TODO: I think there is more, not tags, but I went to play life is strange after I thought about it....
+

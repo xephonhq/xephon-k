@@ -36,3 +36,7 @@ stackoverflow
 - [ ] http://stackoverflow.com/questions/24949676/difference-between-partition-key-composite-key-and-clustering-key-in-cassandra
 - [ ] http://stackoverflow.com/questions/15857779/commitlog-and-sstables-in-cassandra-database
   - it tells sstable structure
+
+Other blogs
+
+- [ ] [This team used Cassandra You won't believe what happened next](https://blog.parsely.com/post/1928/cass/)
