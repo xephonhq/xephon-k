@@ -1,5 +1,16 @@
 install:
   - go install ./pkg/bin/xnaive
+  - go install ./pkg/bin/xbucket
+  - go install ./pkg/bin/xapi
 scripts:
+  runc:
+    - docker run --name tsdb-cassandra -p 9042:9042 -d cassandra:3.9
+  start:
+    - docker start tsdb-cassandra
   naive:
-    - sudo /home/at15/workspace/bin/xnaive
+    # FIXME: it seems to be my Fedora has some very strict network configuration for docker
+    - sh -c "xnaive"
+  bucket:
+    - sh -c "xbucket"
+  api:
+    - sh -c "xapi"

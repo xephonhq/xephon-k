@@ -1,4 +1,4 @@
-# Schema Draft
+# Schema Specification Draft
 
 ## Naive
 
@@ -70,11 +70,11 @@ SELECT * FROM "xephonnaive".metrics
   - `2017/02/05 11:11:45 gocql: not enough columns to scan into: have 2 want 3` when using `SELECT *`
   - need to have enough variables when use `iter.Scan`
 
-## Bucket 
+## Bucket
 
 Keyspace and Metrics table remain the same, the main is bucket
 
-- the naive schema simply use user provided name as `metric_name` and as row key (partition key), 
+- the naive schema simply use user provided name as `metric_name` and as row key (partition key),
 which won't scale, we now add bucket to ~~`metric_name`~~ row key
 - the bucket value is the start of time of this physical row, i.e. `cpu-load-1487315000`, in other word **each physical row is a bucket**
   - I think we can use two column to be the row key instead of concat them in the tsdb side
@@ -114,7 +114,7 @@ Meta table is used for the following
 - [ ] TODO: I think there is more, not tags, but I went to play life is strange after I thought about it....
 - [ ] TODO: maybe I can also save bucket size in the metrics table into the row key
 
-I think it's possible to add bucket now, just add a map into the row key part would work I guess, and still 
+I think it's possible to add bucket now, just add a map into the row key part would work I guess, and still
 need meta table to speed up I guess
 
 Meta
