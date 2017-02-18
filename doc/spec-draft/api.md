@@ -76,10 +76,55 @@ handle this properly, may need to add custom unmarshal handler
 ## Read
 
 - `/q` (I know this is not restful too)
+- [ ] KairosDB support query multiple series at same time, this could be useful, 
+i.e. I want to query mem.total and mem.usage at same time
+- [ ] do we need to support limit when start and end time is provided
+- [ ] how to handle when one metric name actually have multiple series due to tags
 
 ````json
 {
     "use_cache": false,
-    "query": 
+    "start_time": 1357023600000,
+    "end_time": 1357077800000,
+    "metrics" : [
+        {
+            "name": "cpu.idle"
+        },
+        {
+            "name": "cpu.usage"
+        }
+    ]
+}
+````
+
+response
+
+- include a copy of the query
+- [ ] same json problem as above
+
+````json
+{
+    "query" : {
+        "use_cache": false,
+        "start_time": 1357023600000,
+        "end_time": 1357077800000,
+        "metrics" : [
+            {
+                "name": "cpu.idle"
+            },
+            {
+                "name": "cpu.usage"
+            }
+        ]
+    },
+    "metrics" : [
+        {
+            "name": "cpu.idle",
+            "values": [
+                [1364968800000, 10],
+                [1366351200000, 20]
+            ]
+        }
+    ]
 }
 ````
