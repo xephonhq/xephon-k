@@ -1,4 +1,4 @@
-# Specification Draft
+# Schema Draft
 
 ## Naive
 
@@ -74,12 +74,56 @@ SELECT * FROM "xephonnaive".metrics
 
 Keyspace and Metrics table remain the same, the main is bucket
 
-- the naive schema simply use user provided name directly, which won't scale, we now add bucket to `metric_name`
+- the naive schema simply use user provided name as `metric_name` and as row key (partition key), 
+which won't scale, we now add bucket to ~~`metric_name`~~ row key
 - the bucket value is the start of time of this physical row, i.e. `cpu-load-1487315000`, in other word **each physical row is a bucket**
+  - I think we can use two column to be the row key instead of concat them in the tsdb side
 - use fixed bucket size, though using dynmaic one would be more efficient, but it requires more work
+- [ ] when using bucket, do we still store full timestamp or we just store the delta
+  - [ ] this may differ the logic of aggregation and if we can use cassandra's aggregation operations
+
+Keyspace
+
+````sql
+CREATE KEYSPACE IF NOT EXISTS "xephonbucket"
+  WITH REPLICATION = {
+    'class' : 'SimpleStrategy',
+    'replication_factor' : 1
+  };
+````
+
+Metrics
+
+````sql
+CREATE TABLE IF NOT EXISTS "xephonbucket".metrics (
+  metric_name text,
+  bucket timestamp,
+  metric_timestamp timestamp,
+  value int,
+  PRIMARY KEY ((metric_name, bucket), metric_timestamp)
+)
+````
 
 Meta table is used for the following
 
 - keep track of buckets, so if someone only provide one side of the range (only start or only end), you can specify the right row keys to looking for
+  - tsdb node read meta table when start up, create the table if not exists
+  - a separated go routine to write the bucket name to meta table
+    - [ ] there is a problem that newest bucket won't be read because the meta table is not updated immediately
+      - maybe notify the go routine when a new bucket is created
 - [ ] TODO: I think there is more, not tags, but I went to play life is strange after I thought about it....
+- [ ] TODO: maybe I can also save bucket size in the metrics table into the row key
 
+I think it's possible to add bucket now, just add a map into the row key part would work I guess, and still 
+need meta table to speed up I guess
+
+Meta
+
+````sql
+CREATE TABLE IF NOT EXISTS "xephonbucket".meta (
+  metric_name text,
+  bucket timestamp,
+  size int,
+  PRIMARY KEY (metric_name, bucket)
+)
+````

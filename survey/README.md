@@ -1,9 +1,9 @@
 # Survey
 
 This folder contains doc and code snippets from [time series
-databases using Cassandra as backend(https://github.com/xephonhq/awesome-time-series-database#cassandra).
+databases using Cassandra as backend](https://github.com/xephonhq/awesome-time-series-database#cassandra).
 
-C*
+Cassandra
 
 - [Cassandra](cassandra.md)
 - [ScyllaDB](scylladb.md)
@@ -19,8 +19,8 @@ TSDBs
 
 ## TODO
 
-- Thrift, CQL and the underlying storage (I think I got a bit confused when trying to use
-  CQL to understand KairosDB's schema design)
+- [x] Thrift, CQL and the underlying storage (I think I got a bit confused when trying to use
+  CQL to understand KairosDB's schema design), see [Cassandra](cassandra/README.md)
 
 ## Usage
 
