@@ -9,13 +9,13 @@ import (
 )
 
 type LoggingInfoServiceMiddleware struct {
+	service.InfoService
 	logger *dlog.Entry
-	next   service.InfoService
 }
 
 func NewLoggingInfoServiceMiddleware(service service.InfoService) LoggingInfoServiceMiddleware {
 	logger := util.Logger.NewEntryWithPkg("k.s.m")
-	return LoggingInfoServiceMiddleware{logger: logger, next: service}
+	return LoggingInfoServiceMiddleware{InfoService: service, logger: logger}
 }
 
 // FIXME: the naming here is misleading, the info actually return all the info, more than just version
@@ -25,9 +25,5 @@ func (mw LoggingInfoServiceMiddleware) Version() string {
 		// TODO: human readable time format, what's the number, ms, ns?
 		mw.logger.Infof("GET /info %d", time.Since(begin))
 	}(time.Now())
-	return mw.next.Version()
-}
-
-func (mw LoggingInfoServiceMiddleware) ServiceName() string {
-	return mw.next.ServiceName()
+	return mw.InfoService.Version()
 }
