@@ -16,6 +16,9 @@ type InfoService interface {
 	Version() string
 }
 
+type InfoServiceImpl struct {
+}
+
 type infoRequest struct {
 }
 
@@ -48,9 +51,6 @@ func (InfoServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 
 func (InfoServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 	return httptransport.EncodeJSONResponse
-}
-
-type InfoServiceImpl struct {
 }
 
 func (InfoServiceImpl) ServiceName() string {
