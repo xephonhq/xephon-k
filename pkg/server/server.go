@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/xephonhq/xephon-k/pkg/server/middleware"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 )
 
@@ -11,7 +12,9 @@ type Server struct {
 }
 
 func (Server) Start() {
-	infoSvc := service.InfoServiceImpl{}
+	var infoSvc service.InfoService
+	infoSvc = service.InfoServiceImpl{}
+	infoSvc = middleware.NewLoggingInfoServiceMiddleware(infoSvc)
 	infoSvcHTTPFactory := service.InfoServiceHTTPFactory{}
 
 	infoHandler := httptransport.NewServer(
