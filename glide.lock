@@ -1,5 +1,5 @@
 hash: c8956d2733b11db1ecf27b5221be2d36fb8dd9e9097b5168e3d68e61f6dae24e
-updated: 2017-03-06T16:38:08.058478349-08:00
+updated: 2017-03-06T20:55:33.171369398-08:00
 imports:
 - name: github.com/dyweb/gommon
   version: 7aad4c9c1ff32b9473a816ba27158bf59bfec307
@@ -10,6 +10,14 @@ imports:
 - name: github.com/go-kit/kit
   version: fadad6fffe0466b19df9efd9acde5c9a52df5fa4
   vcs: git
+  subpackages:
+  - endpoint
+  - log
+  - transport/http
+- name: github.com/go-logfmt/logfmt
+  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
+- name: github.com/go-stack/stack
+  version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
 - name: github.com/gocql/gocql
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
   vcs: git
@@ -23,6 +31,8 @@ imports:
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/spf13/cobra
   version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
   vcs: git
@@ -32,6 +42,7 @@ imports:
   version: d379faa25cbdc04d653984913a2ceb43b0bc46d7
   subpackages:
   - context
+  - context/ctxhttp
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 testImports:

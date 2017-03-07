@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/xephonhq/xephon-k/pkg"
+	"github.com/xephonhq/xephon-k/pkg/server"
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
@@ -22,7 +21,9 @@ var RootCmd = &cobra.Command{
 	Short: "Xephon K Daemon",
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Xephon K Daemon:" + pkg.Version + " Use `xkd -h` for more information")
+		// fmt.Println("Xephon K Daemon:" + pkg.Version + " Use `xkd -h` for more information")
+		srv := server.Server{}
+		srv.Start()
 	},
 }
 
