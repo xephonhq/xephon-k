@@ -2,7 +2,7 @@
 
 Won't use
 
-- existing web framework
+- ~~existing web framework~~ now using go-kit
 
 Won't support
 
@@ -26,6 +26,10 @@ Libs may help
 ### Build middleware
 
 - [ ] http://www.alexedwards.net/blog/making-and-using-middleware
+
+### Inner Representation
+
+- [ ] The payload from KairosDB may not work
 
 ## Advanced
 

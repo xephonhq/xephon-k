@@ -45,7 +45,14 @@ handle this properly, may need to add custom unmarshal handler
 - [ ] KairosDB seems to be allowing mixing int and float number, bec[1359788400000, 10]ause it store value using blob
   - [ ] we may need to split int and float into different table, I don't know if cassandra allow mixed float and int,
   and there seems to be little reason for changing from int to float for one series from time to time.
-
+- Prometheus has protobuf and text format
+  - text https://prometheus.io/docs/instrumenting/exposition_formats/
+  - https://github.com/prometheus/prometheus/blob/master/storage/remote/remote.proto
+- InfluxDB use line protocol
+  - https://docs.influxdata.com/influxdb/v1.2//tools/api/#write
+- OpenTSDB use straight forward json, (which is really verbose ....)
+  - http://opentsdb.net/docs/build/html/api_http/put.html
+   
 ````json
 [
     {

@@ -3,6 +3,8 @@ install:
   # - go install ./pkg/bin/xnaive
   # - go install ./pkg/bin/xbucket
   # - go install ./pkg/bin/xapi
+test:
+  - go test -v -cover ./pkg/...
 scripts:
   runc:
     - docker run --name tsdb-cassandra -p 9042:9042 -d cassandra:3.9
