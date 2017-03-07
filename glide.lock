@@ -1,8 +1,14 @@
-hash: a432a762b8886378189208630f9670e2cd25a06118ccd6fcee1c8cc8a1d54c5a
-updated: 2017-02-05T09:37:36.179889161-08:00
+hash: c8956d2733b11db1ecf27b5221be2d36fb8dd9e9097b5168e3d68e61f6dae24e
+updated: 2017-03-06T16:38:08.058478349-08:00
 imports:
 - name: github.com/dyweb/gommon
   version: 7aad4c9c1ff32b9473a816ba27158bf59bfec307
+  vcs: git
+  subpackages:
+  - log
+  - structure
+- name: github.com/go-kit/kit
+  version: fadad6fffe0466b19df9efd9acde5c9a52df5fa4
   vcs: git
 - name: github.com/gocql/gocql
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
@@ -12,14 +18,18 @@ imports:
   - internal/murmur
   - internal/streams
 - name: github.com/golang/snappy
-  version: 7db9049039a047d955fe8c19b83c8ff5abd765c7
+  version: 553a641470496b2327abcac10b36396bd98e45c9
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/spf13/cobra
   version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
   vcs: git
+- name: github.com/spf13/pflag
+  version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
 - name: golang.org/x/net
-  version: 41bba8d80bbfab43231ffdf4c210037baae5f6a3
+  version: d379faa25cbdc04d653984913a2ceb43b0bc46d7
   subpackages:
   - context
 - name: gopkg.in/inf.v0
