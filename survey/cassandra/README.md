@@ -30,12 +30,19 @@ Datastax
       - [ ] NOTE: I think the security policy of Fedora makes it hard to play with docker ....
   - [ ] [Metric Collection and Storage with Cassandra](http://www.datastax.com/dev/blog/metric-collection-and-storage-with-cassandra)
     - Datastax has OpsCenter for monitoring Cassandra, though it is not open source, and no longer support OSS version of C*
-
-stackoverflow
+  - [ ] [Getting Started with Time Series Data Modeling](https://academy.datastax.com/resources/getting-started-time-series-data-modeling)
+    - partition
+    - reverse order (order by time desc) and let old data expire
+    
+StackOverflow
 
 - [ ] http://stackoverflow.com/questions/24949676/difference-between-partition-key-composite-key-and-clustering-key-in-cassandra
 - [ ] http://stackoverflow.com/questions/15857779/commitlog-and-sstables-in-cassandra-database
   - it tells sstable structure
+  
+Spark 
+
+- [ ] https://databricks.gitbooks.io/databricks-spark-reference-applications/timeseries/index.html
 
 Other blogs
 
