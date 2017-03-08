@@ -1,7 +1,7 @@
 package common
 
 type IntSeries struct {
-	name   string
-	tags   map[string]string
-	points []IntPoint
+	Name   string            `json:"name"`
+	Tags   map[string]string `json:"tags"`
+	Points []IntPoint        `json:"points"`
 }
