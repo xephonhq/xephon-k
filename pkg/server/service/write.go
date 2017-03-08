@@ -49,8 +49,11 @@ func (WriteServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 
 func (WriteServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		// TODO: do I need to allocate space?
+		// NOTE: do I need to allocate space? no
 		var series []common.IntSeries
+		// FIXME: go-kit does not handle decode error?
+		// https://github.com/xephonhq/xephon-k/issues/6
+		// https://github.com/go-kit/kit/issues/133
 		if err := json.NewDecoder(r.Body).Decode(&series); err != nil {
 			return nil, err
 		}

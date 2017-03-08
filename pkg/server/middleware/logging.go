@@ -6,7 +6,10 @@ import (
 	dlog "github.com/dyweb/gommon/log"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/util"
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
+
+var logger = util.Logger.NewEntryWithPkg("k.s.m")
 
 type LoggingInfoServiceMiddleware struct {
 	service.InfoService
@@ -14,7 +17,6 @@ type LoggingInfoServiceMiddleware struct {
 }
 
 func NewLoggingInfoServiceMiddleware(service service.InfoService) LoggingInfoServiceMiddleware {
-	logger := util.Logger.NewEntryWithPkg("k.s.m")
 	return LoggingInfoServiceMiddleware{InfoService: service, logger: logger}
 }
 
@@ -26,4 +28,21 @@ func (mw LoggingInfoServiceMiddleware) Version() string {
 		mw.logger.Infof("GET /info %d", time.Since(begin))
 	}(time.Now())
 	return mw.InfoService.Version()
+}
+
+type LoggingWriteServiceMiddleware struct {
+	service.WriteService
+	logger *dlog.Entry
+}
+
+func NewLoggingWriteServiceMiddleware(service service.WriteService) LoggingWriteServiceMiddleware {
+	return LoggingWriteServiceMiddleware{WriteService: service, logger: logger}
+}
+
+func (mw LoggingWriteServiceMiddleware) WriteInt(series []common.IntSeries) error {
+	defer func(begin time.Time) {
+		// TODO: human readable time format, what's the number, ms, ns?
+		mw.logger.Infof("POST /write %d", time.Since(begin))
+	}(time.Now())
+	return mw.WriteService.WriteInt(series)
 }

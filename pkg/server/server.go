@@ -25,6 +25,7 @@ func (Server) Start() {
 
 	var writeSvc service.WriteService
 	writeSvc = service.WriteServiceImpl{}
+	writeSvc = middleware.NewLoggingWriteServiceMiddleware(writeSvc)
 	writeSvcHTTPFactory := service.WriteServiceHTTPFactory{}
 
 	writeHandler := httptransport.NewServer(
