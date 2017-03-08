@@ -23,7 +23,18 @@ func (Server) Start() {
 		infoSvcHTTPFactory.MakeEncode(),
 	)
 
+	var writeSvc service.WriteService
+	writeSvc = service.WriteServiceImpl{}
+	writeSvcHTTPFactory := service.WriteServiceHTTPFactory{}
+
+	writeHandler := httptransport.NewServer(
+		writeSvcHTTPFactory.MakeEndpoint(writeSvc),
+		writeSvcHTTPFactory.MakeDecode(),
+		writeSvcHTTPFactory.MakeEncode(),
+	)
+
 	http.Handle("/info", infoHandler)
+	http.Handle("/write", writeHandler)
 	log.Infof("start serving on 0.0.0.0:%d", 8080)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

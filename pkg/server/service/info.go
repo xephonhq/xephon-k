@@ -3,7 +3,6 @@ package service
 // NOTE: the example on go kit website is outdated
 import (
 	"context"
-	"log"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
