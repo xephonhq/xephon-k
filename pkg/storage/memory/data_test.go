@@ -24,7 +24,6 @@ func TestIntSeriesStore_WriteSeries(t *testing.T) {
 	ps2 := []common.IntPoint{p3, p4}
 	s2 := common.IntSeries{Name: "cpi", Tags: tags, Points: ps2}
 	store.WriteSeries(s2)
-	// FIXME: this test broke
 	asst.Equal(4, store.length)
 }
 
