@@ -24,7 +24,7 @@ func (Server) Start() {
 	)
 
 	var writeSvc service.WriteService
-	writeSvc = service.WriteServiceImpl{}
+	writeSvc = service.NewWriteServiceImpl()
 	writeSvc = middleware.NewLoggingWriteServiceMiddleware(writeSvc)
 	writeSvcHTTPFactory := service.WriteServiceHTTPFactory{}
 
