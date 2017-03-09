@@ -9,11 +9,14 @@ import (
 
 var initPointsLength = 100
 
+// SeriesID is a hash result of metric name and tags
 type SeriesID string
 
+// Data is a map using SeriesID as key
 // TODO: should be able to allow double etc later
 type Data map[SeriesID]IntSeriesStore
 
+// IntSeriesStore protects the underlying IntSeries with a RWMutex
 type IntSeriesStore struct {
 	mu     sync.RWMutex
 	series common.IntSeries

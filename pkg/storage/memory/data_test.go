@@ -27,7 +27,8 @@ func TestIntSeriesStore_WriteSeries(t *testing.T) {
 	asst.Equal(4, store.length)
 }
 
-func TestStructSliceAssign(t *testing.T) {
+// TestGoSemantics_StructSliceAssign tests if assign a new slice to a member in struct will work, it works
+func TestGoSemantics_StructSliceAssign(t *testing.T) {
 	store := NewIntSeriesStore()
 	tags := make(map[string]string)
 	tags["os"] = "ubuntu"
