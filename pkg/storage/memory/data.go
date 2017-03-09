@@ -50,15 +50,15 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 			i++
 		} else if store.series.Points[i].TimeNano == newSeries.Points[j].TimeNano {
 			// if there is duplicate, overwrite the old point with new point
-			points[k] = store.series.Points[j]
+			points[k] = newSeries.Points[j]
 			i++
 			j++
 		} else {
-			points[k] = store.series.Points[j]
+			points[k] = newSeries.Points[j]
 			j++
 		}
 		// FIXME: this is zero
-		log.Infof("%v", points[k].TimeNano)
+		log.Infof("value in loop is %v", points[k].TimeNano)
 		k++
 	}
 	log.Infof("i %d j %d k %d", i, j, k)
@@ -67,13 +67,14 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	// copy what is left, should only have one array left
 	// https://github.com/golang/go/wiki/SliceTricks
 	if i < oldLength {
-
-		points = append(points, store.series.Points[i:]...)
+		// TODO: now I think it's the append causing the problem
+		// FIXED: should cut ... instead of simply append
+		points = append(points[:k], store.series.Points[i:]...)
 		// TODO: will there be +1 problem?
 		store.length = k + oldLength - i
 	}
 	if j < newLength {
-		points = append(points, newSeries.Points[j:]...)
+		points = append(points[:k], newSeries.Points[j:]...)
 		store.length = k + newLength - j
 	}
 	log.Infof("length %d", store.length)
