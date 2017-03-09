@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/stretchr/testify/assert"
+	"sort"
 )
 
 func TestIntPoint_MarshalJSON(t *testing.T) {
@@ -30,4 +31,17 @@ func TestIntPoint_UnmarshalJSON(t *testing.T) {
 	err = json.Unmarshal(j, &p2)
 	asst.Nil(err)
 	asst.Equal(p, p2)
+}
+
+
+func TestByTime_Less(t *testing.T) {
+	asst := assert.New(t)
+	p1 := IntPoint{TimeNano: 1359788400000, V: 1}
+	p2 := IntPoint{TimeNano: 1359788401000, V: 1}
+	p3 := IntPoint{TimeNano: 1359788400200, V: 1}
+	p4 := IntPoint{TimeNano: 1459788400000, V: 1}
+	p := []IntPoint{p2, p1, p4, p3}
+	sort.Sort(ByTime(p))
+	asst.Equal(int64(1359788400000), p[0].TimeNano)
+	asst.Equal(int64(1459788400000), p[3].TimeNano)
 }

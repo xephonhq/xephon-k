@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 )
 
+// IntPoint is a time, int pair but encoded as array in JSON format for space efficiency
 // http://attilaolah.eu/2013/11/29/json-decoding-in-go/
-
 type IntPoint struct {
 	TimeNano int64
 	V        int
 }
 
+// MarshalJSON implements Marshaler interface
 // https://golang.org/pkg/encoding/json/#Marshaler
 func (p *IntPoint) MarshalJSON() ([]byte, error) {
 	// FIXME: I think there is way for not casting value to int64, maybe use sprinf
@@ -18,9 +19,7 @@ func (p *IntPoint) MarshalJSON() ([]byte, error) {
 	//return json.Marshal([2]json.Number{p.TimeNano, int64(p.V)})
 }
 
-// TODO: UseNumber seems only work for decoder https://golang.org/pkg/encoding/json/#Decoder.UseNumber
-
-// TODO: unmarshaler does not return value?
+// UnmarshalJSON implements Unmarshaler interface
 // https://golang.org/pkg/encoding/json/#Unmarshaler
 func (p *IntPoint) UnmarshalJSON(data []byte) error {
 	var tv [2]json.Number
@@ -39,4 +38,23 @@ func (p *IntPoint) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+// ByTime implements Sort interface for IntPoint
+// https://golang.org/pkg/sort/
+type ByTime []IntPoint
+
+// Len implements Sort interface
+func (p ByTime) Len() int {
+	return len(p)
+}
+
+// Swap implements Sort interface
+func (p ByTime) Swap(i int, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+// Less implements Sort interface
+func (p ByTime) Less(i int, j int) bool {
+	return p[i].TimeNano < p[j].TimeNano
 }

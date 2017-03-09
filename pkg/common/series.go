@@ -5,3 +5,4 @@ type IntSeries struct {
 	Tags   map[string]string `json:"tags"`
 	Points []IntPoint        `json:"points"`
 }
+
