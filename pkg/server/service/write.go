@@ -8,6 +8,8 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/xephonhq/xephon-k/pkg/storage"
+	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 )
 
 type WriteService interface {
@@ -17,6 +19,7 @@ type WriteService interface {
 
 // WriteServiceImpl is the server implementation of WriteService
 type WriteServiceImpl struct {
+	store storage.Store
 }
 
 type writeRequest struct {
@@ -26,6 +29,7 @@ type writeRequest struct {
 type writeResponse struct {
 }
 
+// WriteServiceHTTPFactory is used to create the endpoint, encode, decode
 type WriteServiceHTTPFactory struct {
 }
 
@@ -65,10 +69,17 @@ func (WriteServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 	return httptransport.EncodeJSONResponse
 }
 
+func NewWriteServiceImpl() *WriteServiceImpl {
+	store := memory.NewMemStore()
+	return &WriteServiceImpl{store: store}
+}
+
 func (WriteServiceImpl) ServiceName() string {
 	return "write"
 }
 
 func (ws WriteServiceImpl) WriteInt(series []common.IntSeries) error {
-	return nil
+	// write to memory storage
+	// NOTE: maybe we should wrap error instead of just return it
+	return ws.store.WriteIntSeries(series)
 }
