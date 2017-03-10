@@ -10,6 +10,8 @@ scripts:
     - docker run --name tsdb-cassandra -p 9042:9042 -d cassandra:3.9
   start:
     - docker start tsdb-cassandra
+  f:
+    - gofmt -d -l -w ./pkg
   d:
     - sh -c "xkd"
   naive:

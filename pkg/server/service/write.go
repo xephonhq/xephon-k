@@ -61,6 +61,7 @@ func (WriteServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 		if err := json.NewDecoder(r.Body).Decode(&series); err != nil {
 			return nil, err
 		}
+		log.Infof("got %d series after decode ", len(series))
 		return writeRequest{series: series}, nil
 	}
 }

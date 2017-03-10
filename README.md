@@ -1,5 +1,7 @@
 # xephon-k
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/xephonhq/xephon-k)](https://goreportcard.com/report/github.com/xephonhq/xephon-k)
+
 A time series database using Cassandra as backend, modeled after KairosDB
 
 ## Roadmap

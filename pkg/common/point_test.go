@@ -33,7 +33,6 @@ func TestIntPoint_UnmarshalJSON(t *testing.T) {
 	asst.Equal(p, p2)
 }
 
-
 func TestByTime_Less(t *testing.T) {
 	asst := assert.New(t)
 	p1 := IntPoint{TimeNano: 1359788400000, V: 1}

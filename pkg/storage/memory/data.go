@@ -23,17 +23,20 @@ type IntSeriesStore struct {
 	length int
 }
 
+// NewIntSeriesStore creates a IntSeriesStore
 func NewIntSeriesStore() *IntSeriesStore {
 	series := common.IntSeries{}
 	series.Points = make([]common.IntPoint, initPointsLength)
 	return &IntSeriesStore{series: series, length: 0}
 }
 
+// WriteSeries merges the new series with existing one and replace old points with new points if their timestamp matches
 func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
 	// merge the old series with new series
+	// TODO: check if they are the same series
 	// TODO: efficient merge sort
 	// TODO: actually we can remove duplicate when merge by comparing with previous point
 

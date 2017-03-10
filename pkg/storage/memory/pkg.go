@@ -30,7 +30,26 @@ func (store Store) StoreType() string {
 
 // WriteIntSeries implements Store interface
 func (store Store) WriteIntSeries(series []common.IntSeries) error {
+	// FIXME: it seems it is an empty series ...
 	// TODO: find the right series and write to it
+	for _, oneSeries := range series {
+		id := SeriesID(oneSeries.Hash())
+		// TODO: this logic should be moved to data
+		seriesStore, ok := store.data[id]
+		if ok {
+			log.Info("merge with existing series")
+			seriesStore.WriteSeries(oneSeries)
+		} else {
+			log.Info("create new entry in map")
+			// FIXME: unify pointer and value
+			store.data[id] = *NewIntSeriesStore()
+			// FIXED: http://stackoverflow.com/questions/32751537/why-do-i-get-a-cannot-assign-error-when-setting-value-to-a-struct-as-a-value-i
+			// store.data[id].series = oneSeries
+			seriesStore = store.data[id]
+			seriesStore.series = oneSeries
+		}
+	}
+
 	log.Info("need to write sth!")
 	return nil
 }
