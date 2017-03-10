@@ -9,12 +9,29 @@ import (
 
 var initPointsLength = 100
 
-// SeriesID is a hash result of metric name and tags
+// SeriesID is hash result of metric name and (sorted) tags
 type SeriesID string
 
 // Data is a map using SeriesID as key
 // TODO: should be able to allow double etc later
-type Data map[SeriesID]IntSeriesStore
+type Data map[SeriesID]*IntSeriesStore
+
+// WriteIntSeries create the entry if it does not exist, otherwise merge with existing
+// TODO: return error
+func (data Data) WriteIntSeries(id SeriesID, series common.IntSeries) {
+	seriesStore, ok := data[id]
+	if ok {
+		log.Info("mem:data merge with existing series")
+		seriesStore.WriteSeries(series)
+	} else {
+		log.Info("mem:data create new entry in map")
+		data[id] = NewIntSeriesStore()
+		// FIXED: http://stackoverflow.com/questions/32751537/why-do-i-get-a-cannot-assign-error-when-setting-value-to-a-struct-as-a-value-i
+		// store.data[id].series = oneSeries
+		seriesStore = data[id]
+		seriesStore.series = series
+	}
+}
 
 // IntSeriesStore protects the underlying IntSeries with a RWMutex
 type IntSeriesStore struct {
@@ -31,6 +48,7 @@ func NewIntSeriesStore() *IntSeriesStore {
 }
 
 // WriteSeries merges the new series with existing one and replace old points with new points if their timestamp matches
+// TODO: what happens when no memory is available? maybe this function should return error
 func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
