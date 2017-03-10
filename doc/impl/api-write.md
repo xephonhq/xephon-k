@@ -16,6 +16,46 @@ handle this properly, may need to add custom unmarshal handler
   - http://opentsdb.net/docs/build/html/api_http/put.html
 - Heroic use JSON
 
+## Xephon-K
+
+An array of series, see `common/series.go`
+
+- currently, all data are treated as int
+- client don't need to sort it
+- old date can come in
+- duplication between the existing in memory series and the new series is handled
+- duplication inside a series is not handled
+
+````json
+[
+  {
+      "name": "archive_file_tracked",
+      "tags": {
+          "host": "server1",
+          "data_center": "DC1"
+      },
+      "points": [[1359788400000, 123], [1359788300000, 13], [1359788410000, 23]],
+  },
+  {
+      "name": "wa_la_la_la",
+      "tags": {
+          "host": "server2",
+          "data_center": "DC1"
+      },
+      "points": [[1359788400000, 123], [1359788300000, 13], [1359788410000, 23]],
+  }
+]
+````
+
+- [ ] TODO: Response should have more detail, also the duplication inside and between series
+
+````
+{
+    "error": true,
+    "error_msg": "I don't know the detail"
+}
+````
+
 ## JSON KairosDB & Heoric & OpenTSDB
 
 KairosDB

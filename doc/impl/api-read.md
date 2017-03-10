@@ -1,5 +1,91 @@
 # API Read format
 
+## Xephon-K
+
+- [ ] not support group by
+- [ ] not support down sampling
+- support multiple series in one query
+- for filte by tag, there are two modes
+  - exact, the tags must be exactly the same, a.k.a, there should be only one series matching it
+  - contains, there could be more than one series matching it
+- [ ] actually we should tell the client which query result in which result(s)
+  - [ ] maybe we can generate a id for each query?, though using matched and keep the result sorted as the query also works
+
+````json
+{
+  "start_time": 1364968800000,
+  "end_time": 1364968801000,
+  "queries": [
+    {
+      "name": "cpu.idle",
+      "tags": {
+        "os": "ubuntu"
+      },
+      "match_policy": "exact"
+    },
+    {
+      "name": "mem.free",
+      "tags": {
+        "os": "ubuntu"
+      },
+      "match_policy": "contains"
+    }
+  ]
+}
+````
+
+````json
+{
+  "error": false,
+  "error_msg": "",
+  "queries": [
+    {
+      "name": "cpu.idle",
+      "tags": {
+        "os": "ubuntu",
+        "kernel": "4.8"
+      },
+      "match_policy": "exact",
+      "matched": 1
+    },
+    {
+      "name": "mem.free",
+      "tags": {
+        "os": "ubuntu"
+      },
+      "match_policy": "contains",
+      "matched": 2
+    }
+  ],
+  "results": [
+    {
+      "name": "cpu.idle",
+      "tags": {
+        "os": "ubuntu",
+        "kernel": "4.8"
+      },
+      "points": [[1364968800000, 11019], [1364968801000, 1300]]
+    },
+    {
+      "name": "mem.free",
+      "tags": {
+        "os": "ubuntu",
+        "kernel": "4.8",
+      },
+      "points": [[1364968800000, 11019], [1364968801000, 1300]]
+    },
+    {
+      "name": "mem.free",
+      "tags": {
+        "os": "ubuntu",
+        "kernel": "4.4",
+      },
+      "points": [[1364968800000, 11019], [1364968801000, 1300]]
+    }
+  ]
+}
+````
+
 ## JSON KairosDB & Heoric & OpenTSDB
 
 Some common characteristic of them
@@ -61,6 +147,54 @@ KairosDB
            ]
        }
    ]
+}
+````
+
+````json
+{
+  "queries": [
+      {
+          "sample_size": 14368,
+          "results": [
+              {
+                  "name": "abc_123",
+                  "group_by": [
+                      {
+                         "name": "type",
+                         "type": "number"
+                      },
+                      {
+                         "name": "tag",
+                         "tags": [
+                             "host"
+                         ],
+                        "group": {
+                             "host": "server1"
+                        }
+                      }
+                  ],
+                  "tags": {
+                      "host": [
+                          "server1"
+                      ],
+                      "customer": [
+                          "bar"
+                      ]
+                  },
+                  "values": [
+                      [
+                          1364968800000,
+                          11019
+                      ],
+                      [
+                          1366351200000,
+                          2843
+                      ]
+                  ]
+              }
+         ]
+     }
+  ]
 }
 ````
 
