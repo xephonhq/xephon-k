@@ -16,12 +16,12 @@ handle this properly, may need to add custom unmarshal handler
   - http://opentsdb.net/docs/build/html/api_http/put.html
 - Heroic use JSON
 
-## JSON KairosDB & OpenTSDB
+## JSON KairosDB & Heoric & OpenTSDB
 
 KairosDB
 
 - http://kairosdb.github.io/docs/build/html/restapi/AddDataPoints.html
-- serialize <time, value> as array instead of object 
+- serialize <time, value> as array instead of object
 
 ````json
 [
@@ -70,7 +70,7 @@ KairosDB
 }
 ````
 
-Heoric 
+Heoric
 
 - https://spotify.github.io/heroic/#!/docs/api/post-write
 - its JSON format for <time, value> is same as KairosDB
