@@ -26,7 +26,10 @@ type writeRequest struct {
 	series []common.IntSeries
 }
 
+// TODO: actually we could also tell the client about how many points are written and the duplication etc.
 type writeResponse struct {
+	Error    bool   `json:"error"`
+	ErrorMsg string `json:"error_msg"`
 }
 
 // WriteServiceHTTPFactory is used to create the endpoint, encode, decode
@@ -34,7 +37,7 @@ type WriteServiceHTTPFactory struct {
 }
 
 func (WriteServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
-	writeScv, ok := service.(WriteService)
+	writeSvc, ok := service.(WriteService)
 	if !ok {
 		log.Panic("must pass write service to write service factory")
 	}
@@ -43,11 +46,14 @@ func (WriteServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 		if !ok {
 			log.Panic("should be writeRequest")
 		}
-		err := writeScv.WriteInt(req.series)
+		res := writeResponse{Error: false, ErrorMsg: ""}
+		err := writeSvc.WriteInt(req.series)
 		if err != nil {
-			return nil, err
+			res.Error = true
+			res.ErrorMsg = err.Error()
+			return res, nil
 		}
-		return writeResponse{}, nil
+		return res, nil
 	}
 }
 

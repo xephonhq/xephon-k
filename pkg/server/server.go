@@ -34,8 +34,20 @@ func (Server) Start() {
 		writeSvcHTTPFactory.MakeEncode(),
 	)
 
+	var readSvc service.ReadService
+	readSvc = service.NewReadServiceImpl()
+	readSvc = middleware.NewLoggingReadServiceMiddleware(readSvc)
+	readSvcHTTPFactory := service.ReadServiceHTTPFactory{}
+
+	readHandler := httptransport.NewServer(
+		readSvcHTTPFactory.MakeEndpoint(readSvc),
+		readSvcHTTPFactory.MakeDecode(),
+		readSvcHTTPFactory.MakeEncode(),
+	)
+
 	http.Handle("/info", infoHandler)
 	http.Handle("/write", writeHandler)
+	http.Handle("/read", readHandler)
 	log.Infof("start serving on 0.0.0.0:%d", 8080)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

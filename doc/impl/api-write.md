@@ -62,6 +62,14 @@ KairosDB
 ]
 ````
 
+````json
+{
+  "errors": [
+    "Connect to 10.92.4.1:4242 timed out"
+  ]
+}
+````
+
 Heoric 
 
 - https://spotify.github.io/heroic/#!/docs/api/post-write
@@ -74,6 +82,13 @@ Heoric
   "data": {"type": "points", "data": [[1300000000000, 42.0], [1300001000000, 84.0]]}
 }
 ````
+
+````json
+{
+  "ok": true
+}
+````
+
 OpenTSDB
 
 - http://opentsdb.net/docs/build/html/api_http/put.html
@@ -100,4 +115,24 @@ OpenTSDB
         }
     }
 ]
+````
+
+````json
+{
+    "errors": [
+        {
+            "datapoint": {
+                "metric": "sys.cpu.nice",
+                "timestamp": 1365465600,
+                "value": "NaN",
+                "tags": {
+                    "host": "web01"
+                }
+            },
+            "error": "Unable to parse value to a number"
+        }
+    ],
+    "failed": 1,
+    "success": 0
+}
 ````

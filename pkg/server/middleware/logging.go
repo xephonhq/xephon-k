@@ -46,3 +46,12 @@ func (mw LoggingWriteServiceMiddleware) WriteInt(series []common.IntSeries) erro
 	}(time.Now())
 	return mw.WriteService.WriteInt(series)
 }
+
+type LoggingReadServiceMiddleware struct {
+	service.ReadService
+	logger *dlog.Entry
+}
+
+func NewLoggingReadServiceMiddleware(service service.ReadService) LoggingReadServiceMiddleware {
+	return LoggingReadServiceMiddleware{ReadService: service, logger: logger}
+}
