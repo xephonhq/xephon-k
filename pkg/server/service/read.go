@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage"
-	"net/http"
 )
 
 type ReadService interface {
@@ -17,9 +19,15 @@ type ReadServiceImpl struct {
 }
 
 type readRequest struct {
+	StartTime int64          `json:"start_time,omitempty"`
+	EndTime   int64          `json:"end_time,omitempty"`
+	Queries   []common.Query `json:"queries"`
 }
 
 type readResponse struct {
+	Error    bool                 `json:"error"`
+	ErrorMsg string               `json:"error_msg"`
+	Queries  []common.QueryResult `json:"queries"` // TODO: maybe we should name it as query result?
 }
 
 type ReadServiceHTTPFactory struct {
