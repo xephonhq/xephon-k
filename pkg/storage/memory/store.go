@@ -29,7 +29,7 @@ func (store Store) StoreType() string {
 func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error) {
 	series := make([]common.IntSeries, 0)
 	// TODO: use switch and not hard coded string
-	if query.MatchPolicy == "exactly" {
+	if query.MatchPolicy == "exact" {
 		// fetch the series
 		// TODO: should we make a copy of the points, what would happen if there are
 		// write when we are encoding it to json
@@ -44,6 +44,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		}
 		return series, nil
 	}
+	log.Warn("not exact match is not supported!")
 	// TODO: query the index to do the filter
 	return series, nil
 }

@@ -24,6 +24,7 @@ func (data Data) WriteIntSeries(id SeriesID, series common.IntSeries) {
 		log.Info("mem:data merge with existing series")
 		seriesStore.WriteSeries(series)
 	} else {
+		// TODO: log the tags, at least metric name
 		log.Info("mem:data create new entry in map")
 		data[id] = NewIntSeriesStore()
 		// FIXED: http://stackoverflow.com/questions/32751537/why-do-i-get-a-cannot-assign-error-when-setting-value-to-a-struct-as-a-value-i
