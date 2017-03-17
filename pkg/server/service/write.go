@@ -77,7 +77,8 @@ func (WriteServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 }
 
 func NewWriteServiceImpl() *WriteServiceImpl {
-	store := memory.NewMemStore()
+	// FIXME: it should be a singleton
+	store := memory.GetDefaultMemStore()
 	return &WriteServiceImpl{store: store}
 }
 

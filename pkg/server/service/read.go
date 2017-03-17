@@ -8,10 +8,12 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage"
+	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 )
 
 type ReadService interface {
 	Service
+	QueryInt(q common.Query) []common.IntSeries
 }
 
 type ReadServiceImpl struct {
@@ -34,15 +36,22 @@ type ReadServiceHTTPFactory struct {
 }
 
 func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
-	_, ok := service.(ReadService)
-	//readSvc, ok := service.(ReadService)
+	//_, ok := service.(ReadService)
+	readSvc, ok := service.(ReadService)
 	if !ok {
 		log.Panic("must pass read service to read service factory")
 	}
 	return func(_ context.Context, request interface{}) (interface{}, error) {
-		_, ok := request.(readRequest)
+		req, ok := request.(readRequest)
 		if !ok {
 			log.Panic("should be readRequest")
+		}
+		// for all the queries query the data
+		results := []common.IntSeries{}
+		for _, query := range req.Queries {
+			// merge it
+			// http://stackoverflow.com/questions/16248241/concatenate-two-slices-in-go
+			results = append(results, readSvc.QueryInt(query)...)
 		}
 		res := readResponse{}
 		return res, nil
@@ -61,9 +70,20 @@ func (ReadServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 }
 
 func NewReadServiceImpl() *ReadServiceImpl {
-	return &ReadServiceImpl{}
+	// TODO: use the shared memory store
+	store := memory.GetDefaultMemStore()
+	return &ReadServiceImpl{store: store}
 }
 
 func (ReadServiceImpl) ServiceName() string {
 	return "read"
+}
+
+func (rs ReadServiceImpl) QueryInt(q common.Query) []common.IntSeries {
+	series, err := rs.store.QueryIntSeries(q)
+	// TODO: better error handling
+	if err != nil {
+		log.Warn(err)
+	}
+	return series
 }

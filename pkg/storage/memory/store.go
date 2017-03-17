@@ -2,7 +2,29 @@ package memory
 
 import (
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"sync"
 )
+
+// singleton
+var storeMap memStoreMap
+
+// MemStore need to be shared between read and write services
+type memStoreMap struct {
+	mu     sync.RWMutex
+	stores map[string]*Store
+}
+
+func init() {
+	// e... it's really messy when code grows larger in golang
+	storeMap.stores = make(map[string]*Store, 1)
+	storeMap.stores["default"] = NewMemStore()
+}
+
+func GetDefaultMemStore() *Store {
+	storeMap.mu.RLock()
+	defer storeMap.mu.RUnlock()
+	return storeMap.stores["default"]
+}
 
 // Store is the in memory storage with data and index
 type Store struct {
