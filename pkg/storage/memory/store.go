@@ -40,7 +40,9 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		oneSeries, ok := store.data[seriesID]
 		if ok {
 			// TODO: apply the time range filter
-			series = append(series, oneSeries.series)
+			//series = append(series, oneSeries.series)
+			// TODO: use the start and end time from query
+			series = append(series, *oneSeries.ReadSeries(0, 1447884000020))
 		}
 		return series, nil
 	}
@@ -53,6 +55,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 func (store Store) WriteIntSeries(series []common.IntSeries) error {
 	for _, oneSeries := range series {
 		id := SeriesID(oneSeries.Hash())
+		// TODO: this should return error and we should handle it somehow
 		store.data.WriteIntSeries(id, oneSeries)
 		// TODO: write the index
 	}

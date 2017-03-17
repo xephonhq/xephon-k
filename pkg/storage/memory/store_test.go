@@ -1,10 +1,10 @@
 package memory
 
 import (
-	"testing"
 	"fmt"
-	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/stretchr/testify/assert"
+	"github.com/xephonhq/xephon-k/pkg/common"
+	"testing"
 )
 
 func createDummySeries() []common.IntSeries {
@@ -39,4 +39,7 @@ func TestStore_QueryIntSeries(t *testing.T) {
 	returnedSeries, err := store.QueryIntSeries(qExact)
 	asst.Nil(err)
 	asst.Equal(1, len(returnedSeries))
+	// FIXME: the store length is zero
+	asst.Equal(1, len(returnedSeries[0].Points))
+	log.Info(returnedSeries[0].Points[0].TimeNano)
 }
