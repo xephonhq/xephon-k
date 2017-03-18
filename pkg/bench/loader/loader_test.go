@@ -3,6 +3,7 @@ package loader
 import (
 	"context"
 	"github.com/xephonhq/xephon-k/pkg/bench"
+	"github.com/xephonhq/xephon-k/pkg/bench/reporter"
 	"testing"
 	"time"
 )
@@ -11,8 +12,8 @@ func TestHTTPLoader_Run(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skip loader run test")
 	}
-	//ld := NewHTTPLoader(NewConfig(bench.DBInfluxDB))
-	ld := NewHTTPLoader(NewConfig(bench.DBXephonK))
+	//ld := NewHTTPLoader(NewConfig(bench.DBInfluxDB), &reporter.NullReporter{}) // 143
+	ld := NewHTTPLoader(NewConfig(bench.DBXephonK), &reporter.NullReporter{}) // 8928
 	ld.Run()
 }
 

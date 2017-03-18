@@ -30,9 +30,3 @@ func NewConfig(targetDB int) Config {
 		TargetDB:  targetDB,
 	}
 }
-
-type result struct {
-	err      error
-	code     int
-	duration time.Duration
-}

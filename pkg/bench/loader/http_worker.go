@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type HTTPWorker struct {
@@ -17,14 +18,16 @@ type HTTPWorker struct {
 	ctx         context.Context
 	tr          *http.Transport
 	baseRequest *http.Request
+	metricChan  chan *bench.RequestMetric
 }
 
-func NewHTTPWorker(config Config, ctx context.Context, baseReq *http.Request, tr *http.Transport) *HTTPWorker {
+func NewHTTPWorker(config Config, ctx context.Context, baseReq *http.Request, tr *http.Transport, c chan *bench.RequestMetric) *HTTPWorker {
 	return &HTTPWorker{
 		config:      config,
 		ctx:         ctx,
 		baseRequest: baseReq,
 		tr:          tr,
+		metricChan:  c,
 	}
 }
 
@@ -59,6 +62,7 @@ func (worker *HTTPWorker) work() {
 			var data []byte
 			data = serializer.WriteInt(series)
 
+			result := &bench.RequestMetric{Start: time.Now()}
 			req := new(http.Request)
 			// copy base request
 			*req = *worker.baseRequest
@@ -70,8 +74,12 @@ func (worker *HTTPWorker) work() {
 				io.Copy(ioutil.Discard, res.Body)
 				res.Body.Close()
 			}
-			// TODO: timing
-			// TODO: return result
+			if res != nil {
+				result.Code = res.StatusCode
+			}
+			result.Err = err
+			result.End = time.Now()
+			worker.metricChan <- result
 		}
 	}
 }
