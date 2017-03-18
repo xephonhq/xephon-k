@@ -35,6 +35,8 @@ func (worker *HTTPWorker) work() {
 	switch worker.config.TargetDB {
 	case bench.DBInfluxDB:
 		serializer = &serialize.InfluxDBSerialize{}
+	case bench.DBXephonK:
+		serializer = &serialize.XephonKSerialize{}
 	default:
 		log.Panic("unsupported database, not serailizer avaliable")
 		return

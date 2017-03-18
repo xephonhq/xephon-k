@@ -28,6 +28,13 @@ func (loader *HTTPLoader) Run() {
 			return
 		}
 		baseReq = req
+	case bench.DBXephonK:
+		req, err := http.NewRequest("POST", "http://localhost:8080/write", nil)
+		if err != nil {
+			log.Panic(err)
+			return
+		}
+		baseReq = req
 	default:
 		log.Panic("unsupported database, no base request avaliable")
 		return

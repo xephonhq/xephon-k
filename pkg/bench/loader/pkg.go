@@ -1,7 +1,6 @@
 package loader
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/bench"
 	"github.com/xephonhq/xephon-k/pkg/util"
 	"time"
 )
@@ -20,7 +19,7 @@ type Config struct {
 	TargetDB  int
 }
 
-func NewConfig() Config {
+func NewConfig(targetDB int) Config {
 	return Config{
 		//Duration:  time.Duration(1) * time.Minute,
 		Duration:  time.Duration(5) * time.Second,
@@ -28,7 +27,7 @@ func NewConfig() Config {
 		WorkerNum: 10,
 		QPS:       0,
 		Timeout:   time.Duration(30) * time.Second,
-		TargetDB:  bench.DBInfluxDB,
+		TargetDB:  targetDB,
 	}
 }
 
