@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+func TestHTTPLoader_Run(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skip loader run test")
+	}
+	ld := NewHTTPLoader(NewConfig())
+	ld.Run()
+}
+
 func testWorkWithContext(ctx context.Context) {
 	select {
 	case <-ctx.Done():
