@@ -63,11 +63,12 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 			// TODO: apply the time range filter
 			//series = append(series, oneSeries.series)
 			// TODO: use the start and end time from query
+			// TODO: rename to ReadAll, ReadByStartEndTime etc.
 			series = append(series, *oneSeries.ReadSeries(0, 1447884000020))
 		}
 		return series, nil
 	}
-	log.Warn("not exact match is not supported!")
+	log.Warn("non exact match is not supported!")
 	// TODO: query the index to do the filter
 	return series, nil
 }

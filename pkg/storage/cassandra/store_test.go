@@ -37,6 +37,7 @@ func TestStore_QueryIntSeries(t *testing.T) {
 	tags["machine"] = "machine-1"
 	qExact := common.Query{Tags: tags, Name: "cpi", MatchPolicy: "exact"}
 	store.QueryIntSeries(qExact)
+	//log.Infof("result length is %d", len())
 }
 
 func TestStore_WriteIntSeries(t *testing.T) {

@@ -6,4 +6,4 @@ import (
 
 var log = util.Logger.NewEntryWithPkg("k.s.cassandra")
 
-var naiveKeySpace = "xephonnaivetag"
+var defaultKeySpace = "xephon"

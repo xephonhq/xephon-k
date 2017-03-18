@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var createNaiveKeyspaceTmpl = `
+var createKeyspaceTmpl = `
 CREATE KEYSPACE IF NOT EXISTS "%s"
   WITH REPLICATION = {
     'class' : 'SimpleStrategy',
@@ -15,12 +15,22 @@ CREATE KEYSPACE IF NOT EXISTS "%s"
   };
 `
 
-var createNaiveMetircTableTmpl = `
-CREATE TABLE IF NOT EXISTS "%s".metrics (
+var createNaiveMetricIntTable = `
+CREATE TABLE IF NOT EXISTS metrics_int (
   metric_name text,
   metric_timestamp timestamp,
   tags frozen<map<text, text>>,
   value int,
+  PRIMARY KEY ((metric_name, tags), metric_timestamp)
+);
+`
+
+var createNaiveMetricDoubleTable = `
+CREATE TABLE IF NOT EXISTS metrics_double (
+  metric_name text,
+  metric_timestamp timestamp,
+  tags frozen<map<text, text>>,
+  value double,
   PRIMARY KEY ((metric_name, tags), metric_timestamp)
 );
 `
@@ -35,13 +45,13 @@ func CreateSchema() {
 		return
 	}
 
-	err = CreateMetricTable()
+	err = CreateMetricTables()
 	if err != nil {
-		// TODO: this retry is never tested, we don't know if it will work
-		log.Info("need to sleep for 5 seconds to wait for cassandra to settle down")
-		time.Sleep(5 * time.Second)
+		// TODO: have better retry policies
+		log.Info("need to sleep for 10 seconds to wait for cassandra to settle down")
+		time.Sleep(10 * time.Second)
 		log.Info("try to do it again")
-		err = CreateMetricTable()
+		err = CreateMetricTables()
 		if err != nil {
 			log.Fatal(err)
 			return
@@ -49,7 +59,7 @@ func CreateSchema() {
 	}
 }
 
-// CreateKeyspace creates naivewithtag keyspace
+// CreateKeyspace creates default keyspace
 func CreateKeyspace() error {
 	cluster := gocql.NewCluster("127.0.0.1")
 	cluster.Keyspace = "system"
@@ -59,30 +69,34 @@ func CreateKeyspace() error {
 		return errors.Wrap(err, "can't connect using system keyspace")
 	}
 	log.Info("connected using system namespace")
-	createKeyspaceStmt := fmt.Sprintf(createNaiveKeyspaceTmpl, naiveKeySpace)
+	createKeyspaceStmt := fmt.Sprintf(createKeyspaceTmpl, defaultKeySpace)
 	err = session.Query(createKeyspaceStmt).Exec()
 	if err != nil {
-		return errors.Wrap(err, "can't create naivewithtag keyspace")
+		return errors.Wrapf(err, "can't create %s keyspace", defaultKeySpace)
 	}
-	log.Infof("keyspace %s created", naiveKeySpace)
+	log.Infof("keyspace %s created", defaultKeySpace)
 	return nil
 }
 
-// CreateMetricTable creates naive mertic table that has tag but not bucket
-func CreateMetricTable() error {
+// CreateMetricTables creates metric tables that has tag but no bucket
+func CreateMetricTables() error {
 	cluster := gocql.NewCluster("127.0.0.1")
-	cluster.Keyspace = naiveKeySpace
+	cluster.Keyspace = defaultKeySpace
 	session, err := cluster.CreateSession()
 	defer session.Close()
 	if err != nil {
-		return errors.Wrap(err, "can't connect using naivewithtag keyspace")
+		return errors.Wrapf(err, "can't connect using %s keyspace", defaultKeySpace)
 	}
-	log.Info("connected using naivewithtag namespace")
-	createMetricTableStmt := fmt.Sprintf(createNaiveMetircTableTmpl, naiveKeySpace)
-	err = session.Query(createMetricTableStmt).Exec()
+	log.Infof("connected using %s namespace", defaultKeySpace)
+	// FIXME: it seems there are also timeout problem when creating table, just ignore it for now
+	err = session.Query(createNaiveMetricIntTable).Exec()
 	if err != nil {
-		return errors.Wrap(err, "can't create metric table in naivewithtag keyspace")
+		return errors.Wrapf(err, "can't create metrics_int table in %s keyspace", defaultKeySpace)
 	}
-	log.Infof("metrics table created")
+	err = session.Query(createNaiveMetricDoubleTable).Exec()
+	if err != nil {
+		return errors.Wrapf(err, "can't create metrics_double table in %s keyspace", defaultKeySpace)
+	}
+	log.Infof("metrics tables created")
 	return nil
 }
