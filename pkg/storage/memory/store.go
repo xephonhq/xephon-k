@@ -6,16 +6,15 @@ import (
 )
 
 // singleton
-var storeMap memStoreMap
+var storeMap StoreMap
 
 // MemStore need to be shared between read and write services
-type memStoreMap struct {
+type StoreMap struct {
 	mu     sync.RWMutex
 	stores map[string]*Store
 }
 
 func init() {
-	// e... it's really messy when code grows larger in golang
 	storeMap.stores = make(map[string]*Store, 1)
 	storeMap.stores["default"] = NewMemStore()
 }
