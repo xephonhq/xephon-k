@@ -12,6 +12,7 @@ var log = util.Logger.NewEntryWithPkg("k.b.reporter")
 // check interface
 
 var _ Reporter = (*NullReporter)(nil)
+var _ Reporter = (*NullReporter)(nil)
 
 type Reporter interface {
 	//ReporterName() string
