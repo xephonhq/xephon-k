@@ -1,5 +1,5 @@
-hash: c8956d2733b11db1ecf27b5221be2d36fb8dd9e9097b5168e3d68e61f6dae24e
-updated: 2017-03-06T20:55:33.171369398-08:00
+hash: 0056a0e68d6496705afdea60b3a18e08fbb0fa9302293f46a242bea22a46b9a6
+updated: 2017-03-17T16:50:28.732234817-07:00
 imports:
 - name: github.com/dyweb/gommon
   version: 7aad4c9c1ff32b9473a816ba27158bf59bfec307
@@ -33,6 +33,9 @@ imports:
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
+  vcs: git
 - name: github.com/spf13/cobra
   version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
   vcs: git
@@ -46,6 +49,16 @@ imports:
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 testImports:
+- name: github.com/davecgh/go-spew
+  version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
 - name: github.com/stretchr/testify
   version: 2402e8e7a02fc811447d11f881aa9746cdc57983
   vcs: git
+  subpackages:
+  - assert

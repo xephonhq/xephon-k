@@ -127,3 +127,27 @@ CREATE TABLE IF NOT EXISTS "xephonbucket".meta (
   PRIMARY KEY (metric_name, bucket)
 )
 ````
+
+## Naive with Tags
+
+Schema
+
+````sql
+CREATE KEYSPACE IF NOT EXISTS "xephonnaivetag"
+  WITH REPLICATION = {
+    'class' : 'SimpleStrategy',
+    'replication_factor' : 1
+  };
+````
+
+Metrics
+
+````sql
+CREATE TABLE IF NOT EXISTS "xephonnaivetag".metrics (
+  metric_name text,
+  metric_timestamp timestamp,
+  tags frozen<map<text, text>>,
+  value int,
+  PRIMARY KEY (metric_name, metric_timestamp, tags)
+)
+````
