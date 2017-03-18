@@ -1,9 +1,9 @@
 package cassandra
 
 import (
-	"testing"
 	"fmt"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"testing"
 )
 
 // TODO: only run this test when cassandra is presented
@@ -24,6 +24,19 @@ func createDummySeries() []common.IntSeries {
 		multipleSeries = append(multipleSeries, s1)
 	}
 	return multipleSeries
+}
+
+func TestStore_QueryIntSeries(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skip cassandra read int series test")
+	}
+	store := GetDefaultCassandraStore()
+	// FIXME: let's assume that other tests have already write it
+	tags := make(map[string]string)
+	tags["os"] = "ubuntu"
+	tags["machine"] = "machine-1"
+	qExact := common.Query{Tags: tags, Name: "cpi", MatchPolicy: "exact"}
+	store.QueryIntSeries(qExact)
 }
 
 func TestStore_WriteIntSeries(t *testing.T) {

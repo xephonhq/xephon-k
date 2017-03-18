@@ -3,9 +3,10 @@ package cassandra
 import (
 	"sync"
 
+	"fmt"
 	"github.com/gocql/gocql"
 	"github.com/xephonhq/xephon-k/pkg/common"
-	"fmt"
+	//"time"
 )
 
 var storeMap StoreMap
@@ -59,10 +60,33 @@ func (store Store) StoreType() string {
 	return "cassandra"
 }
 
-// TODO: query
-
-var writeStmtTmpl =
+// TODO: add time filter
+var selectStmtTmpl = `
+	SELECT metric_timestamp, value FROM %s.metrics WHERE metric_name = ? AND tags = ?
 	`
+
+// TODO: query
+func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error) {
+	series := make([]common.IntSeries, 0)
+	session := store.session
+	selectStmt := fmt.Sprintf(selectStmtTmpl, naiveKeySpace)
+	// FIXME: it seems the values are not binded to the statement
+	log.Info(session.Query(selectStmt, query.Name, query.Tags).String())
+	iter := session.Query(selectStmt, query.Name, query.Tags).Iter()
+	var metricValue int
+	//var metricTimestamp time.Time
+	// NOTE: int64 also works, time works
+	var metricTimestamp int64
+	for iter.Scan(&metricTimestamp, &metricValue) {
+		log.Infof("%v %d", metricTimestamp, metricValue)
+	}
+	if err := iter.Close(); err != nil {
+		return series, err
+	}
+	return series, nil
+}
+
+var writeStmtTmpl = `
 	INSERT INTO %s.metrics (metric_name, metric_timestamp, tags, value) VALUES (?, ?, ?, ?)
 	`
 
