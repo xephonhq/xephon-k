@@ -27,6 +27,9 @@ func createDummySeries() []common.IntSeries {
 }
 
 func TestStore_WriteIntSeries(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skip cassandra write int series test")
+	}
 	store := GetDefaultCassandraStore()
 	store.WriteIntSeries(createDummySeries())
 }
