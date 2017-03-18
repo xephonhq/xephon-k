@@ -93,23 +93,27 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 
 // WriteIntSeries implements Store interface
 func (store Store) WriteIntSeries(series []common.IntSeries) error {
-	// build the statement
-	// TODO: let's not consider prepare for now
+	// TODO: we should use different goroutine for different series according to official doc
 	// Use many goroutines when doing inserts, the driver is asynchronous but provides a synchronous API,
 	// it can execute many queries concurrently
 	session := store.session
 	for _, oneSeries := range series {
 		batch := session.NewBatch(gocql.UnloggedBatch)
 		for _, p := range oneSeries.Points {
-			// TODO: can it handle map?
 			// http://stackoverflow.com/questions/35401344/passing-a-map-as-a-value-to-insert-into-cassandra
 			batch.Query(insertIntStmt, oneSeries.Name, p.TimeNano, oneSeries.Tags, p.V)
 		}
 		err := session.ExecuteBatch(batch)
 		if err != nil {
-			// TODO: better error handling
+			// TODO: better error handling, we should have an error aggregator
 			log.Warn(err)
 		}
 	}
 	return nil
+}
+
+func (store Store) Shutdown() {
+	log.Info("shutting down cassandra store, close connection")
+	store.session.Close()
+	log.Info("shutdown complete")
 }

@@ -8,6 +8,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage"
+	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 )
 
@@ -16,7 +17,7 @@ type ReadService interface {
 	QueryInt(q common.Query) []common.IntSeries
 }
 
-type ReadServiceImpl struct {
+type ReadServiceServerImpl struct {
 	store storage.Store
 }
 
@@ -69,17 +70,22 @@ func (ReadServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 	return httptransport.EncodeJSONResponse
 }
 
-func NewReadServiceImpl() *ReadServiceImpl {
-	// TODO: use the shared memory store
+func NewReadServiceMem() *ReadServiceServerImpl {
 	store := memory.GetDefaultMemStore()
-	return &ReadServiceImpl{store: store}
+	return &ReadServiceServerImpl{store: store}
 }
 
-func (ReadServiceImpl) ServiceName() string {
+func NewReadServiceCassandra() *ReadServiceServerImpl {
+	store := cassandra.GetDefaultCassandraStore()
+	return &ReadServiceServerImpl{store: store}
+}
+
+// ServiceName implements Service
+func (ReadServiceServerImpl) ServiceName() string {
 	return "read"
 }
 
-func (rs ReadServiceImpl) QueryInt(q common.Query) []common.IntSeries {
+func (rs ReadServiceServerImpl) QueryInt(q common.Query) []common.IntSeries {
 	series, err := rs.store.QueryIntSeries(q)
 	// TODO: better error handling
 	if err != nil {

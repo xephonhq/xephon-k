@@ -1,11 +1,19 @@
 package storage
 
-import "github.com/xephonhq/xephon-k/pkg/common"
+import (
+	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
+	"github.com/xephonhq/xephon-k/pkg/storage/memory"
+)
+
+// check interface
+var _ Store = (*memory.Store)(nil)
+var _ Store = (*cassandra.Store)(nil)
 
 // Store is the base interface for all type of storages
 type Store interface {
 	StoreType() string
 	QueryIntSeries(common.Query) ([]common.IntSeries, error)
 	WriteIntSeries([]common.IntSeries) error
-	// TODO: maybe we should add a graceful shutdown method
+	Shutdown()
 }

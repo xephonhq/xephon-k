@@ -24,7 +24,8 @@ func (Server) Start() {
 	)
 
 	var writeSvc service.WriteService
-	writeSvc = service.NewWriteServiceImpl()
+	//writeSvc = service.NewWriteServiceMem()
+	writeSvc = service.NewWriteServiceCassandra()
 	writeSvc = middleware.NewLoggingWriteServiceMiddleware(writeSvc)
 	writeSvcHTTPFactory := service.WriteServiceHTTPFactory{}
 
@@ -35,7 +36,8 @@ func (Server) Start() {
 	)
 
 	var readSvc service.ReadService
-	readSvc = service.NewReadServiceImpl()
+	//readSvc = service.NewReadServiceMem()
+	readSvc = service.NewReadServiceCassandra()
 	readSvc = middleware.NewLoggingReadServiceMiddleware(readSvc)
 	readSvcHTTPFactory := service.ReadServiceHTTPFactory{}
 

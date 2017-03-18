@@ -83,3 +83,7 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 	}
 	return nil
 }
+
+func (store Store) Shutdown() {
+	log.Info("shutting down memoery store, nothing to do, have a nice weekend~")
+}

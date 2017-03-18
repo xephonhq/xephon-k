@@ -38,20 +38,20 @@ CREATE TABLE IF NOT EXISTS metrics_double (
 // CreateSchema use naive with tag schema
 // TODO: allow passing different configuration
 func CreateSchema() {
-	err := CreateKeyspace()
+	err := createKeyspace()
 	if err != nil {
 		// TODO: print the trace?
 		log.Fatal(err)
 		return
 	}
 
-	err = CreateMetricTables()
+	err = createMetricTables()
 	if err != nil {
 		// TODO: have better retry policies
 		log.Info("need to sleep for 10 seconds to wait for cassandra to settle down")
 		time.Sleep(10 * time.Second)
 		log.Info("try to do it again")
-		err = CreateMetricTables()
+		err = createMetricTables()
 		if err != nil {
 			log.Fatal(err)
 			return
@@ -59,8 +59,8 @@ func CreateSchema() {
 	}
 }
 
-// CreateKeyspace creates default keyspace
-func CreateKeyspace() error {
+// createKeyspace creates default keyspace
+func createKeyspace() error {
 	cluster := gocql.NewCluster("127.0.0.1")
 	cluster.Keyspace = "system"
 	session, err := cluster.CreateSession()
@@ -78,8 +78,8 @@ func CreateKeyspace() error {
 	return nil
 }
 
-// CreateMetricTables creates metric tables that has tag but no bucket
-func CreateMetricTables() error {
+// createMetricTables creates metric tables that has tag but no bucket
+func createMetricTables() error {
 	cluster := gocql.NewCluster("127.0.0.1")
 	cluster.Keyspace = defaultKeySpace
 	session, err := cluster.CreateSession()

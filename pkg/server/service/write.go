@@ -9,6 +9,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage"
+	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 )
 
@@ -17,8 +18,8 @@ type WriteService interface {
 	WriteInt([]common.IntSeries) error
 }
 
-// WriteServiceImpl is the server implementation of WriteService
-type WriteServiceImpl struct {
+// WriteServiceServerImpl is the server implementation of WriteService
+type WriteServiceServerImpl struct {
 	store storage.Store
 }
 
@@ -76,17 +77,23 @@ func (WriteServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 	return httptransport.EncodeJSONResponse
 }
 
-func NewWriteServiceImpl() *WriteServiceImpl {
+func NewWriteServiceMem() *WriteServiceServerImpl {
 	// FIXME: it should be a singleton
 	store := memory.GetDefaultMemStore()
-	return &WriteServiceImpl{store: store}
+	return &WriteServiceServerImpl{store: store}
 }
 
-func (WriteServiceImpl) ServiceName() string {
+func NewWriteServiceCassandra() *WriteServiceServerImpl {
+	store := cassandra.GetDefaultCassandraStore()
+	return &WriteServiceServerImpl{store: store}
+}
+
+// ServiceName implements Service
+func (WriteServiceServerImpl) ServiceName() string {
 	return "write"
 }
 
-func (ws WriteServiceImpl) WriteInt(series []common.IntSeries) error {
+func (ws WriteServiceServerImpl) WriteInt(series []common.IntSeries) error {
 	// write to memory storage
 	// NOTE: maybe we should wrap error instead of just return it
 	return ws.store.WriteIntSeries(series)
