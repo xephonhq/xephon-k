@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS "%s".metrics (
   metric_timestamp timestamp,
   tags frozen<map<text, text>>,
   value int,
-  PRIMARY KEY (metric_name, metric_timestamp, tags)
+  PRIMARY KEY ((metric_name, tags), metric_timestamp)
 );
 `
 
