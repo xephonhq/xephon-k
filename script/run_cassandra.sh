@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # TODO: if docker start fail, pull the image and name it tsdb-cassandra
 # FIXME: Fedora need sudo for docker while many other Linux distros not

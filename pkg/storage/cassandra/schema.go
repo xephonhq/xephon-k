@@ -2,9 +2,9 @@ package cassandra
 
 import (
 	"fmt"
-
 	"github.com/gocql/gocql"
 	"github.com/pkg/errors"
+	"time"
 )
 
 var createNaiveKeyspaceTmpl = `
@@ -34,10 +34,18 @@ func CreateSchema() {
 		log.Fatal(err)
 		return
 	}
+
 	err = CreateMetricTable()
 	if err != nil {
-		log.Fatal(err)
-		return
+		// TODO: this retry is never tested, we don't know if it will work
+		log.Info("need to sleep for 5 seconds to wait for cassandra to settle down")
+		time.Sleep(5 * time.Second)
+		log.Info("try to do it again")
+		err = CreateMetricTable()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 	}
 }
 
