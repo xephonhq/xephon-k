@@ -58,3 +58,8 @@ func (p ByTime) Swap(i int, j int) {
 func (p ByTime) Less(i int, j int) bool {
 	return p[i].TimeNano < p[j].TimeNano
 }
+
+type DoublePoint struct {
+	TimeNano int64
+	V        float64
+}
