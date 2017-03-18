@@ -17,12 +17,6 @@ type Loader struct {
 	config Config
 }
 
-type result struct {
-	err      error
-	code     int
-	duration time.Duration
-}
-
 func NewConfig() Config {
 	return Config{
 		Duration:  time.Duration(1) * time.Minute,
