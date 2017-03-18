@@ -40,6 +40,8 @@ func (worker *HTTPWorker) work() {
 		serializer = &serialize.InfluxDBSerialize{}
 	case bench.DBXephonK:
 		serializer = &serialize.XephonKSerialize{}
+	case bench.DBKairosDB:
+		serializer = &serialize.KairosDBSerialize{}
 	default:
 		log.Panic("unsupported database, not serailizer avaliable")
 		return

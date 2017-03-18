@@ -24,7 +24,7 @@ func TestHTTPLoader_Run(t *testing.T) {
 	//INFO[0010] slowest 36497286 pkg=k.b.reporter
 
 	// try with local influxdb
-	ld := NewHTTPLoader(NewConfig(bench.DBInfluxDB), &reporter.BasicReporter{})
+	//ld := NewHTTPLoader(NewConfig(bench.DBInfluxDB), &reporter.BasicReporter{})
 	// when db is not created, it seems pretty good
 	//INFO[0010] total request 14446 pkg=k.b.reporter
 	//INFO[0010] fastest 231121 pkg=k.b.reporter
@@ -34,6 +34,12 @@ func TestHTTPLoader_Run(t *testing.T) {
 	//INFO[0010] fastest 192001022 pkg=k.b.reporter
 	//INFO[0010] slowest 549661074 pkg=k.b.reporter
 	//INFO[0010] loader finished pkg=k.b.loader
+
+	ld := NewHTTPLoader(NewConfig(bench.DBKairosDB), &reporter.BasicReporter{})
+	//INFO[0010] basic report finished via context pkg=k.b.reporter
+	//INFO[0010] total request 14191 pkg=k.b.reporter
+	//INFO[0010] fastest 237171 pkg=k.b.reporter
+	//INFO[0010] slowest 349506588 pkg=k.b.reporter
 	ld.Run()
 }
 
