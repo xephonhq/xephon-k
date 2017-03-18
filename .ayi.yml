@@ -1,5 +1,5 @@
 install:
-  - go install ./pkg/bin/xkd
+  - go install ./cmd/xkd
   # - go install ./pkg/bin/xnaive
   # - go install ./pkg/bin/xbucket
   # - go install ./pkg/bin/xapi
