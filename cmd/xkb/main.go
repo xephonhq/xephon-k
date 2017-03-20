@@ -4,7 +4,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/cmd"
 )
 
-// The daemon
+// The bench
 func main() {
-	cmd.ExecuteDaemon()
+	cmd.ExecuteBench()
 }

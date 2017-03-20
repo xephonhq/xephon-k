@@ -16,5 +16,5 @@ var SchemaCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(SchemaCmd)
+	DaemonCmd.AddCommand(SchemaCmd)
 }

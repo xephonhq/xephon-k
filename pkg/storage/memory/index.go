@@ -1,3 +1,9 @@
 package memory
 
-type Index map[string]string
+type Index []IndexRow
+
+type IndexRow struct {
+	key      string
+	value    string
+	seriesID SeriesID
+}
