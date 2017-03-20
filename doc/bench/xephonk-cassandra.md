@@ -119,6 +119,46 @@ Timeout: 30
 TargetDB: xephonk
 ````
 
+docker (isn't much better)
+
+````
+INFO[0008] basic report finished via context pkg=k.b.reporter 
+INFO[0008] total request 35313 pkg=k.b.reporter 
+INFO[0008] fastest 23965 pkg=k.b.reporter 
+INFO[0008] slowest 3348216936 pkg=k.b.reporter 
+INFO[0008] total request size 69390045 pkg=k.b.reporter 
+INFO[0008] toatl response size 240994 pkg=k.b.reporter 
+INFO[0008] 200: 7774 pkg=k.b.reporter 
+INFO[0008] 0: 27539 pkg=k.b.reporter 
+INFO[0008] loader finished pkg=k.b.loader 
+
+Duration: 5
+Worker number: 5000
+Batch size: 100
+Timeout: 30
+TargetDB: xephonk
+````
+
+It seems 3000 is the best after `ulimit -Sn 4096`
+
+````
+INFO[0007] basic report finished via context pkg=k.b.reporter 
+INFO[0007] total request 16016 pkg=k.b.reporter 
+INFO[0007] fastest 7729246 pkg=k.b.reporter 
+INFO[0007] slowest 4311813810 pkg=k.b.reporter 
+INFO[0007] total request size 31471440 pkg=k.b.reporter 
+INFO[0007] toatl response size 492683 pkg=k.b.reporter 
+INFO[0007] 200: 15893 pkg=k.b.reporter 
+INFO[0007] 0: 123 pkg=k.b.reporter 
+INFO[0007] loader finished pkg=k.b.loader 
+
+Duration: 5
+Worker number: 3000
+Batch size: 100
+Timeout: 30
+TargetDB: xephonk
+````
+
 ````bash
 xkb -c 100 -d 60
 ````
@@ -141,4 +181,6 @@ Batch size: 100
 Timeout: 30
 TargetDB: xephonk
 ````
+
+
 

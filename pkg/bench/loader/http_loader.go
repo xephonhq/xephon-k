@@ -29,7 +29,9 @@ func NewHTTPLoader(config Config, report reporter.Reporter) *HTTPLoader {
 func (loader *HTTPLoader) Run() {
 	var baseReq *http.Request
 	// NOTE: https://github.com/at15/mini-impl/issues/1
+	// TODO: https://github.com/xephonhq/xephon-k/issues/20 warn about file descriptor
 	tr := &http.Transport{
+		MaxIdleConns: loader.config.WorkerNum,
 		MaxIdleConnsPerHost: loader.config.WorkerNum,
 	}
 	log.Infof("target db %s", bench.DBString(loader.config.TargetDB))
