@@ -1,0 +1,18 @@
+version: '2'
+services:
+  xephon-k-cassandra:
+    container_name: xkb-xephon-k-cassandra
+    hostname: xephon-k
+    build: ./node
+    ports:
+      - "23333:23333"
+    # NOTE: depends_on is not enough, wait-for-it is used in kairosdb.sh
+    # in order to let cassandra running before KairosDB start
+    depends_on:
+      - xkbxephonkcassandracassandra
+    links:
+      - xkbxephonkcassandracassandra
+  xkbxephonkcassandracassandra:
+    image: cassandra:3.10
+#    environment:
+#      - CASSANDRA_START_RPC=true

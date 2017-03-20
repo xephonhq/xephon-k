@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS metrics_double (
 );
 `
 
+var CassandraHost = "127.0.0.1"
+
 // CreateSchema use naive with tag schema
 // TODO: allow passing different configuration
 func CreateSchema() {
@@ -61,7 +63,7 @@ func CreateSchema() {
 
 // createKeyspace creates default keyspace
 func createKeyspace() error {
-	cluster := gocql.NewCluster("127.0.0.1")
+	cluster := gocql.NewCluster(CassandraHost)
 	cluster.Keyspace = "system"
 	session, err := cluster.CreateSession()
 	defer session.Close()
@@ -80,7 +82,7 @@ func createKeyspace() error {
 
 // createMetricTables creates metric tables that has tag but no bucket
 func createMetricTables() error {
-	cluster := gocql.NewCluster("127.0.0.1")
+	cluster := gocql.NewCluster(CassandraHost)
 	cluster.Keyspace = defaultKeySpace
 	session, err := cluster.CreateSession()
 	defer session.Close()

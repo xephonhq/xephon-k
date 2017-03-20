@@ -1,6 +1,7 @@
 install:
   - go install ./cmd/xkd
   - go install ./cmd/xkb
+  - sh -c "cp $(which xkd) script/xephon-k-cassandra/node"
   # - go install ./pkg/bin/xnaive
   # - go install ./pkg/bin/xbucket
   # - go install ./pkg/bin/xapi
