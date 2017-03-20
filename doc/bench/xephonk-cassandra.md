@@ -65,6 +65,26 @@ Timeout: 30
 TargetDB: xephonk
 ````
 
+when xephon k runs in docker (a lot better)
+
+````
+INFO[0008] basic report finished via context pkg=k.b.reporter 
+INFO[0008] total request 10297 pkg=k.b.reporter 
+INFO[0008] fastest 40014 pkg=k.b.reporter 
+INFO[0008] slowest 2513650429 pkg=k.b.reporter 
+INFO[0008] total request size 20233605 pkg=k.b.reporter 
+INFO[0008] toatl response size 306962 pkg=k.b.reporter 
+INFO[0008] 0: 395 pkg=k.b.reporter 
+INFO[0008] 200: 9902 pkg=k.b.reporter 
+INFO[0008] loader finished pkg=k.b.loader 
+
+Duration: 5
+Worker number: 1000
+Batch size: 100
+Timeout: 30
+TargetDB: xephonk
+````
+
 ````bash
 xkb -c 5000
 ````

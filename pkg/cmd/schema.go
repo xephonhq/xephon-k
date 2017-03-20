@@ -9,6 +9,8 @@ var SchemaCmd = &cobra.Command{
 	Use:   "schema",
 	Short: "Create schema",
 	Run: func(cmd *cobra.Command, args []string) {
+		// FIXME: a dirty way to use different host when create schema
+		cassandra.CassandraHost = cassandraHost
 		log.Info("create schema for cassandra using default setting")
 		cassandra.CreateSchema()
 		log.Info("schema created!")

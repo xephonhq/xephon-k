@@ -66,10 +66,10 @@ func createKeyspace() error {
 	cluster := gocql.NewCluster(CassandraHost)
 	cluster.Keyspace = "system"
 	session, err := cluster.CreateSession()
-	defer session.Close()
 	if err != nil {
 		return errors.Wrap(err, "can't connect using system keyspace")
 	}
+	defer session.Close()
 	log.Info("connected using system namespace")
 	createKeyspaceStmt := fmt.Sprintf(createKeyspaceTmpl, defaultKeySpace)
 	err = session.Query(createKeyspaceStmt).Exec()
@@ -85,10 +85,10 @@ func createMetricTables() error {
 	cluster := gocql.NewCluster(CassandraHost)
 	cluster.Keyspace = defaultKeySpace
 	session, err := cluster.CreateSession()
-	defer session.Close()
 	if err != nil {
 		return errors.Wrapf(err, "can't connect using %s keyspace", defaultKeySpace)
 	}
+	defer session.Close()
 	log.Infof("connected using %s namespace", defaultKeySpace)
 	// FIXME: it seems there are also timeout problem when creating table, just ignore it for now
 	err = session.Query(createNaiveMetricIntTable).Exec()

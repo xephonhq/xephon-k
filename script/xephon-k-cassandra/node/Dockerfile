@@ -12,6 +12,6 @@ COPY wait-for-it.sh /usr/bin/wait-for-it
 COPY xkdc.sh /usr/bin/xkdc
 COPY xkd /usr/bin/xkd
 
-EXPOSE 2333
+EXPOSE 23333
 ENTRYPOINT []
 CMD [ "/usr/bin/xkdc" ]

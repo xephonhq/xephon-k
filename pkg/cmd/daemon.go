@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/xephonhq/xephon-k/pkg/server"
-	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
 )
 
 var (
@@ -21,8 +20,7 @@ var DaemonCmd = &cobra.Command{
 	Short: "Xephon K Daemon",
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
-		// a dirty way to create schema
-		cassandra.CassandraHost = cassandraHost
+
 		srv := server.Server{Port: port, Backend: backend, CassandraHost: cassandraHost}
 		srv.Start()
 	},
