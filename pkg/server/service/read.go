@@ -75,8 +75,8 @@ func NewReadServiceMem() *ReadServiceServerImpl {
 	return &ReadServiceServerImpl{store: store}
 }
 
-func NewReadServiceCassandra() *ReadServiceServerImpl {
-	store := cassandra.GetDefaultCassandraStore()
+func NewReadServiceCassandra(host string) *ReadServiceServerImpl {
+	store := cassandra.GetDefaultCassandraStore(host)
 	return &ReadServiceServerImpl{store: store}
 }
 

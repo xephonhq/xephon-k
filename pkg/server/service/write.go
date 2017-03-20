@@ -83,8 +83,8 @@ func NewWriteServiceMem() *WriteServiceServerImpl {
 	return &WriteServiceServerImpl{store: store}
 }
 
-func NewWriteServiceCassandra() *WriteServiceServerImpl {
-	store := cassandra.GetDefaultCassandraStore()
+func NewWriteServiceCassandra(host string) *WriteServiceServerImpl {
+	store := cassandra.GetDefaultCassandraStore(host)
 	return &WriteServiceServerImpl{store: store}
 }
 

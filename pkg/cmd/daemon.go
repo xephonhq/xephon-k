@@ -12,6 +12,7 @@ var (
 	defaultConfigFile = "xephon-k.yml"
 	port              = server.DefaultPort
 	backend           = "memory"
+	cassandraHost     = "localhost"
 )
 
 var DaemonCmd = &cobra.Command{
@@ -19,7 +20,7 @@ var DaemonCmd = &cobra.Command{
 	Short: "Xephon K Daemon",
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := server.Server{Port: port, Backend: backend}
+		srv := server.Server{Port: port, Backend: backend, CassandraHost: cassandraHost}
 		srv.Start()
 	},
 }
@@ -37,4 +38,5 @@ func init() {
 	// local flags
 	DaemonCmd.Flags().IntVarP(&port, "port", "p", server.DefaultPort, "port to listen on")
 	DaemonCmd.Flags().StringVarP(&backend, "backend", "b", "memory", "memory|cassandra")
+	DaemonCmd.Flags().StringVar(&cassandraHost, "cassandra-host", "localhost", "cassandra host address")
 }

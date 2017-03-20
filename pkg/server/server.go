@@ -11,8 +11,9 @@ import (
 )
 
 type Server struct {
-	Port    int
-	Backend string
+	Port          int
+	Backend       string
+	CassandraHost string
 }
 
 func (srv Server) Start() {
@@ -36,8 +37,8 @@ func (srv Server) Start() {
 		readSvc = service.NewReadServiceMem()
 	} else if strings.HasPrefix(srv.Backend, "c") {
 		log.Info("use cassandra backend")
-		writeSvc = service.NewWriteServiceCassandra()
-		readSvc = service.NewReadServiceCassandra()
+		writeSvc = service.NewWriteServiceCassandra(srv.CassandraHost)
+		readSvc = service.NewReadServiceCassandra(srv.CassandraHost)
 	} else {
 		log.Fatalf("unknown backend %s", srv.Backend)
 	}

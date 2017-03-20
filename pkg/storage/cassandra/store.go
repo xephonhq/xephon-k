@@ -24,7 +24,7 @@ func init() {
 // GetDefaultCassandraStore will connect to cassandra if it is not found
 // NOTE: we don't do it in init because it would break other stores, mem, mysql etc.
 // TODO: we should return error and allow retry etc.
-func GetDefaultCassandraStore() *Store {
+func GetDefaultCassandraStore(cassandraHost string) *Store {
 	storeMap.mu.RLock()
 	defer storeMap.mu.RUnlock()
 
@@ -33,7 +33,7 @@ func GetDefaultCassandraStore() *Store {
 		return store
 	}
 	log.Info("default cassandra store not found, connecting to cassandra now")
-	storeMap.stores["default"] = NewCassandraStore()
+	storeMap.stores["default"] = NewCassandraStore(cassandraHost)
 	return storeMap.stores["default"]
 
 }
@@ -44,15 +44,17 @@ type Store struct {
 }
 
 // NewCassandraStore creates a new cassandra store connecting to localhost cassandra
-func NewCassandraStore() *Store {
+func NewCassandraStore(cassandraHost string) *Store {
 	store := &Store{}
 	// connect to cassandra
-	cluster := gocql.NewCluster("127.0.0.1")
+	cluster := gocql.NewCluster(cassandraHost)
 	cluster.Keyspace = defaultKeySpace
 	session, err := cluster.CreateSession()
 	if err != nil {
 		log.Fatalf("can't connect to cassandra %s", err)
 		return store
+	} else {
+		log.Infof("connected to cassandra %s", cassandraHost)
 	}
 	store.session = session
 	return store
