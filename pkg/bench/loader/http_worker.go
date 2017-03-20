@@ -64,11 +64,17 @@ func (worker *HTTPWorker) work() {
 			var data []byte
 			data = serializer.WriteInt(series)
 
-			result := &bench.RequestMetric{Start: time.Now()}
+			result := &bench.RequestMetric{
+				Start: time.Now(),
+				// FIXME: len return int, does that mean golang can't have array larger than int32?
+				RequestSize:  int64(len(data)),
+				ResponseSize: 0,
+			}
 			req := new(http.Request)
 			// copy base request
 			*req = *worker.baseRequest
 			req.Body = ioutil.NopCloser(bytes.NewReader(data))
+			// do the request
 			res, err := client.Do(req)
 			if err != nil {
 				log.Warn(err)
@@ -78,6 +84,7 @@ func (worker *HTTPWorker) work() {
 			}
 			if res != nil {
 				result.Code = res.StatusCode
+				result.ResponseSize = res.ContentLength
 			}
 			result.Err = err
 			result.End = time.Now()

@@ -27,7 +27,7 @@ func NewHTTPLoader(config Config, report reporter.Reporter) *HTTPLoader {
 func (loader *HTTPLoader) Run() {
 	var baseReq *http.Request
 	tr := &http.Transport{}
-	log.Infof("target db %s\n", bench.DBString(loader.config.TargetDB))
+	log.Infof("target db %s", bench.DBString(loader.config.TargetDB))
 	switch loader.config.TargetDB {
 	case bench.DBInfluxDB:
 		req, err := http.NewRequest("POST", "http://localhost:8086/write?db=sb", nil)

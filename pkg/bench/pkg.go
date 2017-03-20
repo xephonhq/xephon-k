@@ -10,10 +10,12 @@ const (
 )
 
 type RequestMetric struct {
-	Err   error
-	Code  int
-	Start time.Time
-	End   time.Time
+	Err          error
+	Code         int
+	Start        time.Time
+	End          time.Time
+	RequestSize  int64
+	ResponseSize int64
 }
 
 func DBString(db int) string {
