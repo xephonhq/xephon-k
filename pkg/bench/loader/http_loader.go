@@ -26,7 +26,10 @@ func NewHTTPLoader(config Config, report reporter.Reporter) *HTTPLoader {
 
 func (loader *HTTPLoader) Run() {
 	var baseReq *http.Request
-	tr := &http.Transport{}
+	// NOTE: https://github.com/at15/mini-impl/issues/1
+	tr := &http.Transport{
+		MaxIdleConnsPerHost: loader.config.WorkerNum,
+	}
 	log.Infof("target db %s", bench.DBString(loader.config.TargetDB))
 	switch loader.config.TargetDB {
 	case bench.DBInfluxDB:
@@ -69,8 +72,9 @@ func (loader *HTTPLoader) Run() {
 	}
 	wg.Add(1)
 	// TODO: better control of report ending
+	// NOTE: for basic reporter, data is not written to TSDB, no need to wait actually ...
 	reportCtx, cancelReport := context.WithTimeout(context.Background(),
-		loader.config.Duration+time.Duration(5)*time.Second)
+		loader.config.Duration+time.Duration(1)*time.Second)
 	defer cancelReport() // FIXME: this should be useless
 	go func() {
 		loader.report.Start(reportCtx, loader.metricChan)

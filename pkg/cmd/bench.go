@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/xephonhq/xephon-k/pkg"
@@ -17,6 +18,7 @@ var (
 	db          = "xephonk"
 	concurrency = 10
 	batchSize   = 100
+	duration    = 5
 	timeout     = 30
 )
 
@@ -39,6 +41,10 @@ var BenchCmd = &cobra.Command{
 			return
 		}
 		config := loader.NewConfig(targetDB)
+		config.WorkerNum = concurrency
+		config.BatchSize = batchSize
+		config.Duration = time.Duration(duration) * time.Second
+		config.Timeout = time.Duration(timeout) * time.Second
 		fmt.Print(config)
 		if !yes {
 			fmt.Print("Do you want to proceed? [Y/N]")
@@ -68,8 +74,9 @@ func init() {
 	BenchCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
 	BenchCmd.PersistentFlags().BoolVarP(&yes, "yes", "y", false, "yes to all, no more prompt")
 	// local flags
-	BenchCmd.Flags().StringVarP(&db, "db", "d", "xephonk", "target database: xephonk|influxdb|kairosdb")
+	BenchCmd.Flags().StringVar(&db, "db", "xephonk", "target database: xephonk|influxdb|kairosdb")
 	BenchCmd.Flags().IntVarP(&concurrency, "concurrency", "c", 10, "concurrency (worker gorutine number)")
 	BenchCmd.Flags().IntVarP(&batchSize, "batch", "b", 100, "batch size")
 	BenchCmd.Flags().IntVarP(&timeout, "timeout", "t", 30, "time out in seconds")
+	BenchCmd.Flags().IntVarP(&duration, "duration", "d", 5, "duration in seconds")
 }
