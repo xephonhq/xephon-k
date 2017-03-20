@@ -10,7 +10,7 @@ import (
 var (
 	configFile        = ""
 	defaultConfigFile = "xephon-k.yml"
-	port              = 8080
+	port              = server.DefaultPort
 	backend           = "memory"
 )
 
@@ -35,6 +35,6 @@ func init() {
 	DaemonCmd.PersistentFlags().StringVar(&configFile, "config", defaultConfigFile, "config file")
 	DaemonCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
 	// local flags
-	DaemonCmd.Flags().IntVarP(&port, "port", "p", 8080, "port to listen on")
+	DaemonCmd.Flags().IntVarP(&port, "port", "p", server.DefaultPort, "port to listen on")
 	DaemonCmd.Flags().StringVarP(&backend, "backend", "b", "memory", "memory|cassandra")
 }

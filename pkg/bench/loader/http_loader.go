@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"sync"
 
+	"fmt"
 	"github.com/xephonhq/xephon-k/pkg/bench"
 	"github.com/xephonhq/xephon-k/pkg/bench/reporter"
+	"github.com/xephonhq/xephon-k/pkg/server"
 	"time"
 )
 
@@ -40,7 +42,8 @@ func (loader *HTTPLoader) Run() {
 		}
 		baseReq = req
 	case bench.DBXephonK:
-		req, err := http.NewRequest("POST", "http://localhost:8080/write", nil)
+		url := fmt.Sprintf("http://localhost:%d/write", server.DefaultPort)
+		req, err := http.NewRequest("POST", url, nil)
 		if err != nil {
 			log.Panic(err)
 			return
