@@ -3,15 +3,19 @@ package server
 import (
 	"net/http"
 
+	"fmt"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/xephonhq/xephon-k/pkg/server/middleware"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
+	"strings"
 )
 
 type Server struct {
+	Port    int
+	Backend string
 }
 
-func (Server) Start() {
+func (srv Server) Start() {
 	var infoSvc service.InfoService
 	infoSvc = service.InfoServiceImpl{}
 	infoSvc = middleware.NewLoggingInfoServiceMiddleware(infoSvc)
@@ -24,8 +28,20 @@ func (Server) Start() {
 	)
 
 	var writeSvc service.WriteService
-	//writeSvc = service.NewWriteServiceMem()
-	writeSvc = service.NewWriteServiceCassandra()
+	var readSvc service.ReadService
+
+	if strings.HasPrefix(srv.Backend, "m") {
+		log.Info("use memory backend")
+		writeSvc = service.NewWriteServiceMem()
+		readSvc = service.NewReadServiceMem()
+	} else if strings.HasPrefix(srv.Backend, "c") {
+		log.Info("use cassandra backend")
+		writeSvc = service.NewWriteServiceCassandra()
+		readSvc = service.NewReadServiceCassandra()
+	} else {
+		log.Fatalf("unknown backend %s", srv.Backend)
+	}
+
 	writeSvc = middleware.NewLoggingWriteServiceMiddleware(writeSvc)
 	writeSvcHTTPFactory := service.WriteServiceHTTPFactory{}
 
@@ -35,9 +51,6 @@ func (Server) Start() {
 		writeSvcHTTPFactory.MakeEncode(),
 	)
 
-	var readSvc service.ReadService
-	//readSvc = service.NewReadServiceMem()
-	readSvc = service.NewReadServiceCassandra()
 	readSvc = middleware.NewLoggingReadServiceMiddleware(readSvc)
 	readSvcHTTPFactory := service.ReadServiceHTTPFactory{}
 
@@ -50,6 +63,6 @@ func (Server) Start() {
 	http.Handle("/info", infoHandler)
 	http.Handle("/write", writeHandler)
 	http.Handle("/read", readHandler)
-	log.Infof("start serving on 0.0.0.0:%d", 8080)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Infof("start serving on 0.0.0.0:%d", srv.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", srv.Port), nil))
 }

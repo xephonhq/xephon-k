@@ -20,3 +20,8 @@ func ExecuteBench() {
 		os.Exit(-1)
 	}
 }
+
+func init() {
+	// global flags
+	BenchCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
+}

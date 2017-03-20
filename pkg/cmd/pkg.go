@@ -5,11 +5,14 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
+var (
+	debug = false
+)
+
 var log = util.Logger.NewEntryWithPkg("k.cmd")
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
 }
 
 func initConfig() {
