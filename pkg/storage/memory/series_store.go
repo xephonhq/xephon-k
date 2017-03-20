@@ -73,7 +73,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 		points = append(points[:k], newSeries.Points[j:]...)
 		store.length = k + newLength - j
 	}
-	log.Infof("length %d", store.length)
+	log.Debugf("length %d", store.length)
 
 	// TODO: maybe using pool is a good idea since there are a lot of merge when inserting series
 	store.series.Points = points

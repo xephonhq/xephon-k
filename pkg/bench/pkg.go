@@ -15,3 +15,15 @@ type RequestMetric struct {
 	Start time.Time
 	End   time.Time
 }
+
+func DBString(db int) string {
+	switch db {
+	case DBXephonK:
+		return "xephonk"
+	case DBInfluxDB:
+		return "influxdb"
+	case DBKairosDB:
+		return "kairosdb"
+	}
+	return "unknown"
+}
