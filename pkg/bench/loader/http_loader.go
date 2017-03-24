@@ -31,7 +31,7 @@ func (loader *HTTPLoader) Run() {
 	// NOTE: https://github.com/at15/mini-impl/issues/1
 	// TODO: https://github.com/xephonhq/xephon-k/issues/20 warn about file descriptor
 	tr := &http.Transport{
-		MaxIdleConns: loader.config.WorkerNum,
+		MaxIdleConns:        loader.config.WorkerNum,
 		MaxIdleConnsPerHost: loader.config.WorkerNum,
 	}
 	log.Infof("target db %s", bench.DBString(loader.config.TargetDB))
