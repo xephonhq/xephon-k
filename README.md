@@ -5,6 +5,13 @@
 
 A time series database using Cassandra as backend, modeled after KairosDB
 
+- [Slide: Xephon-K A Time Series Database with multiple backends](http://www.slideshare.net/ssuser7e134a/xephon-k-a-time-series-database-with-multiple-backends)
+
+## Related projects
+
+- [awesome-time-series-database](https://github.com/xephonhq/awesome-time-series-database)
+- [tsdb-proxy](https://github.com/xephonhq/tsdb-proxy)
+
 ## Roadmap
 
 - [Survey](survey)
