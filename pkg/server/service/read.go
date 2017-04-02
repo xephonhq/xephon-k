@@ -31,6 +31,7 @@ type readResponse struct {
 	Error    bool                 `json:"error"`
 	ErrorMsg string               `json:"error_msg"`
 	Queries  []common.QueryResult `json:"queries"` // TODO: maybe we should name it as query result?
+	// TODO: where is the data?
 }
 
 type ReadServiceHTTPFactory struct {
@@ -44,6 +45,7 @@ func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 	}
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(readRequest)
+		// TODO: auto fill start and end time for each query
 		if !ok {
 			log.Panic("should be readRequest")
 		}

@@ -30,16 +30,17 @@ func TestStore_WriteIntSeries(t *testing.T) {
 
 func TestStore_QueryIntSeries(t *testing.T) {
 	asst := assert.New(t)
+	log.Logger.EnableSourceLine()
 	store := NewMemStore()
 	store.WriteIntSeries(createDummySeries())
 	tags := make(map[string]string)
 	tags["os"] = "ubuntu"
 	tags["machine"] = "machine-1"
-	qExact := common.Query{Tags: tags, Name: "cpi", MatchPolicy: "exact"}
+	qExact := common.Query{Tags: tags, Name: "cpi", MatchPolicy: "exact", StartTime: 1359788400002, EndTime: 1359788400010}
 	returnedSeries, err := store.QueryIntSeries(qExact)
 	asst.Nil(err)
 	asst.Equal(1, len(returnedSeries))
-	// FIXME: the store length is zero
 	asst.Equal(1, len(returnedSeries[0].Points))
-	log.Info(returnedSeries[0].Points[0].TimeNano)
+	//log.Info(returnedSeries[0].Points[0].TimeNano)
+	log.Logger.DisableSourceLine()
 }

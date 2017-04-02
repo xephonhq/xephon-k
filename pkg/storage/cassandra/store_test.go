@@ -30,7 +30,7 @@ func TestStore_QueryIntSeries(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skip cassandra read int series test")
 	}
-	store := GetDefaultCassandraStore()
+	store := GetDefaultCassandraStore("localhost")
 	// FIXME: let's assume that other tests have already write it
 	tags := make(map[string]string)
 	tags["os"] = "ubuntu"
@@ -44,6 +44,6 @@ func TestStore_WriteIntSeries(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skip cassandra write int series test")
 	}
-	store := GetDefaultCassandraStore()
+	store := GetDefaultCassandraStore("localhost")
 	store.WriteIntSeries(createDummySeries())
 }

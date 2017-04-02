@@ -49,8 +49,9 @@ func (store Store) StoreType() string {
 // TODO: this definitely won't work
 func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error) {
 	series := make([]common.IntSeries, 0)
-	// TODO: use switch and not hard coded string
-	if query.MatchPolicy == "exact" {
+	// TODO: not hard coded string
+	switch query.MatchPolicy {
+	case "exact":
 		// fetch the series
 		// TODO: should we make a copy of the points, what would happen if there are
 		// write when we are encoding it to json
@@ -60,16 +61,13 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		// prometheus use Iterator .... maybe we need custom implements
 		oneSeries, ok := store.data[seriesID]
 		if ok {
-			// TODO: apply the time range filter
-			//series = append(series, oneSeries.series)
-			// TODO: use the start and end time from query
-			// TODO: rename to ReadAll, ReadByStartEndTime etc.
-			series = append(series, *oneSeries.ReadSeries(0, 1447884000020))
+			series = append(series, *oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
 		}
 		return series, nil
+	default:
+		// TODO: query the index to do the filter
+		log.Warn("non exact match is not supported!")
 	}
-	log.Warn("non exact match is not supported!")
-	// TODO: query the index to do the filter
 	return series, nil
 }
 

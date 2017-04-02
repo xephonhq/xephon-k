@@ -1,7 +1,5 @@
 package memory
 
-// TODO: add ReadSeries instead of visiting the series directly
-
 import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"sort"
@@ -85,27 +83,26 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	//}
 }
 
-// ReadSeries filters and return a copy of the data
-func (store *IntSeriesStore) ReadSeries(startTime int64, endTime int64) *common.IntSeries {
+// ReadByStartEndTime filters and return a copy of the data
+func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.IntSeries {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
-	log.Info("read the series!")
-	log.Infof("store length %d", store.length)
+	log.Trace("read the series!")
+	log.Tracef("store length %d", store.length)
 
 	// TODO: we didn't call make for points, there will be a nullptr problem I guess
 	returnSeries := common.IntSeries{}
+	// TODO: we can assume the data has fixed interval and start from a more close position instead of zero
+	// TODO: we can simply copy by the start and end instead of going it one by one since the int series store should
+	// already be sorted
+	// TODO: run the aggregation here?
 	for i := 0; i < store.length; i++ {
-		log.Info("loop the points!")
-		log.Infof("%d s %d e %d", store.series.Points[i].TimeNano, startTime, endTime)
-		log.Info(store.series.Points[i].TimeNano >= startTime)
-		log.Info(store.series.Points[i].TimeNano <= endTime)
-		// Found it, wrong fake time .....
+		// FIXED: wrong fake time in test
 		//1359788400002
 		//144788400002
 		if store.series.Points[i].TimeNano >= startTime && store.series.Points[i].TimeNano <= endTime {
-			// TODO: maybe we should add a append method to IntSeries and let it create a new copy of the
-			// point
-			log.Infof("need to append the points!")
+			// TODO: maybe we should add a append method to IntSeries and let it create a new copy of the point
+			log.Tracef("need to append the points!")
 			returnSeries.Points = append(returnSeries.Points, store.series.Points[i])
 		}
 	}
