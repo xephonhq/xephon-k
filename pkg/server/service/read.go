@@ -4,8 +4,10 @@ import (
 	"context"
 	"net/http"
 
+	"encoding/json"
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage"
 	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
@@ -38,33 +40,47 @@ type ReadServiceHTTPFactory struct {
 }
 
 func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
-	//_, ok := service.(ReadService)
+	// TODO: test it
 	readSvc, ok := service.(ReadService)
 	if !ok {
 		log.Panic("must pass read service to read service factory")
 	}
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(readRequest)
-		// TODO: auto fill start and end time for each query
 		if !ok {
 			log.Panic("should be readRequest")
+		}
+		res := readResponse{}
+		// TODO: check start end time and return 400
+		if req.StartTime == 0 || req.EndTime == 0 {
+			return res, errors.New("must set start and end time")
 		}
 		// for all the queries query the data
 		results := []common.IntSeries{}
 		for _, query := range req.Queries {
+			// TODO: is the zero check really working?
+			if query.StartTime == 0 {
+				query.StartTime = req.StartTime
+			}
+			if query.EndTime == 0 {
+				query.EndTime = query.EndTime
+			}
 			// merge it
 			// http://stackoverflow.com/questions/16248241/concatenate-two-slices-in-go
 			results = append(results, readSvc.QueryInt(query)...)
 		}
-		res := readResponse{}
+
 		return res, nil
 	}
 }
 
-// TODO: real decode logic
 func (ReadServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		return readRequest{}, nil
+		var req readRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			return nil, err
+		}
+		return req, nil
 	}
 }
 

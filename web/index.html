@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Xephon-K UI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+</head>
+<body>
+<div id="canvas" style="width: 600px;height:400px;"></div>
+<script type="text/javascript">
+    var onlyChart = echarts.init(document.getElementById('canvas'));
+
+    var option = {
+        title: {
+            text: 'stack lines'
+        },
+        tooltip: {},
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: true},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        legend: {
+            data: ['Xephon-K(Mem)', 'Xephon-K(Cassandra)', 'KairosDB', 'InfluxDB'],
+//            orient: 'vertical',
+            orient: 'horizontal',
+//            left: 'right',
+            top: 'bottom'
+        },
+        xAxis: {
+            name: 'number of concurrent clients',
+            nameLocation: 'middle',
+            nameGap: 20,
+            data: ["10", "100", "1000", "5000"]
+        },
+        yAxis: {
+            name: 'total requests'
+        },
+        series: [
+            {
+                name: 'Xephon-K(Mem)',
+                type: 'line',
+                data: [12327, 21099, 31791, 12279]
+            }, {
+                name: 'Xephon-K(Cassandra)',
+                type: 'line',
+                data: [7931, 11336, 14590, 8703]
+            },
+            {
+                name: 'KairosDB',
+                type: 'line',
+                data: [15561, 26154, 26939, 16506]
+            },
+            {
+                name: 'InfluxDB',
+                type: 'line',
+                data: [118, 139, 131, 130]
+            }
+        ]
+    };
+
+    onlyChart.setOption(option);
+</script>
+</body>
+</html>
