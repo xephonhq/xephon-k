@@ -5,3 +5,7 @@ import (
 )
 
 var log = util.Logger.NewEntryWithPkg("k.collector")
+
+type Collector interface {
+	Update() error
+}
