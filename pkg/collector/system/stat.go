@@ -19,7 +19,7 @@ const (
 - cpu
 - TODO: intr
 - ctxt context switches
-- btime	boot time TODO: time since boot?
+- btime	the time system boot in Unix timestamp, not time since boot
 - process number of forks since boot
 - procs_running
 - procs_blocked blocked waiting for I/O to complete
@@ -98,6 +98,42 @@ func (globalStat *GlobalStat) Update() error {
 				globalStat.CPUTotal = stat
 			} else {
 				globalStat.CPUs = append(globalStat.CPUs, stat)
+			}
+		} else {
+			switch head {
+			case "ctxt":
+				value, err := strconv.ParseUint(parts[1], 10, 64)
+				if err != nil {
+					return errors.Wrap(err, "can't parse context switches")
+				}
+				globalStat.ContextSwitches = value
+			case "processes":
+				value, err := strconv.ParseUint(parts[1], 10, 64)
+				if err != nil {
+					return errors.Wrap(err, "can't pare processes")
+				}
+				globalStat.Processes = value
+			case "btime":
+				value, err := strconv.ParseUint(parts[1], 10, 64)
+				if err != nil {
+					return errors.Wrap(err, "can't parse boot time")
+				}
+				// boot time, in seconds since the Epoch
+				globalStat.BootTime = value
+			case "procs_running":
+				value, err := strconv.ParseUint(parts[1], 10, 64)
+				if err != nil {
+					return errors.Wrap(err, "can't parse process running")
+				}
+				globalStat.ProcessRunning = value
+			case "procs_blocked":
+				value, err := strconv.ParseUint(parts[1], 10, 64)
+				if err != nil {
+					return errors.Wrap(err, "can't parse process blocked")
+				}
+				globalStat.ProcessBlocked = value
+			default:
+				// TODO: log? only `intr` and `softirq` is left
 			}
 		}
 	}
