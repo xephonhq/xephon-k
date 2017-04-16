@@ -47,18 +47,18 @@ type ExtraStat struct {
 	ProcessBlocked  uint64
 }
 
-type GlobalStat struct {
+type StatCollector struct {
 	ExtraStat
 	CPUs     []CPUStat
 	CPUTotal CPUStat
 }
 
-func (globalStat *GlobalStat) Update() error {
+func (collector *StatCollector) Update() error {
 	file, err := os.Open(statPath)
-	defer file.Close()
 	if err != nil {
-		return errors.Wrap(err, "can't open /proc/stat")
+		return errors.Wrapf(err, "can't open %s", statPath)
 	}
+	defer file.Close()
 	// NOTE: http://stackoverflow.com/questions/8757389/reading-file-line-by-line-in-go
 	reader := bufio.NewReader(file)
 	var line string
@@ -95,43 +95,44 @@ func (globalStat *GlobalStat) Update() error {
 			stat.Guest = values[8]
 			stat.GuestNice = values[9]
 			if head == "cpu" {
-				globalStat.CPUTotal = stat
+				collector.CPUTotal = stat
 			} else {
-				globalStat.CPUs = append(globalStat.CPUs, stat)
+				collector.CPUs = append(collector.CPUs, stat)
 			}
 		} else {
+			// TODO: should use function or generate code
 			switch head {
 			case "ctxt":
 				value, err := strconv.ParseUint(parts[1], 10, 64)
 				if err != nil {
 					return errors.Wrap(err, "can't parse context switches")
 				}
-				globalStat.ContextSwitches = value
+				collector.ContextSwitches = value
 			case "processes":
 				value, err := strconv.ParseUint(parts[1], 10, 64)
 				if err != nil {
 					return errors.Wrap(err, "can't pare processes")
 				}
-				globalStat.Processes = value
+				collector.Processes = value
 			case "btime":
 				value, err := strconv.ParseUint(parts[1], 10, 64)
 				if err != nil {
 					return errors.Wrap(err, "can't parse boot time")
 				}
 				// boot time, in seconds since the Epoch
-				globalStat.BootTime = value
+				collector.BootTime = value
 			case "procs_running":
 				value, err := strconv.ParseUint(parts[1], 10, 64)
 				if err != nil {
 					return errors.Wrap(err, "can't parse process running")
 				}
-				globalStat.ProcessRunning = value
+				collector.ProcessRunning = value
 			case "procs_blocked":
 				value, err := strconv.ParseUint(parts[1], 10, 64)
 				if err != nil {
 					return errors.Wrap(err, "can't parse process blocked")
 				}
-				globalStat.ProcessBlocked = value
+				collector.ProcessBlocked = value
 			default:
 				// TODO: log? only `intr` and `softirq` is left
 			}

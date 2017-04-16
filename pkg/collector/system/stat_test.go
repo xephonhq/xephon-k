@@ -13,7 +13,7 @@ func TestGlobalStat_Update(t *testing.T) {
 	id := util.MockStringVar(&statPath, "fixtures/stat")
 	defer util.RecoverMockedStringVar(id)
 	assert := asst.New(t)
-	stat := GlobalStat{}
+	stat := StatCollector{}
 	err := stat.Update()
 	assert.Nil(err)
 	assert.Equal(runtime.NumCPU(), len(stat.CPUs))
