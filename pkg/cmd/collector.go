@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -11,7 +10,11 @@ var CollectorCmd = &cobra.Command{
 	Short: "Xephon K Collector",
 	Long:  "xkc is the metrics collector for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Let's collect!")
+		// let's just assume we only report to Xephon-K
+		// TODO:
+		// - set the timer
+		// - serialize the payload
+		// need to have a look at other client
 	},
 }
 

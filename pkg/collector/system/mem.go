@@ -47,10 +47,6 @@ type MeminfoCollector struct {
 }
 
 func (collector *MeminfoCollector) Update() error {
-	// TODO
-	// - read line by line
-	// - strip the :
-	// - parse int
 	file, err := os.Open(meminfoPath)
 	if err != nil {
 		return errors.Wrapf(err, "can't open %s", meminfoPath)
