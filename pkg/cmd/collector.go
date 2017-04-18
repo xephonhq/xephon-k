@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/xephonhq/xephon-k/pkg/collector"
 	"os"
+	"os/signal"
+	"time"
 )
 
 var CollectorCmd = &cobra.Command{
@@ -15,6 +18,23 @@ var CollectorCmd = &cobra.Command{
 		// - set the timer
 		// - serialize the payload
 		// need to have a look at other client
+		config := collector.NewConfig()
+		tickChan := time.NewTicker(config.Interval).C
+
+		// catch CTRL + C
+		// http://stackoverflow.com/questions/11268943/golang-is-it-possible-to-capture-a-ctrlc-signal-and-run-a-cleanup-function-in
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt)
+		for {
+			select {
+			case <-sigChan:
+				log.Info("you pressed ctrl + c")
+				log.Info("this is dummy clean up")
+				os.Exit(0)
+			case <-tickChan:
+				log.Info("tick")
+			}
+		}
 	},
 }
 

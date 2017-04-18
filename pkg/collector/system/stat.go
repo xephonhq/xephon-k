@@ -54,6 +54,8 @@ type StatCollector struct {
 }
 
 func (collector *StatCollector) Update() error {
+	// clear the CPUs
+	collector.CPUs = make([]CPUStat, 0, 4)
 	file, err := os.Open(statPath)
 	if err != nil {
 		return errors.Wrapf(err, "can't open %s", statPath)
