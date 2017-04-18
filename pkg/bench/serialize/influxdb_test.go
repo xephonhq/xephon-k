@@ -4,5 +4,8 @@ import "testing"
 
 func TestInfluxDBSerialize_WriteInt(t *testing.T) {
 	influxs := InfluxDBSerialize{}
-	log.Info(string(influxs.WriteInt(createDummyIntPoints())))
+	influxs.Start()
+	influxs.WriteInt(createDummyIntPoints())
+	influxs.End()
+	log.Info(string(influxs.Data()))
 }

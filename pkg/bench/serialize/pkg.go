@@ -4,6 +4,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/util"
 
+	"io"
 	"time"
 )
 
@@ -11,10 +12,18 @@ var log = util.Logger.NewEntryWithPkg("k.b.loader")
 
 // check interface
 var _ Serializer = (*InfluxDBSerialize)(nil)
+var _ Serializer = (*KairosDBSerialize)(nil)
+var _ Serializer = (*XephonKSerialize)(nil)
 
-// Serializer truns a single series into the bytes payload for certain backend
+// Serializer turns a single series into the bytes payload for certain backend
 type Serializer interface {
-	WriteInt(common.IntSeries) []byte
+	Start()
+	End()
+	Reset()
+	ReadCloser() io.ReadCloser
+	Data() []byte
+	DataLen() int
+	WriteInt(common.IntSeries)
 	//WritDouble(common.DoubleSeries) []byte
 }
 

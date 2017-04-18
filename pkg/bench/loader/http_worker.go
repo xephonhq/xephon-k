@@ -1,7 +1,6 @@
 package loader
 
 import (
-	"bytes"
 	"context"
 	"github.com/xephonhq/xephon-k/pkg/bench"
 	"github.com/xephonhq/xephon-k/pkg/bench/generator"
@@ -57,25 +56,29 @@ func (worker *HTTPWorker) work() {
 		default:
 			// generate the series based on batch
 			series := common.IntSeries{Name: "xephon", Tags: tags}
-
+			// TODO: pre allocate the batch size slice should be more efficient
 			for i := 0; i < worker.config.BatchSize; i++ {
 				series.Points = append(series.Points, gen.NextIntPoint())
 			}
-			var data []byte
-			data = serializer.WriteInt(series)
+
+			serializer.Start()
+			serializer.WriteInt(series)
+			serializer.End()
 
 			result := &bench.RequestMetric{
 				Start: time.Now(),
 				// FIXME: len return int, does that mean golang can't have array larger than int32?
-				RequestSize:  int64(len(data)),
+				RequestSize:  int64(serializer.DataLen()),
 				ResponseSize: 0,
 			}
 			req := new(http.Request)
 			// copy base request
 			*req = *worker.baseRequest
-			req.Body = ioutil.NopCloser(bytes.NewReader(data))
+			req.Body = serializer.ReadCloser()
 			// do the request
 			res, err := client.Do(req)
+			// reset the serializer
+			serializer.Reset()
 			if err != nil {
 				log.Warn(err)
 			} else {

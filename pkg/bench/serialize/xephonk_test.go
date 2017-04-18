@@ -4,5 +4,9 @@ import "testing"
 
 func TestXephonKSerialize_WriteInt(t *testing.T) {
 	xks := XephonKSerialize{}
-	log.Info(string(xks.WriteInt(createDummyIntPoints())))
+	xks.Start()
+	xks.WriteInt(createDummyIntPoints())
+	xks.WriteInt(createDummyIntPoints())
+	xks.End()
+	log.Info(string(xks.Data()))
 }

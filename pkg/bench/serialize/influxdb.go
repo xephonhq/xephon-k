@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"io"
+	"io/ioutil"
 )
 
 /*
@@ -20,34 +22,58 @@ weather,location=us-midwest temperature=82 1465839830100400200
 */
 
 type InfluxDBSerialize struct {
+	buf       bytes.Buffer
+	prefixBuf bytes.Buffer
 }
 
-func (influx *InfluxDBSerialize) WriteInt(series common.IntSeries) []byte {
+func (influx *InfluxDBSerialize) Start() {
+	// nop
+}
+
+func (influx *InfluxDBSerialize) End() {
+	// nop
+}
+
+func (influx *InfluxDBSerialize) Reset() {
+	influx.buf.Reset()
+}
+
+func (influx *InfluxDBSerialize) ReadCloser() io.ReadCloser {
+	return ioutil.NopCloser(bytes.NewReader(influx.buf.Bytes()))
+}
+
+func (influx *InfluxDBSerialize) Data() []byte {
+	return influx.buf.Bytes()
+}
+
+func (influx *InfluxDBSerialize) DataLen() int {
+	return influx.buf.Len()
+}
+
+func (influx *InfluxDBSerialize) WriteInt(series common.IntSeries) {
 	// http://herman.asia/efficient-string-concatenation-in-go
-	buf := bytes.NewBufferString("")
-	buf.WriteString(series.Name)
-	buf.WriteString(",")
+	influx.prefixBuf.WriteString(series.Name)
+	influx.prefixBuf.WriteString(",")
 	tagsLength := len(series.Tags)
 	i := 0
 	for k, v := range series.Tags {
 		i++
-		buf.WriteString(k)
-		buf.WriteString("=")
-		buf.WriteString(v)
+		influx.prefixBuf.WriteString(k)
+		influx.prefixBuf.WriteString("=")
+		influx.prefixBuf.WriteString(v)
 		if i < tagsLength {
-			buf.WriteString(",")
+			influx.prefixBuf.WriteString(",")
 		} else {
-			buf.WriteString(" ")
+			influx.prefixBuf.WriteString(" ")
 		}
 	}
-	prefix := buf.Bytes()
+	prefix := influx.prefixBuf.Bytes()
 	//log.Info(string(prefix))
-	buf.Reset()
+	influx.prefixBuf.Reset()
+
 	pointLength := len(series.Points)
 	for i = 0; i < pointLength; i++ {
-		buf.Write(prefix)
-		buf.WriteString(fmt.Sprintf("value=%d %d\n", series.Points[i].V, series.Points[i].TimeNano))
+		influx.buf.Write(prefix)
+		influx.buf.WriteString(fmt.Sprintf("value=%d %d\n", series.Points[i].V, series.Points[i].TimeNano))
 	}
-	// TODO: recycle the buffer
-	return buf.Bytes()
 }
