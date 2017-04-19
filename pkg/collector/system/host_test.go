@@ -1,8 +1,8 @@
 package system
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestNewHostInfo(t *testing.T) {

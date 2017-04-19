@@ -1,18 +1,18 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/xephonhq/xephon-k/pkg/bench/serialize"
 	"github.com/xephonhq/xephon-k/pkg/collector"
 	"github.com/xephonhq/xephon-k/pkg/collector/system"
+	"github.com/xephonhq/xephon-k/pkg/common"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
-	"fmt"
-	"github.com/xephonhq/xephon-k/pkg/common"
-	"github.com/xephonhq/xephon-k/pkg/bench/serialize"
-	"net/http"
-	"io"
-	"io/ioutil"
 )
 
 var CollectorCmd = &cobra.Command{
@@ -32,9 +32,7 @@ var CollectorCmd = &cobra.Command{
 		memCollector := system.MeminfoCollector{}
 
 		// prepare the series
-		cpuMetrics := []string{
-			"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guestnice",
-		}
+
 		metricNames := []string{
 			"mem.total", "mem.free",
 			// "mem.buffers", "mem.cached", "mem.active", "mem.inactive", "mem.dirty",
@@ -43,15 +41,26 @@ var CollectorCmd = &cobra.Command{
 			// "mem.kernelstack", "mem.pagetables", "mem.writebacktmp",
 			// "mem.swapcached", "mem.swaptotal", "mem.swapfree",
 		}
-		// FIXME: re enable CPU metrics after figured out a better way
+
+		cpuMetrics := []string{
+			"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guestnice",
+		}
+		// metric prefix for all the CPU cores
+		cores := make([]string, hostInfo.NumCores+1)
+		for i := 0; i < hostInfo.NumCores; i++ {
+			cores[i] = fmt.Sprintf("cpu.%d.", i)
+		}
+		cores[hostInfo.NumCores] = "cpu.total"
+		// add cpu to metric names
 		for _, m := range cpuMetrics {
-			metricNames = append(metricNames, fmt.Sprintf("cpu.total.%s", m))
-			for i := 0; i < hostInfo.NumCores; i++ {
-				metricNames = append(metricNames, fmt.Sprintf("cpu.%d.%s", i, m))
+			for _, p := range cores {
+				metricNames = append(metricNames, p+m)
 			}
 		}
-		// log.Info(metricNames)
+		log.Info(metricNames)
 
+		// map of int series
+		// TODO: support double series
 		seriesMap := make(map[string]*common.IntSeries, len(metricNames))
 		for _, m := range metricNames {
 			seriesMap[m] = common.NewIntSeries(m)
@@ -111,15 +120,42 @@ var CollectorCmd = &cobra.Command{
 				// TODO: actually they should be updated concurrently
 				cpuCollector.Update()
 				memCollector.Update()
+				var s *common.IntSeries
 				// FIXME: this should not be human work ....
-				//for i := 0; i < hostInfo.NumCores; i++ {
-				// FIXME: .... it's too hard to add points to metrics, need a lot of copy and paste code
-				//	series := seriesMap[fmt.Sprintf("cpu.%s")]
-				//}
-				s := seriesMap["mem.total"]
+				for i, p := range cores {
+					var stat system.CPUStat
+					if i != hostInfo.NumCores {
+						stat = cpuCollector.CPUs[i]
+					} else {
+						stat = cpuCollector.CPUTotal
+					}
+					s = seriesMap[p+"user"]
+					// FIXME: .... it's too hard to add points to metrics, need a lot of copy and paste code
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.User)})
+					s = seriesMap[p+"nice"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Nice)})
+					s = seriesMap[p+"system"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.System)})
+					s = seriesMap[p+"idle"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Idle)})
+					s = seriesMap[p+"iowait"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.IOWait)})
+					s = seriesMap[p+"irq"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Irq)})
+					s = seriesMap[p+"softirq"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.SoftIrq)})
+					s = seriesMap[p+"steal"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Steal)})
+					s = seriesMap[p+"guest"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Guest)})
+					s = seriesMap[p+"guestnice"]
+					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.GuestNice)})
+				}
+				s = seriesMap["mem.total"]
 				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemTotal)})
 				s = seriesMap["mem.free"]
 				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemFree)})
+
 			}
 		}
 	},
