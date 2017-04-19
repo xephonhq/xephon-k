@@ -19,6 +19,13 @@ type DoubleSeries struct {
 	Points []DoublePoint     `json:"points"`
 }
 
+func NewIntSeries(name string) *IntSeries {
+	return &IntSeries{
+		Name: name,
+		Tags: make(map[string]string, 1),
+	}
+}
+
 // Hash returns one result for series have same name and tags
 func (series *IntSeries) Hash() string {
 	// TODO: more efficient way for hashing, every time we hash, we sort it, and using []byte

@@ -55,6 +55,7 @@ type StatCollector struct {
 
 func (collector *StatCollector) Update() error {
 	// clear the CPUs
+	// TODO: since the CPU numbers can't change dynamically, we can use fixed size slice when initialize the collector
 	collector.CPUs = make([]CPUStat, 0, 4)
 	file, err := os.Open(statPath)
 	if err != nil {

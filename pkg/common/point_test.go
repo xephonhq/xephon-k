@@ -12,6 +12,9 @@ import (
 func TestIntPoint_MarshalJSON(t *testing.T) {
 	asst := assert.New(t)
 
+	//1492565887423026057 UnixNano
+	//1492566023000       Unix() * 1000
+	//1359788400000
 	p := IntPoint{TimeNano: 1359788400000, V: 1}
 	// http://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
 	// j, err := json.Marshal(p)

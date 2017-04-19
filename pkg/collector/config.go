@@ -5,7 +5,7 @@ import "time"
 // TODO: should have output destination
 type Config struct {
 	Interval  time.Duration
-	BatchSize uint
+	BatchSize int
 }
 
 func NewConfig() Config {
