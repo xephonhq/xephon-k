@@ -3,15 +3,18 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/xephonhq/xephon-k/pkg/bench"
 	"github.com/xephonhq/xephon-k/pkg/bench/serialize"
 	"github.com/xephonhq/xephon-k/pkg/collector"
 	"github.com/xephonhq/xephon-k/pkg/collector/system"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/xephonhq/xephon-k/pkg/server"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -20,7 +23,53 @@ var CollectorCmd = &cobra.Command{
 	Short: "Xephon K Collector",
 	Long:  "xkc is the metrics collector for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
-		// let's just assume we only report to Xephon-K
+		targetDB := bench.DBXephonK
+		// get the database
+		if strings.HasPrefix(db, "x") {
+			targetDB = bench.DBXephonK
+		} else if strings.HasPrefix(db, "i") {
+			targetDB = bench.DBInfluxDB
+		} else if strings.HasPrefix(db, "k") {
+			targetDB = bench.DBKairosDB
+		} else {
+			log.Fatalf("unsupported target db %s", db)
+			return
+		}
+
+		// client and serializer
+		client := http.Client{}
+		var baseReq *http.Request
+		var serializer serialize.Serializer
+		switch targetDB {
+		case bench.DBInfluxDB:
+			req, err := http.NewRequest("POST", "http://localhost:8086/write?db=sb", nil)
+			if err != nil {
+				log.Panic(err)
+				return
+			}
+			baseReq = req
+			serializer = &serialize.InfluxDBSerialize{}
+		case bench.DBXephonK:
+			url := fmt.Sprintf("http://localhost:%d/write", server.DefaultPort)
+			req, err := http.NewRequest("POST", url, nil)
+			if err != nil {
+				log.Panic(err)
+				return
+			}
+			baseReq = req
+			serializer = &serialize.XephonKSerialize{}
+		case bench.DBKairosDB:
+			req, err := http.NewRequest("POST", "http://localhost:8080/api/v1/datapoints", nil)
+			if err != nil {
+				log.Panic(err)
+				return
+			}
+			baseReq = req
+			serializer = &serialize.KairosDBSerialize{}
+		default:
+			log.Panic("unsupported database, no base request avaliable")
+			return
+		}
 
 		config := collector.NewConfig()
 		currentBatchSize := 0
@@ -50,7 +99,7 @@ var CollectorCmd = &cobra.Command{
 		for i := 0; i < hostInfo.NumCores; i++ {
 			cores[i] = fmt.Sprintf("cpu.%d.", i)
 		}
-		cores[hostInfo.NumCores] = "cpu.total"
+		cores[hostInfo.NumCores] = "cpu.total."
 		// add cpu to metric names
 		for _, m := range cpuMetrics {
 			for _, p := range cores {
@@ -64,15 +113,6 @@ var CollectorCmd = &cobra.Command{
 		seriesMap := make(map[string]*common.IntSeries, len(metricNames))
 		for _, m := range metricNames {
 			seriesMap[m] = common.NewIntSeries(m)
-		}
-
-		// client and serializer
-		client := http.Client{}
-		serializer := serialize.XephonKSerialize{}
-		baseReq, err := http.NewRequest("POST", "http://localhost:23333/write", nil)
-		if err != nil {
-			log.Fatalf("can't create base request %v", err)
-			return
 		}
 
 		// catch CTRL + C
@@ -170,4 +210,7 @@ func ExecuteCollector() {
 func init() {
 	// global flags
 	CollectorCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
+	// local flags
+	// TODO: there is problem of sharing variables between global commands, though they would never get executed together
+	CollectorCmd.Flags().StringVar(&db, "db", "xephonk", "target database: xephonk|influxdb|kairosdb")
 }
