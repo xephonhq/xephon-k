@@ -1,9 +1,11 @@
 package memory
 
-type Index []IndexRow
+// Index is a map of inverted index with tag name as key and tag value as term for the inverted index
+type Index map[string]InvertedIndex
 
-type IndexRow struct {
-	key      string
-	value    string
-	seriesID SeriesID
+// InvertedIndex use Term for tag value postings for a list of sorted series ID
+// TODO: Series ID should use locality hashsing
+type InvertedIndex struct {
+	Term     string
+	Postings []SeriesID
 }

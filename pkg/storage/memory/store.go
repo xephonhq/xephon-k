@@ -1,29 +1,6 @@
 package memory
 
-import (
-	"github.com/xephonhq/xephon-k/pkg/common"
-	"sync"
-)
-
-// singleton
-var storeMap StoreMap
-
-// MemStore need to be shared between read and write services
-type StoreMap struct {
-	mu     sync.RWMutex
-	stores map[string]*Store
-}
-
-func init() {
-	storeMap.stores = make(map[string]*Store, 1)
-	storeMap.stores["default"] = NewMemStore()
-}
-
-func GetDefaultMemStore() *Store {
-	storeMap.mu.RLock()
-	defer storeMap.mu.RUnlock()
-	return storeMap.stores["default"]
-}
+import "github.com/xephonhq/xephon-k/pkg/common"
 
 // Store is the in memory storage with data and index
 type Store struct {
@@ -82,6 +59,7 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 	return nil
 }
 
+// Shutdown TODO: gracefully flush in memory data to disk
 func (store Store) Shutdown() {
 	log.Info("shutting down memoery store, nothing to do, have a nice weekend~")
 }
