@@ -28,14 +28,14 @@ func TestIntSeriesStore_WriteSeries(t *testing.T) {
 }
 
 // TestGoSemantics_StructSliceAssign tests if assign a new slice to a member in struct will work, it works
+// TODO: move this to playground's slice test, it is coupled with current package, and it is used for debugging sth, but
+// the only thing I remember is this is not the source of that bug and nothing more
 func TestGoSemantics_StructSliceAssign(t *testing.T) {
 	store := NewIntSeriesStore()
-	tags := make(map[string]string)
-	tags["os"] = "ubuntu"
 	p1 := common.IntPoint{TimeNano: 1359788400002, V: 1}
 	p2 := common.IntPoint{TimeNano: 1359788400003, V: 2}
 	ps1 := []common.IntPoint{p1, p2}
-	s1 := common.IntSeries{Name: "cpi", Tags: tags, Points: ps1}
+	s1 := common.IntSeries{Name: "cpi", Tags: map[string]string{"os": "ubuntu"}, Points: ps1}
 	store.series = s1
-	t.Log(store.series.Points[0].TimeNano)
+	//t.Log(store.series.Points[0].TimeNano)
 }
