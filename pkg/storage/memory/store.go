@@ -5,15 +5,15 @@ import "github.com/xephonhq/xephon-k/pkg/common"
 // Store is the in memory storage with data and index
 type Store struct {
 	data  Data
-	index Index
+	index *Index // TODO: might change to value instead of pointer
 }
 
 // NewMemStore creates an in memory storage with small allocated space
 func NewMemStore() *Store {
 	store := Store{}
-	// TODO: add a function to create the data and index?
+	// TODO: add a function to create the data?
 	store.data = make(Data, initSeriesCount)
-	store.index = make(Index, initSeriesCount)
+	store.index = NewIndex(initSeriesCount)
 	return &store
 }
 
@@ -32,7 +32,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		// fetch the series
 		// TODO: should we make a copy of the points, what would happen if there are
 		// write when we are encoding it to json
-		seriesID := SeriesID(query.Hash())
+		seriesID := query.Hash()
 		// TODO: there is mutex on IntSeries store, how does prometheus etc. handle this?
 		// should we have a get method or things like that?
 		// prometheus use Iterator .... maybe we need custom implements
@@ -51,7 +51,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 // WriteIntSeries implements Store interface
 func (store Store) WriteIntSeries(series []common.IntSeries) error {
 	for _, oneSeries := range series {
-		id := SeriesID(oneSeries.Hash())
+		id := oneSeries.Hash()
 		// TODO: this should return error and we should handle it somehow
 		store.data.WriteIntSeries(id, oneSeries)
 		// TODO: write the index

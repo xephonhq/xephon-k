@@ -27,7 +27,7 @@ func NewIntSeries(name string) *IntSeries {
 }
 
 // Hash returns one result for series have same name and tags
-func (series *IntSeries) Hash() string {
+func (series *IntSeries) Hash() SeriesID {
 	// TODO: more efficient way for hashing, every time we hash, we sort it, and using []byte
 	// should be more efficient than string
 	h := md5.New()
@@ -45,5 +45,5 @@ func (series *IntSeries) Hash() string {
 		io.WriteString(h, k)
 		io.WriteString(h, series.Tags[k])
 	}
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return SeriesID(fmt.Sprintf("%x", h.Sum(nil)))
 }

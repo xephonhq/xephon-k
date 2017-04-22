@@ -30,6 +30,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	// TODO: check if they are the same series
 	// TODO: efficient merge sort
 	// TODO: actually we can remove duplicate when merge by comparing with previous point
+	// TODO: if the start of the new series is smaller than the end of existing and we make sure there is no duplication we can simply append it
 
 	// store.series should already be sorted, so we only sort the newSeries
 	sort.Sort(common.ByTime(newSeries.Points))

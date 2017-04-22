@@ -6,16 +6,13 @@ import (
 
 var initPointsLength = 100
 
-// SeriesID is hash result of metric name and (sorted) tags
-type SeriesID string
-
 // Data is a map using SeriesID as key
-// TODO: should be able to allow double etc later
-type Data map[SeriesID]*IntSeriesStore
+// TODO: should be able to allow double etc later, maybe wrap it using a struct
+type Data map[common.SeriesID]*IntSeriesStore
 
 // WriteIntSeries create the entry if it does not exist, otherwise merge with existing
 // TODO: return error
-func (data Data) WriteIntSeries(id SeriesID, series common.IntSeries) {
+func (data Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) {
 	seriesStore, ok := data[id]
 	if ok {
 		log.Debugf("mem:data merge with existing series %s", series.Name)

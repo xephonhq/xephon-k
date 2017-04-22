@@ -24,7 +24,7 @@ type QueryResult struct {
 }
 
 // Hash return the same result as IntSeries's hash function
-func (query *Query) Hash() string {
+func (query *Query) Hash() SeriesID {
 	// TODO: this is copied from series Hash
 	h := md5.New()
 	io.WriteString(h, query.Name)
@@ -39,5 +39,5 @@ func (query *Query) Hash() string {
 		io.WriteString(h, k)
 		io.WriteString(h, query.Tags[k])
 	}
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return SeriesID(fmt.Sprintf("%x", h.Sum(nil)))
 }
