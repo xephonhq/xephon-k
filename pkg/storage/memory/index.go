@@ -33,6 +33,16 @@ func newInvertedIndex(term string) *InvertedIndex {
 	}
 }
 
+func (idx *Index) Get(tagKey string, tagValue string) []common.SeriesID {
+	term := tagKey + tagValue
+	iidx, ok := idx.invertedIndexes[term]
+	if ok {
+		return iidx.Postings
+	} else {
+		return []common.SeriesID{}
+	}
+}
+
 func (idx *Index) Add(id common.SeriesID, tagKey string, tagValue string) {
 	// update tagKeyIndex
 	_, ok := idx.tagKeyIndex[tagKey]
@@ -80,4 +90,48 @@ func (iidx *InvertedIndex) Add(id common.SeriesID) {
 	// found
 	// TODO: should have some sort of cache
 	return
+}
+
+// Intersect is used for AND, i.e. app=nginx AND os=ubuntu
+// TODO: in fact, this is the `join` operation in RDBMS
+// TODO: rename postings to sorted list?
+// https://www.quora.com/Which-is-the-best-algorithm-to-merge-k-ordered-lists
+// 'adaptive list intersection'
+// http://www.vldb.org/pvldb/2/vldb09-pvldb37.pdf
+// - galloping search https://en.wikipedia.org/wiki/Exponential_search
+// - Dynamic probe
+//   - sort the lists by length
+func Intersect(postings ...[]common.SeriesID) []common.SeriesID {
+	// find the shortest list to get started with, this can optimize the best case
+	// TODO: though it is also possible to pick the one with shortest range
+	listCount := len(postings)
+	shortestIndex := 0
+	shortestLength := len(postings[0])
+	for i := 1; i < listCount; i++ {
+		if shortestLength > len(postings[i]) {
+			shortestIndex = i
+			shortestLength = len(postings[i])
+		}
+	}
+	// swap
+	if shortestIndex != 0 {
+		postings[0], postings[shortestIndex] = postings[shortestIndex], postings[0]
+	}
+	// walk all the elements in the shortest list
+	//largestValueOfShortestList := postings[shortestLength-1]
+	// TODO: need a list of cursors
+	for i := 0; i < shortestLength; i++ {
+		//cur := postings[0][i]
+		for k := 1; k < listCount; k++ {
+			// http://relistan.com/continue-statement-with-labels-in-go/
+			// WRONG: since we walk the shortest list, there is no index out of range in other lists, you can't depend on this property
+			//if postings[k][i]
+		}
+	}
+	return []common.SeriesID{}
+}
+
+// Union is used for OR, i.e. app=nginx OR app=apache
+func Union(postings ...[]common.SeriesID) []common.SeriesID {
+	return []common.SeriesID{}
 }

@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+func TestIndex_Get(t *testing.T) {
+	assert := asst.New(t)
+	idx := NewIndex(1)
+	idx.Add(common.SeriesID("n1"), "app", "nginx")
+	assert.Equal([]common.SeriesID{"n1"}, idx.Get("app", "nginx"))
+	assert.Equal([]common.SeriesID{}, idx.Get("foo", "bar"))
+	assert.Equal(0, len(idx.Get("foo", "bar")))
+}
+
 func TestIndex_Add(t *testing.T) {
 	assert := asst.New(t)
 	idx := NewIndex(1)
