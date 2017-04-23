@@ -102,33 +102,79 @@ func (iidx *InvertedIndex) Add(id common.SeriesID) {
 // - Dynamic probe
 //   - sort the lists by length
 func Intersect(postings ...[]common.SeriesID) []common.SeriesID {
-	// find the shortest list to get started with, this can optimize the best case
-	// TODO: though it is also possible to pick the one with shortest range
+	// posting is a sorted list, see InvertedIndex
+	// sort by list length using selection sort, assume the number of list is small
+	// TODO: it is also possible to sort by value range
 	listCount := len(postings)
-	shortestIndex := 0
-	shortestLength := len(postings[0])
-	for i := 1; i < listCount; i++ {
-		if shortestLength > len(postings[i]) {
-			shortestIndex = i
-			shortestLength = len(postings[i])
+	allLength := make([]int, listCount)
+	// NOTE: probeStart is not used by sorting lists, we just use the loop to initialize all element to 1
+	probeStart := make([]int, listCount)
+	for i := 0; i < listCount; i++ {
+		shortestIndex := i
+		shortestLength := len(postings[i])
+		for j := i + 1; j < listCount; j++ {
+			curLength := len(postings[j])
+			if curLength < shortestLength {
+				shortestIndex = j
+				shortestLength = curLength
+			}
 		}
+		// swap if needed
+		if i != shortestIndex {
+			postings[i], postings[shortestIndex] = postings[shortestIndex], postings[i]
+		}
+		allLength[i] = shortestLength
+		probeStart[i] = 1
 	}
-	// swap
-	if shortestIndex != 0 {
-		postings[0], postings[shortestIndex] = postings[shortestIndex], postings[0]
-	}
+	log.Info(postings)
+	log.Info(allLength)
+
 	// walk all the elements in the shortest list
-	//largestValueOfShortestList := postings[shortestLength-1]
-	// TODO: need a list of cursors
-	for i := 0; i < shortestLength; i++ {
-		//cur := postings[0][i]
+	// assume the intersection is same length as the shortest list, allocate the space
+	intersection := make([]common.SeriesID, 0, allLength[0])
+OUTER:
+	for i := 0; i < allLength[0]; i++ {
+		log.Infof("%d th element", i)
+		cur := postings[0][i]
+		// probe all the other lists, if one of them don't met, go to next loop
 		for k := 1; k < listCount; k++ {
-			// http://relistan.com/continue-statement-with-labels-in-go/
-			// WRONG: since we walk the shortest list, there is no index out of range in other lists, you can't depend on this property
-			//if postings[k][i]
+			// exponential search, use a smaller range for following binary search
+			bound := probeStart[k]
+			log.Infof("initial bound %d, length %d", bound, allLength[k])
+			for bound < allLength[k] && postings[k][bound] < cur {
+				log.Infof("bound %d", bound)
+				bound *= 2
+			}
+			log.Infof("new bound %d", bound)
+			// binary search
+			low := bound / 2
+			// TODO: Go does not have `(a < b)? a : b`
+			high := bound
+			if high > allLength[k] {
+				high = allLength[k]
+			}
+			for low < high {
+				mid := low + (high-low)/2
+				if postings[k][mid] >= cur {
+					high = mid
+				} else {
+					low = mid + 1
+				}
+			}
+			// TODO: +1 or not?
+			// TODO: if any of the list reaches its end, we can stop the outer loop as well
+			// i.e. 1,2,3 with 4,5,6,7,8
+			probeStart[k] = low + 1
+			// TODO: this didn't consider bound is larger than size
+			if low == bound {
+				// http://relistan.com/continue-statement-with-labels-in-go/
+				continue OUTER
+			}
 		}
+		// if you made it here, then you are in all the lists
+		intersection = append(intersection, cur)
 	}
-	return []common.SeriesID{}
+	return intersection
 }
 
 // Union is used for OR, i.e. app=nginx OR app=apache
