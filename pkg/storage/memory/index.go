@@ -133,26 +133,21 @@ func Intersect(postings ...[]common.SeriesID) []common.SeriesID {
 		allLength[i] = shortestLength
 		probeStart[i] = 1
 	}
-	log.Info(postings)
-	log.Info(allLength)
 
 	// walk all the elements in the shortest list
 	// assume the intersection is same length as the shortest list, allocate the space
 	intersection := make([]common.SeriesID, 0, allLength[0])
 OUTER:
 	for i := 0; i < allLength[0]; i++ {
-		log.Infof("%d th element", i)
 		cur := postings[0][i]
 		// probe all the other lists, if one of them don't met, go to next loop
 		for k := 1; k < listCount; k++ {
 			// exponential search, use a smaller range for following binary search
 			bound := probeStart[k]
 			size := allLength[k]
-			log.Infof("initial bound %d, length %d", bound, size)
 			for bound < size && postings[k][bound] < cur {
 				bound *= 2
 			}
-			log.Infof("new bound %d", bound)
 
 			// binary search
 			low := bound / 2
@@ -169,7 +164,7 @@ OUTER:
 			// this list reaches end, no need to continue the outer loop
 			if low == size {
 				// http://relistan.com/continue-statement-with-labels-in-go/
-				log.Infof("break outer in %d th list", k)
+				//log.Infof("break outer in %d th list", k)
 				break OUTER
 			}
 			probeStart[k] = low + 1

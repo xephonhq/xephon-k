@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"testing"
@@ -14,10 +13,7 @@ func TestIntersect(t *testing.T) {
 	l3 := []common.SeriesID{"n1", "n2"}
 	l4 := []common.SeriesID{"n2"}
 
-	//Intersect([]common.SeriesID{"1"}, []common.SeriesID{"2", "3", "4"})
-	// test if print will sort the slice, nop
-	fmt.Println([][]common.SeriesID{l1, l2, l3, l4})
-	//Intersect(l1, l2, l3, l4)
+	assert.Equal([]common.SeriesID{"n2"}, Intersect(l1, l2, l3, l4))
 
 	// longer list reaches end before short list does
 	// NOTE: should see `break outer in 1 th list` if the log is enabled
