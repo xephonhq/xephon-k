@@ -93,21 +93,28 @@ func (iidx *InvertedIndex) Add(id common.SeriesID) {
 }
 
 // Intersect is used for AND, i.e. app=nginx AND os=ubuntu
-// TODO: in fact, this is the `join` operation in RDBMS
-// TODO: rename postings to sorted list?
-// https://www.quora.com/Which-is-the-best-algorithm-to-merge-k-ordered-lists
-// 'adaptive list intersection'
-// http://www.vldb.org/pvldb/2/vldb09-pvldb37.pdf
-// - galloping search https://en.wikipedia.org/wiki/Exponential_search
-// - Dynamic probe
-//   - sort the lists by length
+// - sort lists by length
+// - loop through the element in the shortest list,
+// 	 - use exponential search to find if the element exists in other lists, only add it to result if it appears in all lists
+//   - if any list reaches its end, the outer loop breaks
+// NOTE:
+// - we didn't use the algorithm in the VLDB paper, just a naive one with some similar ideas
+// - in fact, this is just the `join` operation in RDBMS
+// TODO:
+// - it is also possible to sort by value range
+// Ref
+// - https://www.quora.com/Which-is-the-best-algorithm-to-merge-k-ordered-lists
+// 	 - 'adaptive list intersection'
+// - Improving performance of List intersection http://www.vldb.org/pvldb/2/vldb09-pvldb37.pdf
+// 	 - Dynamic probe
+// - Exponential (galloping) search https://en.wikipedia.org/wiki/Exponential_search
 func Intersect(postings ...[]common.SeriesID) []common.SeriesID {
 	// posting is a sorted list, see InvertedIndex
 	// sort by list length using selection sort, assume the number of list is small
-	// TODO: it is also possible to sort by value range
 	listCount := len(postings)
 	allLength := make([]int, listCount)
-	// NOTE: probeStart is not used by sorting lists, we just use the loop to initialize all element to 1
+	// NOTE: probeStart is not used by sorting lists, we just use the loop to initialize all element to 1,
+	// because exponential search can't start from 0, 0 * 2 = 0
 	probeStart := make([]int, listCount)
 	for i := 0; i < listCount; i++ {
 		shortestIndex := i
@@ -140,19 +147,17 @@ OUTER:
 		for k := 1; k < listCount; k++ {
 			// exponential search, use a smaller range for following binary search
 			bound := probeStart[k]
-			log.Infof("initial bound %d, length %d", bound, allLength[k])
-			for bound < allLength[k] && postings[k][bound] < cur {
-				log.Infof("bound %d", bound)
+			size := allLength[k]
+			log.Infof("initial bound %d, length %d", bound, size)
+			for bound < size && postings[k][bound] < cur {
 				bound *= 2
 			}
 			log.Infof("new bound %d", bound)
+
 			// binary search
 			low := bound / 2
-			// TODO: Go does not have `(a < b)? a : b`
-			high := bound
-			if high > allLength[k] {
-				high = allLength[k]
-			}
+			// NOTE: Go does not have `(a < b)? a : b` http://stackoverflow.com/questions/19979178/what-is-the-idiomatic-go-equivalent-of-cs-ternary-operator
+			high := min(bound, size)
 			for low < high {
 				mid := low + (high-low)/2
 				if postings[k][mid] >= cur {
@@ -161,13 +166,15 @@ OUTER:
 					low = mid + 1
 				}
 			}
-			// TODO: +1 or not?
-			// TODO: if any of the list reaches its end, we can stop the outer loop as well
-			// i.e. 1,2,3 with 4,5,6,7,8
-			probeStart[k] = low + 1
-			// TODO: this didn't consider bound is larger than size
-			if low == bound {
+			// this list reaches end, no need to continue the outer loop
+			if low == size {
 				// http://relistan.com/continue-statement-with-labels-in-go/
+				log.Infof("break outer in %d th list", k)
+				break OUTER
+			}
+			probeStart[k] = low + 1
+			// got the nearest one, but not the same one, no need to check other lists, continue the outer loo
+			if postings[k][low] != cur {
 				continue OUTER
 			}
 		}
@@ -180,4 +187,18 @@ OUTER:
 // Union is used for OR, i.e. app=nginx OR app=apache
 func Union(postings ...[]common.SeriesID) []common.SeriesID {
 	return []common.SeriesID{}
+}
+
+func min(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

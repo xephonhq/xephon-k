@@ -8,16 +8,20 @@ import (
 )
 
 func TestIntersect(t *testing.T) {
+	assert := asst.New(t)
 	l1 := []common.SeriesID{"n1", "n2", "n3"}
 	l2 := []common.SeriesID{"n1", "n2", "n3", "n4"}
 	l3 := []common.SeriesID{"n1", "n2"}
 	l4 := []common.SeriesID{"n2"}
-	l5 := []common.SeriesID{"n5", "n6", "n7"}
+
+	//Intersect([]common.SeriesID{"1"}, []common.SeriesID{"2", "3", "4"})
 	// test if print will sort the slice, nop
 	fmt.Println([][]common.SeriesID{l1, l2, l3, l4})
-	//Intersect(l1, l2)
-	Intersect(l3, l5)
 	//Intersect(l1, l2, l3, l4)
+
+	// longer list reaches end before short list does
+	// NOTE: should see `break outer in 1 th list` if the log is enabled
+	assert.Equal([]common.SeriesID{"1"}, Intersect([]common.SeriesID{"1", "8", "11"}, []common.SeriesID{"1", "4", "5", "6"}))
 }
 
 func TestIndex_Get(t *testing.T) {
@@ -51,4 +55,10 @@ func TestInvertedIndex_Add(t *testing.T) {
 	iidx.Add(common.SeriesID("a"))
 	iidx.Add(common.SeriesID("b"))
 	assert.Equal(iidx.Postings, []common.SeriesID{"a", "b", "d", "e"})
+}
+
+func TestMin(t *testing.T) {
+	assert := asst.New(t)
+	assert.Equal(1, min(1, 2))
+	assert.Equal(1, min(2, 1))
 }
