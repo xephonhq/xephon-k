@@ -1,5 +1,5 @@
 hash: 390912a44a4a92bc817d62e2b6a1064ed28c308eee99f63e4bf638ee144efb99
-updated: 2017-04-01T23:13:23.492267629-07:00
+updated: 2017-04-25T20:35:19.587797729-07:00
 imports:
 - name: github.com/dyweb/gommon
   version: 3213cde0863ea254fd4ab70e41cb9045f89067ad
@@ -40,9 +40,9 @@ imports:
   version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
   vcs: git
 - name: github.com/spf13/pflag
-  version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
+  version: 08b1a584251b5b62f458943640fc8ebd4d50aaa5
 - name: golang.org/x/net
-  version: d379faa25cbdc04d653984913a2ceb43b0bc46d7
+  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
   subpackages:
   - context
   - context/ctxhttp

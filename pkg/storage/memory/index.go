@@ -197,27 +197,23 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 	remainLists := make(map[int]bool, listCount)
 	posList := make([]int, listCount)
 	allLength := make([]int, listCount)
+	// we assume there are many duplication between lists, so we use the longest list's length as initial capacity
+	maxLength := len(postings[0])
 	for i := 0; i < listCount; i++ {
 		remainLists[i] = true
 		posList[i] = 0
 		allLength[i] = len(postings[i])
+		if maxLength < allLength[i] {
+			maxLength = allLength[i]
+		}
 	}
-	//log.Info(remainLists)
 
 	// FIXME: this is linear search merge, the slowest one, nk, but when k is small, this is fine
 	// TODO: it seems there is not need for sorting
-	// TODO: capacity, sum of all lists?
-	// TODO: need to handle duplication, the union should also be a set, and there could be duplication for sure
-	union := make([]common.SeriesID, 0)
+	union := make([]common.SeriesID, 0, maxLength)
 	lastVal := common.SeriesID("")
-	j := 0
 	for len(remainLists) > 0 {
 		log.Info(remainLists)
-		if j > 5 {
-			break
-		} else {
-			j++
-		}
 		// pick any one as the initial value
 		// http://stackoverflow.com/questions/23482786/get-an-arbitrary-key-item-from-a-map
 		var first int
@@ -229,20 +225,32 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 		smallestIndex := first
 		for i := range remainLists {
 			curVal := postings[i][posList[i]]
+			// deal with duplication
 			if curVal == lastVal {
 				log.Infof("dup %s", curVal)
-				// duplication
 				posList[i]++
+				// check the next element if there is any
 				if posList[i] == allLength[i] {
 					delete(remainLists, i)
+				} else {
+					// NOTE: if we don't do this, consider the following
+					// [1], [1, 2], [9] would end up be [1, 9, 2]
+					curVal = postings[i][posList[i]]
 				}
-			} else if curVal < smallestVal {
+			}
+
+			if curVal < smallestVal {
 				// smaller value
 				smallestVal = curVal
 				smallestIndex = i
 			}
 		}
 		log.Infof("%s %s %d", lastVal, smallestVal, smallestIndex)
+		// the random picked list's first unmerged element is same as last value
+		// its index must have been updated in above loop, so we skip following logic
+		if lastVal == smallestVal {
+			continue
+		}
 		posList[smallestIndex]++
 		if posList[smallestIndex] == allLength[smallestIndex] {
 			delete(remainLists, smallestIndex)

@@ -31,8 +31,19 @@ func TestUnion(t *testing.T) {
 	// duplication
 	l3 := []common.SeriesID{"n1", "n2"}
 	l4 := []common.SeriesID{"n1", "n2", "n3"}
-	// FIXME: result is n1, n2, n2
+	// FIXED: result is n1, n2, n2, by adding
+	//if lastVal == smallestVal {
+	//	continue
+	//}
 	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l3, l4))
+
+	log.Logger.EnableSourceLine()
+	// three way
+	l5 := []common.SeriesID{"n9"}
+	// FIXME: {"n1", "n2", "n9", "n3"} would show up randomly, sometimes the test just pass
+	// Got!! when we deal with dup, we need to use its next value to compare if there is any
+	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5))
+	log.Logger.DisableSourceLine()
 }
 
 func TestIndex_Get(t *testing.T) {
