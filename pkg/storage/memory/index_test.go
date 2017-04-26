@@ -22,9 +22,17 @@ func TestIntersect(t *testing.T) {
 
 func TestUnion(t *testing.T) {
 	assert := asst.New(t)
-	l1 := []common.SeriesID{"n1", "n2"}
-	l2 := []common.SeriesID{"n3"}
-	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l1, l2))
+
+	// simple union without duplication
+	//l1 := []common.SeriesID{"n1", "n2"}
+	//l2 := []common.SeriesID{"n3"}
+	//assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l1, l2))
+
+	// duplication
+	l3 := []common.SeriesID{"n1", "n2"}
+	l4 := []common.SeriesID{"n1", "n2", "n3"}
+	// FIXME: result is n1, n2, n2
+	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l3, l4))
 }
 
 func TestIndex_Get(t *testing.T) {

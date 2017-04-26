@@ -202,28 +202,35 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 		posList[i] = 0
 		allLength[i] = len(postings[i])
 	}
+	//log.Info(remainLists)
 
 	// FIXME: this is linear search merge, the slowest one, nk, but when k is small, this is fine
 	// TODO: it seems there is not need for sorting
 	// TODO: capacity, sum of all lists?
 	// TODO: need to handle duplication, the union should also be a set, and there could be duplication for sure
 	union := make([]common.SeriesID, 0)
-	impossibleLargeVal := common.SeriesID("ZZZZZZ")
-	lastVal := impossibleLargeVal
+	lastVal := common.SeriesID("")
 	j := 0
 	for len(remainLists) > 0 {
 		log.Info(remainLists)
 		if j > 5 {
 			break
-		}else {
+		} else {
 			j++
 		}
-		// TODO: using map, you can't pick the first one as the smallest, unless you add a flag
-		smallestVal := impossibleLargeVal
-		smallestIndex := 0
+		// pick any one as the initial value
+		// http://stackoverflow.com/questions/23482786/get-an-arbitrary-key-item-from-a-map
+		var first int
+		for i := range remainLists {
+			first = i
+			break
+		}
+		smallestVal := postings[first][posList[first]]
+		smallestIndex := first
 		for i := range remainLists {
 			curVal := postings[i][posList[i]]
 			if curVal == lastVal {
+				log.Infof("dup %s", curVal)
 				// duplication
 				posList[i]++
 				if posList[i] == allLength[i] {
@@ -235,10 +242,12 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 				smallestIndex = i
 			}
 		}
+		log.Infof("%s %s %d", lastVal, smallestVal, smallestIndex)
 		posList[smallestIndex]++
 		if posList[smallestIndex] == allLength[smallestIndex] {
 			delete(remainLists, smallestIndex)
 		}
+		lastVal = smallestVal
 		union = append(union, smallestVal)
 	}
 	return union
