@@ -4,6 +4,7 @@ import (
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"testing"
+	"fmt"
 )
 
 func TestIntersect(t *testing.T) {
@@ -40,6 +41,9 @@ func TestUnion(t *testing.T) {
 	log.Logger.EnableSourceLine()
 	// three way
 	l5 := []common.SeriesID{"n9"}
+	fmt.Println("index_test.go:44") // works for IDEA
+	fmt.Println("source=index_test.go:44") // does not works for IDEA
+	fmt.Println("source= index_test.go:44") // works for IDEA
 	// FIXME: {"n1", "n2", "n9", "n3"} would show up randomly, sometimes the test just pass
 	// Got!! when we deal with dup, we need to use its next value to compare if there is any
 	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5))

@@ -2,7 +2,7 @@ package: github.com/xephonhq/xephon-k
 import:
 - package: github.com/spf13/cobra
   vcs: git
-  version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
+  version: 6ed17b5128e8932c9ecd4c3970e8ea5e60a418ac
 - package: github.com/dyweb/gommon
   vcs: git
   version: 3213cde0863ea254fd4ab70e41cb9045f89067ad

@@ -1,5 +1,5 @@
-hash: 390912a44a4a92bc817d62e2b6a1064ed28c308eee99f63e4bf638ee144efb99
-updated: 2017-04-25T20:35:19.587797729-07:00
+hash: f415a1a597a8a9e34779f2d8723305d1a4e8c97a606a17b5d27f2fc1eecc45f3
+updated: 2017-04-25T21:05:52.171199119-07:00
 imports:
 - name: github.com/dyweb/gommon
   version: 3213cde0863ea254fd4ab70e41cb9045f89067ad
@@ -37,12 +37,12 @@ imports:
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
   vcs: git
 - name: github.com/spf13/cobra
-  version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
+  version: 6ed17b5128e8932c9ecd4c3970e8ea5e60a418ac
   vcs: git
 - name: github.com/spf13/pflag
-  version: 08b1a584251b5b62f458943640fc8ebd4d50aaa5
+  version: 2300d0f8576fe575f71aaa5b9bbe4e1b0dc2eb51
 - name: golang.org/x/net
-  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
+  version: da118f7b8e5954f39d0d2130ab35d4bf0e3cb344
   subpackages:
   - context
   - context/ctxhttp
