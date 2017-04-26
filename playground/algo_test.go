@@ -27,3 +27,26 @@ func TestSort_Selection(t *testing.T) {
 	}
 	fmt.Println(arr)
 }
+
+// https://www.cs.cmu.edu/~adamchik/15-121/lectures/Binary%20Heaps/heaps.html
+type heap struct {
+	data []int
+}
+
+// TODO: percolation down
+
+func (h *heap) insert(x int) {
+	h.data = append(h.data, x)
+	// percolation up
+	pos := len(h.data) - 1
+	for ; pos > 1 && x < h.data[pos/2]; pos = pos / 2 {
+		h.data[pos] = h.data[pos/2]
+	}
+	h.data[pos] = x
+}
+
+func TestHeap_Insert(t *testing.T) {
+	h := heap{data: []int{0, 6, 7, 12, 10, 15, 17}}
+	h.insert(5)
+	fmt.Println(h.data)
+}

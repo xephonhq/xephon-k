@@ -20,6 +20,13 @@ func TestIntersect(t *testing.T) {
 	assert.Equal([]common.SeriesID{"1"}, Intersect([]common.SeriesID{"1", "8", "11"}, []common.SeriesID{"1", "4", "5", "6"}))
 }
 
+func TestUnion(t *testing.T) {
+	assert := asst.New(t)
+	l1 := []common.SeriesID{"n1", "n2"}
+	l2 := []common.SeriesID{"n3"}
+	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l1, l2))
+}
+
 func TestIndex_Get(t *testing.T) {
 	assert := asst.New(t)
 	idx := NewIndex(1)

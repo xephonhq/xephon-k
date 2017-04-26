@@ -180,8 +180,68 @@ OUTER:
 }
 
 // Union is used for OR, i.e. app=nginx OR app=apache
+// - sort all the lists by length? or just pick the smallest one?
+// - get first len(smallest) elements of each array into an array and sort it? this is nk * log(k)
+// NOTE
+// - Linear search merge duplicate compare
+// - Divide and Conquer merge requires extra space
+// - Heap merge requires using Heap (e... such a brainless note, a.k.a I don't know how to write heap)
+// - need to exclude lists when they reaches the end, might use a map
+// Ref
+// - https://en.wikipedia.org/wiki/K-Way_Merge_Algorithms
+// - https://github.com/prometheus/tsdb/issues/50
+// - k-way merging and k-ary sorts http://cs.uno.edu/people/faculty/bill/k-way-merge-n-sort-ACM-SE-Regl-1993.pdf
+// - https://www.cs.cmu.edu/~adamchik/15-121/lectures/Binary%20Heaps/heaps.html
 func Union(postings ...[]common.SeriesID) []common.SeriesID {
-	return []common.SeriesID{}
+	listCount := len(postings)
+	remainLists := make(map[int]bool, listCount)
+	posList := make([]int, listCount)
+	allLength := make([]int, listCount)
+	for i := 0; i < listCount; i++ {
+		remainLists[i] = true
+		posList[i] = 0
+		allLength[i] = len(postings[i])
+	}
+
+	// FIXME: this is linear search merge, the slowest one, nk, but when k is small, this is fine
+	// TODO: it seems there is not need for sorting
+	// TODO: capacity, sum of all lists?
+	// TODO: need to handle duplication, the union should also be a set, and there could be duplication for sure
+	union := make([]common.SeriesID, 0)
+	impossibleLargeVal := common.SeriesID("ZZZZZZ")
+	lastVal := impossibleLargeVal
+	j := 0
+	for len(remainLists) > 0 {
+		log.Info(remainLists)
+		if j > 5 {
+			break
+		}else {
+			j++
+		}
+		// TODO: using map, you can't pick the first one as the smallest, unless you add a flag
+		smallestVal := impossibleLargeVal
+		smallestIndex := 0
+		for i := range remainLists {
+			curVal := postings[i][posList[i]]
+			if curVal == lastVal {
+				// duplication
+				posList[i]++
+				if posList[i] == allLength[i] {
+					delete(remainLists, i)
+				}
+			} else if curVal < smallestVal {
+				// smaller value
+				smallestVal = curVal
+				smallestIndex = i
+			}
+		}
+		posList[smallestIndex]++
+		if posList[smallestIndex] == allLength[smallestIndex] {
+			delete(remainLists, smallestIndex)
+		}
+		union = append(union, smallestVal)
+	}
+	return union
 }
 
 func min(a int, b int) int {

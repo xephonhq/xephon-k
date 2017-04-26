@@ -24,3 +24,5 @@ scripts:
     - sh -c "xbucket"
   api:
     - sh -c "xapi"
+  loc:
+    - cloc --exclude-dir=vendor .
