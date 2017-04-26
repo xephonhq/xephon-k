@@ -4,7 +4,6 @@ import (
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"testing"
-	"fmt"
 )
 
 func TestIntersect(t *testing.T) {
@@ -25,9 +24,9 @@ func TestUnion(t *testing.T) {
 	assert := asst.New(t)
 
 	// simple union without duplication
-	//l1 := []common.SeriesID{"n1", "n2"}
-	//l2 := []common.SeriesID{"n3"}
-	//assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l1, l2))
+	l1 := []common.SeriesID{"n1", "n2"}
+	l2 := []common.SeriesID{"n3"}
+	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l1, l2))
 
 	// duplication
 	l3 := []common.SeriesID{"n1", "n2"}
@@ -38,16 +37,20 @@ func TestUnion(t *testing.T) {
 	//}
 	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l3, l4))
 
-	log.Logger.EnableSourceLine()
+	//log.Logger.EnableSourceLine()
 	// three way
 	l5 := []common.SeriesID{"n9"}
-	fmt.Println("index_test.go:44") // works for IDEA
-	fmt.Println("source=index_test.go:44") // does not works for IDEA
-	fmt.Println("source= index_test.go:44") // works for IDEA
-	// FIXME: {"n1", "n2", "n9", "n3"} would show up randomly, sometimes the test just pass
-	// Got!! when we deal with dup, we need to use its next value to compare if there is any
+	//fmt.Println("index_test.go:44") // works for IDEA
+	//fmt.Println("source=index_test.go:44") // does not works for IDEA
+	//fmt.Println("source= index_test.go:44") // works for IDEA
+	// FIXED: {"n1", "n2", "n9", "n3"} would show up randomly, sometimes the test just pass
+	// Got!! when we deal with dup, we need to use its next value to compare if there is any, the random is caused by picking the first value
 	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5))
-	log.Logger.DisableSourceLine()
+	//log.Logger.DisableSourceLine()
+
+	// just want to write one more test
+	l6 := []common.SeriesID{"n1", "n9"}
+	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5, l6))
 }
 
 func TestIndex_Get(t *testing.T) {

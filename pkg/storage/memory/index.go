@@ -213,9 +213,7 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 	union := make([]common.SeriesID, 0, maxLength)
 	lastVal := common.SeriesID("")
 	for len(remainLists) > 0 {
-		log.Info(remainLists)
-		// pick any one as the initial value
-		// http://stackoverflow.com/questions/23482786/get-an-arbitrary-key-item-from-a-map
+		// pick any one as the initial value http://stackoverflow.com/questions/23482786/get-an-arbitrary-key-item-from-a-map
 		var first int
 		for i := range remainLists {
 			first = i
@@ -227,14 +225,14 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 			curVal := postings[i][posList[i]]
 			// deal with duplication
 			if curVal == lastVal {
-				log.Infof("dup %s", curVal)
+				//log.Infof("dup %s", curVal)
 				posList[i]++
 				// check the next element if there is any
 				if posList[i] == allLength[i] {
 					delete(remainLists, i)
 				} else {
-					// NOTE: if we don't do this, consider the following
-					// [1], [1, 2], [9] would end up be [1, 9, 2]
+					// NOTE: if we don't do this, [1], [1, 2], [9] would end up be [1, 9, 2],
+					// sometimes it would be the correct [1, 2, 9] due to the randomness of first
 					curVal = postings[i][posList[i]]
 				}
 			}
@@ -245,7 +243,8 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 				smallestIndex = i
 			}
 		}
-		log.Infof("%s %s %d", lastVal, smallestVal, smallestIndex)
+		//log.Infof("%s %s %d", lastVal, smallestVal, smallestIndex)
+
 		// the random picked list's first unmerged element is same as last value
 		// its index must have been updated in above loop, so we skip following logic
 		if lastVal == smallestVal {
