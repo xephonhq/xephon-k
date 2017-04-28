@@ -54,7 +54,11 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 		id := oneSeries.Hash()
 		// TODO: this should return error and we should handle it somehow
 		store.data.WriteIntSeries(id, oneSeries)
-		// TODO: write the index
+		// NOTE: we store series name as special tag
+		store.index.Add(id, nameTagKey, oneSeries.Name)
+		for k, v := range oneSeries.Tags {
+			store.index.Add(id, k, v)
+		}
 	}
 	return nil
 }

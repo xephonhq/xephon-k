@@ -23,7 +23,7 @@ var DaemonCmd = &cobra.Command{
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print(banner)
-		srv := server.Server{Port: port, Backend: backend, CassandraHost: cassandraHost}
+		srv := server.HTTPServer{Port: port, Backend: backend, CassandraHost: cassandraHost}
 		srv.Start()
 	},
 }

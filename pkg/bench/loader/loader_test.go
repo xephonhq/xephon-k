@@ -9,9 +9,7 @@ import (
 )
 
 func TestHTTPLoader_Run(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skip loader run test")
-	}
+	t.Skip("skip loader run test")
 	//ld := NewHTTPLoader(NewConfig(bench.DBInfluxDB), &reporter.NullReporter{}) // 143
 	//ld := NewHTTPLoader(NewConfig(bench.DBXephonK), &reporter.NullReporter{}) // 8928
 	//ld := NewHTTPLoader(NewConfig(bench.DBInfluxDB), &reporter.BasicReporter{})

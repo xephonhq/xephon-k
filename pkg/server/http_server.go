@@ -10,13 +10,13 @@ import (
 	"strings"
 )
 
-type Server struct {
+type HTTPServer struct {
 	Port          int
 	Backend       string
 	CassandraHost string
 }
 
-func (srv Server) Start() {
+func (srv HTTPServer) Mux() *http.ServeMux {
 	var infoSvc service.InfoService
 	infoSvc = service.InfoServiceImpl{}
 	infoSvc = middleware.NewLoggingInfoServiceMiddleware(infoSvc)
@@ -61,9 +61,14 @@ func (srv Server) Start() {
 		readSvcHTTPFactory.MakeEncode(),
 	)
 
-	http.Handle("/info", infoHandler)
-	http.Handle("/write", writeHandler)
-	http.Handle("/read", readHandler)
+	mux := http.NewServeMux()
+	mux.Handle("/info", infoHandler)
+	mux.Handle("/write", writeHandler)
+	mux.Handle("/read", readHandler)
+	return mux
+}
+
+func (srv HTTPServer) Start() {
 	log.Infof("start serving on 0.0.0.0:%d", srv.Port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", srv.Port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", srv.Port), srv.Mux()))
 }

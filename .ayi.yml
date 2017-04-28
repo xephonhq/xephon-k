@@ -9,6 +9,8 @@ install:
 test:
   - go test -short -v -cover ./pkg/...
 scripts:
+  t:
+    - go test -v -cover ./pkg/...
   runc:
     - docker run --name tsdb-cassandra -p 9042:9042 -d cassandra:3.9
   start:

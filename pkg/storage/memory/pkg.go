@@ -9,6 +9,10 @@ import (
 var log = util.Logger.NewEntryWithPkg("k.s.mem")
 var initSeriesCount = 10
 
+const (
+	nameTagKey = "__name__"
+)
+
 // singleton map for share memory store between multiple go-kit services
 var storeMap StoreMap
 
