@@ -25,9 +25,11 @@ type ReadServiceServerImpl struct {
 }
 
 type readRequest struct {
-	StartTime int64          `json:"start_time,omitempty"`
-	EndTime   int64          `json:"end_time,omitempty"`
-	Queries   []common.Query `json:"queries"`
+	StartTime  int64           `json:"start_time,omitempty"`
+	EndTime    int64           `json:"end_time,omitempty"`
+	QueriesRaw json.RawMessage `json:"q"`
+	Queries    []common.Query  `json:"-"`
+	A          string
 }
 
 type readResponse struct {
@@ -76,7 +78,7 @@ func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 			// pass all the queries to it and let it handle the logic
 			results = append(results, readSvc.QueryInt(query)...)
 		}
-
+		res.Metrics = results
 		return res, nil
 	}
 }
@@ -119,4 +121,28 @@ func (rs ReadServiceServerImpl) QueryInt(q common.Query) []common.IntSeries {
 		log.Warn(err)
 	}
 	return series
+}
+
+// UnmarshalJSON implements Unmarshaler interface
+func (req *readRequest) UnmarshalJSON(data []byte) error {
+	// NOTE:
+	// http://choly.ca/post/go-json-marshalling/
+	// http://stackoverflow.com/questions/29667379/json-unmarshal-fails-when-embedded-type-has-
+	type Alias readRequest
+	a := (*Alias)(req)
+	log.Info(a)
+	log.Info(req)
+	err := json.Unmarshal(data, a)
+	log.Info(err)
+	if err != nil {
+		return err
+	}
+	log.Info(a)
+	log.Info(req)
+	err = json.Unmarshal(req.QueriesRaw, &req.Queries)
+	log.Info(err)
+	if err != nil {
+		return err
+	}
+	return nil
 }
