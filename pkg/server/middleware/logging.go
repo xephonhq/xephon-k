@@ -55,3 +55,12 @@ type LoggingReadServiceMiddleware struct {
 func NewLoggingReadServiceMiddleware(service service.ReadService) LoggingReadServiceMiddleware {
 	return LoggingReadServiceMiddleware{ReadService: service, logger: logger}
 }
+
+// FIMXE: this just don't show
+func (mw LoggingReadServiceMiddleware) QueryInt(q common.Query) []common.IntSeries {
+	defer func(begin time.Time) {
+		// TODO: human readable time format, what's the number, ms, ns?
+		mw.logger.Infof("POST /read %d", time.Since(begin))
+	}(time.Now())
+	return mw.ReadService.QueryInt(q)
+}

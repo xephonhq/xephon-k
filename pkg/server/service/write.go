@@ -93,6 +93,7 @@ func (WriteServiceServerImpl) ServiceName() string {
 	return "write"
 }
 
+// WriteInt implements WriteService
 func (ws WriteServiceServerImpl) WriteInt(series []common.IntSeries) error {
 	// write to memory storage
 	// NOTE: maybe we should wrap error instead of just return it

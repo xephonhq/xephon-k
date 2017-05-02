@@ -1,8 +1,8 @@
-hash: f415a1a597a8a9e34779f2d8723305d1a4e8c97a606a17b5d27f2fc1eecc45f3
-updated: 2017-04-25T21:05:52.171199119-07:00
+hash: 4cd154e7f0cb13dda41f32f46a9f3c55915826ce2baa91bbc29e6660752c8cac
+updated: 2017-05-01T17:28:16.721235108-07:00
 imports:
 - name: github.com/dyweb/gommon
-  version: 3213cde0863ea254fd4ab70e41cb9045f89067ad
+  version: 8ca50631c052f4dd995c69ee35bda0fb79a1e0bf
   vcs: git
   subpackages:
   - log
@@ -40,7 +40,7 @@ imports:
   version: 6ed17b5128e8932c9ecd4c3970e8ea5e60a418ac
   vcs: git
 - name: github.com/spf13/pflag
-  version: 2300d0f8576fe575f71aaa5b9bbe4e1b0dc2eb51
+  version: f1d95a35e132e8a1868023a08932b14f0b8b8fcb
 - name: golang.org/x/net
   version: da118f7b8e5954f39d0d2130ab35d4bf0e3cb344
   subpackages:

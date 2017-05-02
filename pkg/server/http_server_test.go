@@ -1,13 +1,10 @@
 package server
 
 import (
-	"encoding/json"
+	"github.com/dyweb/gommon/requests"
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg"
-	"io/ioutil"
-	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -22,14 +19,7 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 
 	t.Run("info", func(t *testing.T) {
 		assert := asst.New(t)
-		// TODO: add util function, following block is pretty verbose
-		res, err := http.Get(ts.URL + "/info")
-		assert.Nil(err)
-		data, err := ioutil.ReadAll(res.Body)
-		res.Body.Close()
-		assert.Nil(err)
-		var info map[string]string
-		err = json.Unmarshal(data, &info)
+		info, err := requests.GetJSONStringMap(ts.URL + "/info")
 		assert.Nil(err)
 		assert.Equal(pkg.Version, info["version"])
 	})
@@ -42,28 +32,48 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 	},
 	{
 		"name":"cpi",
-		"tags":{"machine":"machine-01","os":"ubuntu"},
+		"tags":{"machine":"machine-02","os":"ubuntu"},
 		"points":[[1493363958000,0],[1493363959000,1],[1493363960000,2],[1493363961000,3],[1493363962000,4]]
 	}
 	]`
 
 	t.Run("write", func(t *testing.T) {
 		assert := asst.New(t)
-		// TODO: add util function, following block is pretty verbose
-		res, err := http.Post(ts.URL+"/write", "application/json", strings.NewReader(writeData))
-		assert.Nil(err)
-		data, err := ioutil.ReadAll(res.Body)
-		res.Body.Close()
+		res, err := requests.PostJSONString(ts.URL+"/write", writeData)
 		assert.Nil(err)
 		var writeResult map[string]interface{}
-		err = json.Unmarshal(data, &writeResult)
+		err = res.JSON(&writeResult)
 		assert.Nil(err)
-		assert.Equal(200, res.StatusCode)
+		assert.Equal(200, res.Res.StatusCode)
 		assert.Equal(false, writeResult["error"].(bool))
 
 		// TODO: test invalid format won't break service
+		// TODO: test partially invalid payload would fail partially, I don' think it's implemented
 	})
 
 	// TODO: read
+	queryData := `{
+		"start_time": 1493363958000,
+		"end_time": 1494363958000,
+		"quries":[
+			{
+				"name":"cpi",
+				"tags":{"machine":"machine-01","os":"ubuntu"},
+				"match_policy": "exact",
+				"start_time": 1493363958000,
+				"end_time": 1494363958000
+			}
+		]
+	}`
+
+	t.Run("exact query", func(t *testing.T) {
+		assert := asst.New(t)
+		res, err := requests.PostJSONString(ts.URL+"/read", queryData)
+		assert.Nil(err)
+		// FIXME: it's 500
+		t.Log(string(res.Text))
+		// FIXME: there is no logging
+		assert.Equal(200, res.Res.StatusCode)
+	})
 
 }
