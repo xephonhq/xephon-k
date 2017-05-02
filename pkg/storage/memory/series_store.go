@@ -1,9 +1,10 @@
 package memory
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/common"
 	"sort"
 	"sync"
+
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
 // IntSeriesStore protects the underlying IntSeries with a RWMutex
@@ -91,11 +92,15 @@ func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) 
 	log.Trace("read the series!")
 	log.Tracef("store length %d", store.length)
 
-	// TODO: we didn't call make for points, there will be a nullptr problem I guess
-	returnSeries := common.IntSeries{}
+	// TODO: may use pool for points
+	returnSeries := common.IntSeries{
+		Name: store.series.Name,
+		Tags: store.series.Tags,
+	}
 	// TODO: we can assume the data has fixed interval and start from a more close position instead of zero
-	// TODO: we can simply copy by the start and end instead of going it one by one since the int series store should
-	// already be sorted
+	// TODO: we can simply copy by the start and end instead of going it one by one since the int series store should already be sorted
+	// FIXME: at least use binary/exponential search for start and end instead of compare one by one
+	// TODO: may use skip list
 	// TODO: run the aggregation here?
 	for i := 0; i < store.length; i++ {
 		// FIXED: wrong fake time in test

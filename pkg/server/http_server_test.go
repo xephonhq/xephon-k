@@ -55,7 +55,7 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 	queryData := `{
 		"start_time": 1493363958000,
 		"end_time": 1494363958000,
-		"quries":[
+		"queries":[
 			{
 				"name":"cpi",
 				"tags":{"machine":"machine-01","os":"ubuntu"},
@@ -70,10 +70,9 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 		assert := asst.New(t)
 		res, err := requests.PostJSONString(ts.URL+"/read", queryData)
 		assert.Nil(err)
-		// FIXME: it's 500
-		t.Log(string(res.Text))
-		// FIXME: there is no logging
 		assert.Equal(200, res.Res.StatusCode)
+		t.Log(string(res.Text))
+		// TODO: validate the result instead of simply printing it
 	})
 
 }

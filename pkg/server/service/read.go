@@ -27,10 +27,12 @@ type ReadServiceServerImpl struct {
 type readRequest struct {
 	StartTime  int64           `json:"start_time,omitempty"`
 	EndTime    int64           `json:"end_time,omitempty"`
-	QueriesRaw json.RawMessage `json:"q"`
-	Queries    []common.Query  `json:"-"`
-	A          string
+	QueriesRaw json.RawMessage `json:"queries,omitempty"`
+	Queries    []common.Query  `json:"queries_that_cant_be_directly_unmsharl_to"`
 }
+
+// for avid recursion in UnmarshalJSON
+type readRequestAlias readRequest
 
 type readResponse struct {
 	Error    bool                 `json:"error"`
@@ -59,9 +61,6 @@ func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 		if req.StartTime == 0 || req.EndTime == 0 {
 			return res, errors.New("must set start and end time")
 		}
-		// FIXME: unmarshal won't work for object arrays? Yes, need custom json decoder, man ....
-		log.Info(req)
-		log.Info(len(req.Queries))
 		// for all the queries query the data
 		results := []common.IntSeries{}
 		for _, query := range req.Queries {
@@ -114,9 +113,8 @@ func (ReadServiceServerImpl) ServiceName() string {
 
 // QueryInt implements ReadService
 func (rs ReadServiceServerImpl) QueryInt(q common.Query) []common.IntSeries {
-	log.Info("query int in read service impl")
 	series, err := rs.store.QueryIntSeries(q)
-	// TODO: better error handling
+	// TODO: better error handling, i.e propagate the error to upper level
 	if err != nil {
 		log.Warn(err)
 	}
@@ -125,24 +123,17 @@ func (rs ReadServiceServerImpl) QueryInt(q common.Query) []common.IntSeries {
 
 // UnmarshalJSON implements Unmarshaler interface
 func (req *readRequest) UnmarshalJSON(data []byte) error {
-	// NOTE:
+	// NOTE: need to use Alias to avoid recursion
 	// http://choly.ca/post/go-json-marshalling/
 	// http://stackoverflow.com/questions/29667379/json-unmarshal-fails-when-embedded-type-has-
-	type Alias readRequest
-	a := (*Alias)(req)
-	log.Info(a)
-	log.Info(req)
+	a := (*readRequestAlias)(req)
 	err := json.Unmarshal(data, a)
-	log.Info(err)
 	if err != nil {
 		return err
 	}
-	log.Info(a)
-	log.Info(req)
 	err = json.Unmarshal(req.QueriesRaw, &req.Queries)
-	log.Info(err)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "queries field is not provided")
 	}
 	return nil
 }
