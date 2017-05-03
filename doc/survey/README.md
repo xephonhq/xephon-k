@@ -1,14 +1,17 @@
 # Survey
 
-This folder contains doc and code snippets from [time series
-databases using Cassandra as backend](https://github.com/xephonhq/awesome-time-series-database#cassandra).
+Survey of existing Time series databases design and implementation details, schema, data structure,
+storage engine, on disk format, index format etc. 
+Contents are merged with [Xephon-S](https://github.com/xephonhq/xephon-s/tree/master/doc/survey), 
+[tsdb-proxy-java](https://github.com/xephonhq/tsdb-proxy-java/blob/master/doc/survey)
+
 
 Cassandra
 
 - [Cassandra](cassandra.md)
 - [ScyllaDB](scylladb.md)
 
-TSDBs
+[Time Series Databases using Cassandra as Backend](https://github.com/xephonhq/awesome-time-series-database#cassandra)
 
 - [KairosDB](kairosdb.md)
 - [OpenTSDB](opentsdb.md)
@@ -19,8 +22,6 @@ TSDBs
 
 ## TODO
 
-- [x] Thrift, CQL and the underlying storage (I think I got a bit confused when trying to use
-  CQL to understand KairosDB's schema design), see [Cassandra](cassandra/README.md)
 
 ## Usage
 
@@ -35,3 +36,8 @@ TSDBs
 To be organized
 
 - RRD can't back fill http://graphite.readthedocs.io/en/latest/whisper.html#differences-between-whisper-and-rrd
+
+## Done
+
+- [x] Thrift, CQL and the underlying storage (I think I got a bit confused when trying to use
+  CQL to understand KairosDB's schema design), see [Cassandra](cassandra/README.md)

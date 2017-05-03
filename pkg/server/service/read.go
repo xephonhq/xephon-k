@@ -31,7 +31,7 @@ type readRequest struct {
 	Queries    []common.Query  `json:"queries_that_cant_be_directly_unmsharl_to"`
 }
 
-// for avid recursion in UnmarshalJSON
+// for avoid recursion in UnmarshalJSON
 type readRequestAlias readRequest
 
 type readResponse struct {
