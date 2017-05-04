@@ -1,11 +1,12 @@
 package server
 
 import (
+	"net/http/httptest"
+	"testing"
+
 	"github.com/dyweb/gommon/requests"
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestHTTPServerMemoryBackendE2E(t *testing.T) {
@@ -51,7 +52,7 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 		// TODO: test partially invalid payload would fail partially, I don' think it's implemented
 	})
 
-	// TODO: read
+	// TODO: read, match by tag
 	queryData := `{
 		"start_time": 1493363958000,
 		"end_time": 1494363958000,

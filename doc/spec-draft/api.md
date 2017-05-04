@@ -40,6 +40,7 @@ For getting basic info of current tsdb, so the client library can make some choi
 ## Insert
 
 - `/w` (I know this is not restful, but why bother)
+  - `/write`
 - [ ] KairosDB use `[1359788400000, 10]` to avoid the overhead of key in data points, don't know if golang can
 handle this properly, may need to add custom unmarshal handler
 - [ ] KairosDB seems to be allowing mixing int and float number, bec[1359788400000, 10]ause it store value using blob
@@ -93,12 +94,23 @@ i.e. I want to query mem.total and mem.usage at same time
     "use_cache": false,
     "start_time": 1357023600000,
     "end_time": 1357077800000,
-    "metrics" : [
+    "queries" : [
         {
-            "name": "cpu.idle"
+            "name": "cpu.idle",
+            "tags": {"machine":"machine-01","os":"ubuntu"},
+            "match_policy": "exact",
+            "start_time": 1493363958000,
+            "end_time": 1494363958000
         },
         {
-            "name": "cpu.usage"
+            "name": "cpu.usage",
+            "match_policy": "filter",
+            "filters": [
+
+            ],
+            "aggregator": {
+                
+            }
         }
     ]
 }

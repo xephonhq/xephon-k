@@ -64,7 +64,9 @@ func (srv HTTPServer) Mux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.Handle("/info", infoHandler)
 	mux.Handle("/write", writeHandler)
+	mux.Handle("/w", writeHandler)
 	mux.Handle("/read", readHandler)
+	mux.Handle("/r", readHandler)
 	return mux
 }
 
