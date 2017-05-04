@@ -8,7 +8,6 @@
 - [x] Is there any requirement for the size of multiple RRAs, i.e. the RRA using one second should be larger than 60 so the values to be dropped can be consolidated and put into another more coarse grained RRA.
   - answered by graphite whisper http://graphite.readthedocs.io/en/latest/whisper.html#archives-retention-and-precision
 
-
 ## Ref
 
 - rrdtool https://github.com/oetiker/rrdtool-1.x

@@ -1,11 +1,12 @@
-# Prometheus
+# Prometheus: Translating between monitoring languages
 
-- translating-between-monitoring-languages https://www.robustperception.io/translating-between-monitoring-languages/
+Compare Graphite, PromQL, InfluxQL from Prometheus guys https://www.robustperception.io/translating-between-monitoring-languages/,
+
+## Related
+
 - Turning complete https://www.robustperception.io/conways-life-in-prometheus/
 
-## Translating between monitoring languages
-
-A comparison from Prometheus guys https://www.robustperception.io/translating-between-monitoring-languages/
+## Review
 
 Start and end
 

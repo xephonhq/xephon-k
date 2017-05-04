@@ -8,6 +8,7 @@
 ## Ref
 
 - http://graphite.readthedocs.io/en/latest/whisper.html
+  - RRD can't back fill http://graphite.readthedocs.io/en/latest/whisper.html#differences-between-whisper-and-rrd
 - https://github.com/graphite-project/whisper
 
 ## Meta

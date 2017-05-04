@@ -1,10 +1,11 @@
 # Survey
 
 Survey of existing Time series databases design and implementation details, schema, data structure,
-storage engine, on disk format, index format etc. 
-Contents are merged with [Xephon-S](https://github.com/xephonhq/xephon-s/tree/master/doc/survey), 
+storage engine, on disk format, index format etc. Also includes some column database and K-V store.
+Contents are merged with [Xephon-S](https://github.com/xephonhq/xephon-s/tree/master/doc/survey),
 [tsdb-proxy-java](https://github.com/xephonhq/tsdb-proxy-java/blob/master/doc/survey)
 
+## Cassandra based
 
 Cassandra
 
@@ -20,24 +21,43 @@ Cassandra
 - [Khronus](khronus.md)
 - [Blueflood](blueflood.md)
 
-## TODO
+## Memory
 
+- [Gorilla (Beringei)](gorilla.md)
 
-## Usage
+## RRD
 
-- `docker run --name tsdb-cassandra -p 9042:9042 -d cassandra:3.9`
-  - `docker stop tsdb-cassandra`
-  - `docker start tsdb-cassandra`
-- `docker exec -it tsdb-cassandra bash`
-- `docker run --name tsdb-scylla -p 9042:9042 -d scylladb/scylla:1.6.0`
+- [RRD Tool](rrd.md)
+- [Whisper](whisper.md)
+- [ ] Ceres
 
-## Stuff
+## Tree
 
-To be organized
+- [Akumuli](akumuli.md)
+- [BtrDB](btrdb.md)
+- [ ] LMDB
 
-- RRD can't back fill http://graphite.readthedocs.io/en/latest/whisper.html#differences-between-whisper-and-rrd
+## LSM
 
-## Done
+- [InfluxDB TSM Tree](influxdb.md)
+- [ ] LevelDB
+- [ ] RocksDB
 
-- [x] Thrift, CQL and the underlying storage (I think I got a bit confused when trying to use
-  CQL to understand KairosDB's schema design), see [Cassandra](cassandra/README.md)
+## Column
+
+- [Druid](druid.md)
+- [ ] Protobuf, Dremel
+- [ ] Parquet (open source implementation of Dremel)
+- [ ] ClickHouse
+- [ ] Apache Kudu ?or Impla
+- [ ] linkedin pinot
+
+## Others
+
+- [Respawn](respawn.md)
+- [Prometheus](prometheus.md)
+  - [ ] TODO: merge the document about Prometheus
+
+## Query language
+
+- [graphite-promql-influxql](graphite-promql-influxql.md)
