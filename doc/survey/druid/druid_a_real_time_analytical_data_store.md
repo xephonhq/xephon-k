@@ -1,41 +1,4 @@
-# Druid
-
-## Take away
-
-- https://dev.twitter.com/streaming/public
-
-## Stories from the Trenches – The Challenges of Building an Analytics Stack
-
-https://www.youtube.com/watch?v=Sz4w75xRrYM
-
-![druid](druid.png)
-
-- Immutable data
-- In Memory is Overrated
-  - mmap + SSD
-  - cost of scaling CPU << cost of adding RAM
-  - decompression on the fly (LZF, Snappy, LZ4)
-- Low Latency vs High throughput
-  - combine batch + streaming
-  - immutable made it easy to combine the two ingestion methods
-  - Makes for easy backfill and re-processing
-  - Historical Node
-  - Real-time Node
-- Not All Data is Created Equal
-  - user really care about recent data
-  - user still want to run quarterly report
-  - large queries create bottlenecks and resource contention
-- Smarter Rebalancing
-- Create Data Tiers
-- Addressing Multitenancy
-  - HyperLogLog sketches
-  - Approximate top-k
-  - Approximate histograms (monitoring)
-- Monitoring
-  - Use Druid to monitor Druid
-- **Use cases should define engineering**
-
-## Druid: A Real-time Analytical Data Store
+# Druid: A Real-time Analytical Data Store
 
 - time series data with both numeric and text value
 - a set dimension columns
@@ -49,7 +12,7 @@ Features for a dashboard
 - HA
 - make business decisions in "real-time"
 
-### Architecture
+## Architecture
 
 > The name Druid comes from the Druid class in many role-playing games: it is a
 shape-shifter, capable of taking on many different forms to fulfill
@@ -143,7 +106,7 @@ Query API
 
 - **don't want to implement join**
 
-### Performance
+## Performance
 
 - TPC-H
 - 10TB RAM (wow ..... that's e... well 64 * 160 ... (2^6+2^4) * 10)

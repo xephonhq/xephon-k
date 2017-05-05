@@ -45,7 +45,7 @@ Cassandra
 
 ## Column
 
-- [Druid](druid.md)
+- [Druid](druid/README.md)
 - [ ] Protobuf, Dremel
 - [ ] Parquet (open source implementation of Dremel)
 - [ ] ClickHouse
