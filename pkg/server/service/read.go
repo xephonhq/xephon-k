@@ -25,10 +25,11 @@ type ReadServiceServerImpl struct {
 }
 
 type readRequest struct {
-	StartTime  int64           `json:"start_time,omitempty"`
-	EndTime    int64           `json:"end_time,omitempty"`
-	QueriesRaw json.RawMessage `json:"queries,omitempty"`
-	Queries    []common.Query  `json:"queries_that_cant_be_directly_unmsharl_to"`
+	QueriesRaw json.RawMessage   `json:"queries,omitempty"`
+	Queries    []common.Query    `json:"queries_that_cant_be_directly_unmsharl_to"`
+	StartTime  int64             `json:"start_time,omitempty"`
+	EndTime    int64             `json:"end_time,omitempty"`
+	Aggregator common.Aggregator `json:"aggregator,omitemoty"`
 }
 
 // for avoid recursion in UnmarshalJSON

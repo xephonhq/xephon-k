@@ -139,7 +139,11 @@ This can be treated as
                         "values": ["switch", "router"]
                     }
                 }
-            }
+            },
+            "aggregator": {
+                "type": "avg",
+                "window": "2m"
+            },
         }
     ]
 }
