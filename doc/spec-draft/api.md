@@ -84,16 +84,30 @@ handle this properly, may need to add custom unmarshal handler
 ## Read
 
 - `/q` (I know this is not restful too)
-- [ ] KairosDB support query multiple series at same time, this could be useful,
-i.e. I want to query mem.total and mem.usage at same time
-- [ ] do we need to support limit when start and end time is provided
+- [ ] KairosDB support query multiple series at same time, this could be useful, i.e. I want to query mem.total and mem.usage at same time
+- [ ] do we need to support limit when start and end time is provided, if so, which direction does the limit apply to
 - [ ] how to handle when one metric name actually have multiple series due to tags
+  - just return multiple series if they didn't specify group by (aggregation across series)
+  - also aggregation across series requires they have matched timestamp, what about holes and offset
+
+This can be treated as 
+
+- [ ] TODO: how to say the exact match in a SQLish way?
+- `where __name__ == cpu.usage AND region == en-us AND (connected_to == en-us OR machine_type in (switch, router) )`
+- global query criteria that will be applied to all queries that does not specify them
+  - start_time
+  - end_time
+  - aggregator
 
 ````json
 {
     "use_cache": false,
     "start_time": 1357023600000,
     "end_time": 1357077800000,
+    "aggregator": {
+        "type": "avg",
+        "window": "60s"
+    },
     "queries" : [
         {
             "name": "cpu.idle",
@@ -105,11 +119,26 @@ i.e. I want to query mem.total and mem.usage at same time
         {
             "name": "cpu.usage",
             "match_policy": "filter",
-            "filters": [
-
-            ],
-            "aggregator": {
-                
+            "filter": {
+                "type": "and",
+                "l": {
+                    "type": "tag_match",
+                    "key": "region",
+                    "value": "en-us"
+                },
+                "r": {
+                    "type": "or",
+                    "l": {
+                        "type": "tag_match",
+                        "key": "connected_to",
+                        "value": "en-us"
+                    },
+                    "r": {
+                        "type": "in",
+                        "key": "machine_type",
+                        "values": ["switch", "router"]
+                    }
+                }
             }
         }
     ]

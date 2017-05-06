@@ -10,7 +10,8 @@ There are three types of queries
 
 ## TODO
 
-- [ ] is thee aggregation moving aggregation based on granularity
+- [ ] why the fields is array instead left hand and right hand
+- [x] is the aggregation moving aggregation based on granularity? Yes
 
 ## Time Series
 
