@@ -30,17 +30,20 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 	switch query.MatchPolicy {
 	case "exact":
 		// fetch the series
+		seriesID := query.Hash()
 		// TODO: should we make a copy of the points, what would happen if there are
 		// write when we are encoding it to json
-		seriesID := query.Hash()
 		// TODO: there is mutex on IntSeries store, how does prometheus etc. handle this?
 		// should we have a get method or things like that?
-		// prometheus use Iterator .... maybe we need custom implements
+		// prometheus use Iterator .... maybe we need custom implements, I think it also have blocks
 		oneSeries, ok := store.data[seriesID]
 		if ok {
 			series = append(series, *oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
 		}
 		return series, nil
+	case "filter":
+		// TODO: real filter
+		log.Warn("TODO: write code for filter")
 	default:
 		// TODO: query the index to do the filter
 		log.Warn("non exact match is not supported!")
@@ -53,7 +56,9 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 	for _, oneSeries := range series {
 		id := oneSeries.Hash()
 		// TODO: this should return error and we should handle it somehow
+		// Write Data
 		store.data.WriteIntSeries(id, oneSeries)
+		// Write Index
 		// NOTE: we store series name as special tag
 		store.index.Add(id, nameTagKey, oneSeries.Name)
 		for k, v := range oneSeries.Tags {

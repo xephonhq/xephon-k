@@ -87,7 +87,7 @@ func (ReadServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
 		var req readRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "can't parse read request")
 		}
 		return req, nil
 	}

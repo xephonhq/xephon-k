@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage"
 	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
@@ -66,7 +67,7 @@ func (WriteServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 		// https://github.com/xephonhq/xephon-k/issues/6
 		// https://github.com/go-kit/kit/issues/133
 		if err := json.NewDecoder(r.Body).Decode(&series); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "can't decode write request")
 		}
 		log.Tracef("got %d series after decode ", len(series))
 		return writeRequest{series: series}, nil

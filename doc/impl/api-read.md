@@ -7,7 +7,8 @@
 - support multiple series in one query
 - for filte by tag, there are two modes
   - `exact`, the tags must be exactly the same, a.k.a, there should be only one series matching it
-  - `contains`, there could be more than one series matching it
+  - ~~`contains`, there could be more than one series matching it~~
+  - `filter`, inspired by Druid, the spec-draft has a more updated JSON example.
 - [ ] actually we should tell the client which query result in which result(s)
   - [ ] maybe we can generate a id for each query?, though using matched and keep the result sorted as the query also works
 

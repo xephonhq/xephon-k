@@ -1,6 +1,14 @@
 # API Specification Draft
 
-Only support restful API for early version, maybe add a line protocol
+Only support restful API for early version, maybe add ~~a line protocol~~ GRPC
+
+
+````json
+{
+    "error": false,
+    "error_msg": "invalid JSON, missing start and end time"
+}
+````
 
 ## Info
 
@@ -143,7 +151,7 @@ This can be treated as
             "aggregator": {
                 "type": "avg",
                 "window": "2m"
-            },
+            }
         }
     ]
 }

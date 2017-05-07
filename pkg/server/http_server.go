@@ -3,6 +3,8 @@ package server
 import (
 	"net/http"
 
+	"context"
+	"encoding/json"
 	"fmt"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/xephonhq/xephon-k/pkg/server/middleware"
@@ -16,7 +18,23 @@ type HTTPServer struct {
 	CassandraHost string
 }
 
+func errorEncoder(_ context.Context, err error, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// TODO: set the status code based on type of error
+	w.WriteHeader(http.StatusInternalServerError)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error":     true,
+		"error_msg": err.Error(),
+	})
+}
+
 func (srv HTTPServer) Mux() *http.ServeMux {
+	options := []httptransport.ServerOption{
+		// TODO: replace logger as well, but go-kit's log interface is quite strange
+		// it suggests structured logging, which is key-value for everything, and by default just one level
+		// the default logger is a nop logger
+		httptransport.ServerErrorEncoder(errorEncoder),
+	}
 	var infoSvc service.InfoService
 	infoSvc = service.InfoServiceImpl{}
 	infoSvc = middleware.NewLoggingInfoServiceMiddleware(infoSvc)
@@ -26,6 +44,7 @@ func (srv HTTPServer) Mux() *http.ServeMux {
 		infoSvcHTTPFactory.MakeEndpoint(infoSvc),
 		infoSvcHTTPFactory.MakeDecode(),
 		infoSvcHTTPFactory.MakeEncode(),
+		options...,
 	)
 
 	var writeSvc service.WriteService
@@ -50,6 +69,7 @@ func (srv HTTPServer) Mux() *http.ServeMux {
 		writeSvcHTTPFactory.MakeEndpoint(writeSvc),
 		writeSvcHTTPFactory.MakeDecode(),
 		writeSvcHTTPFactory.MakeEncode(),
+		options...,
 	)
 
 	readSvc = middleware.NewLoggingReadServiceMiddleware(readSvc)
@@ -59,6 +79,7 @@ func (srv HTTPServer) Mux() *http.ServeMux {
 		readSvcHTTPFactory.MakeEndpoint(readSvc),
 		readSvcHTTPFactory.MakeDecode(),
 		readSvcHTTPFactory.MakeEncode(),
+		options...,
 	)
 
 	mux := http.NewServeMux()
