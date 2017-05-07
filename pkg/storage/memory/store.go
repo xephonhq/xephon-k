@@ -31,6 +31,7 @@ func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryRe
 	// - add match number
 	// - read the data by time range
 	// - apply the aggregator when look up?
+	// - test it in non e2e test
 	for i := 0; i < len(queries); i++ {
 		query := queries[i]
 		queryResult := common.QueryResult{Query: query, Matched: 0}
@@ -40,11 +41,22 @@ func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryRe
 			oneSeries, ok := store.data[seriesID]
 			if ok {
 				queryResult.Matched = 1
-				series = append(series, *oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+				series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
 			}
 		case "filter":
-			// TODO: real filter
-			log.Warn("TODO: write code for filter")
+			// TODO: we should also expose a HTTP API for query series ID only
+			// FIXME: this is a dirty hack to be compatible with the Name filed in the query, it is treated as __name__ tag
+			// need to make a shallow copy, otherwise it will refer to itself and cause stackoverflow
+			originalFilter := query.Filter
+			query.Filter = common.Filter{Type: "and", LeftOperand: &common.Filter{Type: "tag_match", Key: nameTagKey, Value: query.Name},
+				RightOperand: &originalFilter}
+			seriesIDs := store.index.Filter(&query.Filter)
+			queryResult.Matched = len(seriesIDs)
+			for j := 0; j < len(seriesIDs); j++ {
+				// TODO: let's just assume all series in the index is all in the memory, so we don't check the data map
+				seriesID := seriesIDs[j]
+				series = append(series, store.data[seriesID].ReadByStartEndTime(query.StartTime, query.EndTime))
+			}
 		default:
 			// TODO: query the index to do the filter
 			log.Warn("non exact match is not supported!")
@@ -70,7 +82,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		// prometheus use Iterator .... maybe we need custom implements, I think it also have blocks
 		oneSeries, ok := store.data[seriesID]
 		if ok {
-			series = append(series, *oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+			series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
 		}
 		return series, nil
 	case "filter":

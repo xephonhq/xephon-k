@@ -12,6 +12,7 @@ type Data map[common.SeriesID]*IntSeriesStore
 
 // WriteIntSeries create the entry if it does not exist, otherwise merge with existing
 // TODO: return error
+// TODO: shouldn't we use pointer here?
 func (data Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) {
 	seriesStore, ok := data[id]
 	if ok {

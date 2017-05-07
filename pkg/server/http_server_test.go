@@ -53,7 +53,7 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 	})
 
 	// TODO: read, match by tag
-	queryData := `{
+	queryExactData := `{
 		"start_time": 1493363958000,
 		"end_time": 1494363958000,
 		"queries":[
@@ -69,7 +69,35 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 
 	t.Run("exact query", func(t *testing.T) {
 		assert := asst.New(t)
-		res, err := requests.PostJSONString(ts.URL+"/read", queryData)
+		res, err := requests.PostJSONString(ts.URL+"/read", queryExactData)
+		assert.Nil(err)
+		assert.Equal(200, res.Res.StatusCode)
+		t.Log(string(res.Text))
+		// TODO: validate the result instead of simply printing it
+	})
+
+	// FIXME: there is a hack in `memory/store.go` when match by filter, where name is automatically converted to __name__
+	queryFilterData := `{
+		"start_time": 1493363958000,
+		"end_time": 1494363958000,
+		"queries":[
+			{
+				"name":"cpi",
+				"match_policy": "filter",
+				"start_time": 1493363958000,
+				"end_time": 1494363958000,
+				"filter": {
+					"type": "tag_match",
+					"key": "machine",
+					"value": "machine-02"
+				}
+			}
+		]
+	}`
+
+	t.Run("filter query", func(t *testing.T) {
+		assert := asst.New(t)
+		res, err := requests.PostJSONString(ts.URL+"/read", queryFilterData)
 		assert.Nil(err)
 		assert.Equal(200, res.Res.StatusCode)
 		t.Log(string(res.Text))

@@ -79,6 +79,7 @@ func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 			if query.Aggregator.Type == "" && req.Aggregator.Type != "" {
 				query.Aggregator = req.Aggregator
 			}
+			// TODO: handle __name__, and also add __name__ to tag would result in different hash of SeriesID
 		}
 
 		queryResults, series, err := readSvc.QueryInt(req.Queries)

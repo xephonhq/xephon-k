@@ -53,6 +53,21 @@ func TestUnion(t *testing.T) {
 	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5, l6))
 }
 
+func TestIndex_Filter(t *testing.T) {
+	assert := asst.New(t)
+	idx := NewIndex(5)
+	idx.Add(common.SeriesID("n1"), "app", "nginx")
+	idx.Add(common.SeriesID("n1"), nameTagKey, "response_time")
+	idx.Add(common.SeriesID("n2"), "app", "apache")
+	idx.Add(common.SeriesID("n2"), nameTagKey, "response_time")
+	filterResponse := common.Filter{Type: "tag_match", Key: nameTagKey, Value: "response_time"}
+	assert.Equal([]common.SeriesID{"n1", "n2"}, idx.Filter(&filterResponse))
+	filterNginxResponse := common.Filter{Type: "and",
+		LeftOperand:  &common.Filter{Type: "tag_match", Key: nameTagKey, Value: "response_time"},
+		RightOperand: &common.Filter{Type: "tag_match", Key: "app", Value: "nginx"}}
+	assert.Equal([]common.SeriesID{"n1"}, idx.Filter(&filterNginxResponse))
+}
+
 func TestIndex_Get(t *testing.T) {
 	assert := asst.New(t)
 	idx := NewIndex(1)

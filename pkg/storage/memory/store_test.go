@@ -44,3 +44,5 @@ func TestStore_QueryIntSeries(t *testing.T) {
 	//log.Info(returnedSeries[0].Points[0].TimeNano)
 	log.Logger.DisableSourceLine()
 }
+
+// TODO: test query in batch

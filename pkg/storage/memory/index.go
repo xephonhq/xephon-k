@@ -33,8 +33,32 @@ func newInvertedIndex(term string) *InvertedIndex {
 	}
 }
 
+func (idx *Index) Filter(f *common.Filter) []common.SeriesID {
+	// TODO: we need locking to ensure the correctness
+	// can we have multiple read lock on a same object?
+	empty := []common.SeriesID{}
+	switch f.Type {
+	case "tag_match":
+		// TODO: what if the tag user provided is invalid, the should be checked at API
+		// and we assume everything is right here?
+		return idx.Get(f.Key, f.Value)
+	case "and":
+		return Intersect(idx.Filter(f.LeftOperand), idx.Filter(f.RightOperand))
+	case "or":
+		return Union(idx.Filter(f.LeftOperand), idx.Filter(f.RightOperand))
+	case "in":
+		// TODO: in is just multiple and?
+		log.Warn("in is not implemented")
+		return empty
+	default:
+		// TODO: this should be checked in upper level
+		log.Warn("%s is unsupported", f.Type)
+		return empty
+	}
+}
+
 func (idx *Index) Get(tagKey string, tagValue string) []common.SeriesID {
-	term := tagKey + tagValue
+	term := Term(tagKey, tagValue)
 	iidx, ok := idx.invertedIndexes[term]
 	if ok {
 		return iidx.Postings
@@ -52,7 +76,7 @@ func (idx *Index) Add(id common.SeriesID, tagKey string, tagValue string) {
 	idx.tagKeyIndex[tagKey][tagValue] = true
 
 	// TODO: should add separator, in Prometheus `db.go` it's `const sep = '\xff'`
-	term := tagKey + tagValue
+	term := Term(tagKey, tagValue)
 	// create the inverted index if not exists
 	_, ok = idx.invertedIndexes[term]
 	if !ok {
@@ -265,6 +289,11 @@ func min(a int, b int) int {
 		return a
 	}
 	return b
+}
+
+// TODO: should add separator, in Prometheus `db.go` it's `const sep = '\xff'`
+func Term(tagKey string, tagValue string) string {
+	return tagKey + tagValue
 }
 
 func max(a int, b int) int {

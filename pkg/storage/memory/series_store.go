@@ -86,7 +86,9 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 }
 
 // ReadByStartEndTime filters and return a copy of the data
-func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.IntSeries {
+// TODO: we were previously returning *common.IntSeries, but there should not have any copy of the underlying points I
+// suppose?
+func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) common.IntSeries {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
 	log.Trace("read the series!")
@@ -112,5 +114,5 @@ func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) 
 			returnSeries.Points = append(returnSeries.Points, store.series.Points[i])
 		}
 	}
-	return &returnSeries
+	return returnSeries
 }
