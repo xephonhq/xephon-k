@@ -22,8 +22,40 @@ func (store Store) StoreType() string {
 	return "memory"
 }
 
+// QueryIntSeriesBatch implements Store interface
+func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+	result := make([]common.QueryResult, 0, len(queries))
+	series := make([]common.IntSeries, 0, len(queries))
+	// TODO:
+	// - first look up the series id
+	// - add match number
+	// - read the data by time range
+	// - apply the aggregator when look up?
+	for i := 0; i < len(queries); i++ {
+		query := queries[i]
+		queryResult := common.QueryResult{Query: query, Matched: 0}
+		switch query.MatchPolicy {
+		case "exact":
+			seriesID := query.Hash()
+			oneSeries, ok := store.data[seriesID]
+			if ok {
+				queryResult.Matched = 1
+				series = append(series, *oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+			}
+		case "filter":
+			// TODO: real filter
+			log.Warn("TODO: write code for filter")
+		default:
+			// TODO: query the index to do the filter
+			log.Warn("non exact match is not supported!")
+		}
+		result = append(result, queryResult)
+	}
+	return result, series, nil
+}
+
 // QueryIntSeries implements Store interface
-// TODO: this definitely won't work
+// Deprecated: Use QueryIntSeriesBatch instead
 func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error) {
 	series := make([]common.IntSeries, 0)
 	// TODO: not hard coded string

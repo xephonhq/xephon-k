@@ -17,7 +17,7 @@ import (
 
 type ReadService interface {
 	Service
-	QueryInt(q common.Query) []common.IntSeries
+	QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error)
 }
 
 type ReadServiceServerImpl struct {
@@ -36,9 +36,9 @@ type readRequest struct {
 type readRequestAlias readRequest
 
 type readResponse struct {
-	Error    bool                 `json:"error"`
-	ErrorMsg string               `json:"error_msg"`
-	Queries  []common.QueryResult `json:"query_results"`
+	Error        bool                 `json:"error"`
+	ErrorMsg     string               `json:"error_msg"`
+	QueryResults []common.QueryResult `json:"query_results"`
 	// TODO: where is the data?
 	Metrics []common.IntSeries `json:"metrics"`
 }
@@ -47,7 +47,6 @@ type ReadServiceHTTPFactory struct {
 }
 
 func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
-	// TODO: test it
 	readSvc, ok := service.(ReadService)
 	if !ok {
 		log.Panic("must pass read service to read service factory")
@@ -58,28 +57,35 @@ func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 			log.Panic("should be readRequest")
 		}
 		res := readResponse{}
-		// TODO: check start end time and return 400
-		if req.StartTime == 0 || req.EndTime == 0 {
-			return res, errors.New("must set start and end time")
-		}
-		// for all the queries query the data
-		results := []common.IntSeries{}
-		for _, query := range req.Queries {
-			// TODO: is the zero check really working?
+		// apply all the top level query criteria to all the other queries
+		// and check if each query is valid
+		for i := 0; i < len(req.Queries); i++ {
+			// we need to modify it, so we MUST use a pointer, otherwise we are operating on the copy
+			// see playground/range_test.go TestRange_Modify
+			query := &req.Queries[i]
 			if query.StartTime == 0 {
+				if req.StartTime == 0 {
+					return res, errors.Errorf("%d query lacks start time", i)
+				}
 				query.StartTime = req.StartTime
 			}
 			if query.EndTime == 0 {
-				query.EndTime = query.EndTime
+				if req.EndTime == 0 {
+					return res, errors.Errorf("%d query lacks end time", i)
+				}
+				query.EndTime = req.EndTime
 			}
-			// merge it
-			// http://stackoverflow.com/questions/16248241/concatenate-two-slices-in-go
-			// TODO: the logic here should be changed, should not call QueryInt one by one, instead, should
-			// pass all the queries to it and let it handle the logic
-			results = append(results, readSvc.QueryInt(query)...)
+			// aggregator is not required, but we will apply the global aggregator if single query does not have one
+			if query.Aggregator.Type == "" && req.Aggregator.Type != "" {
+				query.Aggregator = req.Aggregator
+			}
 		}
-		res.Metrics = results
-		return res, nil
+
+		queryResults, series, err := readSvc.QueryInt(req.Queries)
+		res.QueryResults = queryResults
+		res.Metrics = series
+
+		return res, err
 	}
 }
 
@@ -113,13 +119,8 @@ func (ReadServiceServerImpl) ServiceName() string {
 }
 
 // QueryInt implements ReadService
-func (rs ReadServiceServerImpl) QueryInt(q common.Query) []common.IntSeries {
-	series, err := rs.store.QueryIntSeries(q)
-	// TODO: better error handling, i.e propagate the error to upper level
-	if err != nil {
-		log.Warn(err)
-	}
-	return series
+func (rs ReadServiceServerImpl) QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+	return rs.store.QueryIntSeriesBatch(queries)
 }
 
 // UnmarshalJSON implements Unmarshaler interface

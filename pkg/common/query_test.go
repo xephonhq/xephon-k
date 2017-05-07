@@ -96,6 +96,8 @@ func TestQuery_JSON(t *testing.T) {
 	err = json.Unmarshal([]byte(queriesData), &queries)
 	assert.Nil(err)
 	assert.Equal(2, len(queries))
+	assert.Equal("", queries[0].Aggregator.Type)
+	assert.Equal("avg", queries[1].Aggregator.Type)
 }
 
 func TestQuery_Hash(t *testing.T) {
