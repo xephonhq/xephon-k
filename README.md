@@ -1,6 +1,8 @@
 # Xephon-K
 
 [![GoDoc](https://godoc.org/github.com/xephonhq/xephon-k?status.svg)](https://godoc.org/github.com/xephonhq/xephon-k)
+[![Build Status](https://travis-ci.org/xephonhq/xephon-k.svg?branch=master)](https://travis-ci.org/xephonhq/xephon-k)
+[![Coverage Status](https://coveralls.io/repos/github/xephonhq/xephon-k/badge.svg?branch=master)](https://coveralls.io/github/xephonhq/xephon-k?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xephonhq/xephon-k)](https://goreportcard.com/report/github.com/xephonhq/xephon-k)
 
 A time series database using Cassandra as backend, modeled after KairosDB
