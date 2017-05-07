@@ -1,0 +1,24 @@
+language: go
+sudo: false
+
+go:
+  - 1.7
+  - 1.8
+  - tip
+
+before_install:
+  - go get github.com/mattn/goveralls
+  - go get github.com/at15/overalls
+
+install:
+  - ./script/travis_install.sh
+
+script:
+  - go test -v -cover ./pkg/...
+  - go test -race ./pkg/...
+#  NOTE: cannot use test profile flag with multiple packages
+#  - go test -covermode=count -coverprofile=coverage.out ./pkg/...
+  - overalls -project=github.com/xephonhq/xephon-k -debug
+
+after_success:
+  - $HOME/gopath/bin/goveralls -service=travis-ci -coverprofile=overalls.coverprofile
