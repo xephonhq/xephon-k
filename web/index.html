@@ -3,9 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <title>Xephon-K UI</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+    <!-- TODO: favicon -->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ">-->
 </head>
 <body>
+<div id="app">
+    <h1>Xephon-K UI</h1>
+    <p>Database Info</p>
+    <table>
+        <thead>
+        <tr>
+            <td>Key</td>
+            <td>Value</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(value, key) in info">
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        </tbody>
+    </table>
+    Form
+    <!-- FireFox does not support Date at all -->
+    <!-- http://stackoverflow.com/questions/22983013/how-to-get-html-5-input-type-date-working-in-firefox-and-or-ie-10 -->
+    <input type="date" v-model="d1">
+    <!-- NOTE: datetime is not supported by Chrome -->
+    <input type="datetime">
+    <input type="datetime-local" v-model="dt">
+    <span>{{ d1 }}</span>
+    <span>{{ dt }}</span>
+</div>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            info: {},
+            d1: '2017-05-13',
+            dt: '2017-05-13T01:23'
+        },
+        // TODO: maybe move it to somewhere else
+        mounted: function () {
+            var self = this;
+            axios.get('/info')
+                .then(function (response) {
+                    // axios will parse JSON automatically
+                    self.info = response.data;
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+        }
+    });
+
+</script>
 <div id="canvas" style="width: 600px;height:400px;"></div>
 <script type="text/javascript">
     var onlyChart = echarts.init(document.getElementById('canvas'));
