@@ -89,6 +89,7 @@ func (srv HTTPServer) Mux() *http.ServeMux {
 	mux.Handle("/read", readHandler)
 	mux.Handle("/r", readHandler)
 	// TODO: allow config static content location
+	// TODO: accessing static content is not logged
 	mux.Handle("/", http.FileServer(http.Dir(".")))
 	return mux
 }

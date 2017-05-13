@@ -14,8 +14,9 @@ Code editor
 
 - Ace fiddle https://jsfiddle.net/bc_rikko/gbpw2q9x/3/
 - CodeMirror https://surmon-china.github.io/vue-codemirror/
+- Brace (browserify Ace) https://admin.vuebulma.com/#/components/brace
 
-## Ref 
+## Ref
 
 - Line stack http://gallery.echartsjs.com/editor.html?c=line-stack
 - Dynamic time series http://gallery.echartsjs.com/editor.html?c=dynamic-data2

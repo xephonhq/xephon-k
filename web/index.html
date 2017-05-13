@@ -1,42 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Xephon-K UI</title>
     <!-- TODO: favicon -->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ">-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
+
 <body>
 <div id="app">
-    <h1>Xephon-K UI</h1>
-    <p>Database Info</p>
-    <table>
-        <thead>
-        <tr>
-            <td>Key</td>
-            <td>Value</td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="(value, key) in info">
-            <td>{{ key }}</td>
-            <td>{{ value }}</td>
-        </tr>
-        </tbody>
-    </table>
-    Form
-    <!-- FireFox does not support Date at all -->
-    <!-- http://stackoverflow.com/questions/22983013/how-to-get-html-5-input-type-date-working-in-firefox-and-or-ie-10 -->
-    <input type="date" v-model="d1">
-    <!-- NOTE: datetime is not supported by Chrome -->
-    <input type="datetime">
-    <input type="datetime-local" v-model="dt">
-    <span>{{ d1 }}</span>
-    <span>{{ dt }}</span>
+    <!-- FIXME: the nav bar is currently a direct copy of Example-->
+    <nav class="nav">
+        <div class="nav-left">
+            <a class="nav-item"><h1>Xephon-K</h1></a>
+        </div>
+
+        <div class="nav-center">
+            <a class="nav-item">
+                    <span class="icon">
+                        <i class="fa fa-github"></i>
+                    </span>
+            </a>
+            <a class="nav-item">
+                    <span class="icon">
+                        <i class="fa fa-twitter"></i>
+                    </span>
+            </a>
+        </div>
+
+        <!-- This "nav-toggle" hamburger menu is only visible on mobile -->
+        <!-- You need JavaScript to toggle the "is-active" class on "nav-menu" -->
+        <span class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+
+        <!-- This "nav-menu" is hidden on mobile -->
+        <!-- Add the modifier "is-active" to display it on mobile -->
+        <div class="nav-right nav-menu">
+            <a class="nav-item">Home</a>
+            <a class="nav-item">Documentation</a>
+            <a class="nav-item">Blog</a>
+
+            <div class="nav-item">
+                <div class="field is-grouped">
+                    <p class="control">
+                        <a class="button">
+                                <span class="icon">
+                                <i class="fa fa-twitter"></i>
+                                </span>
+                            <span>Tweet</span>
+                        </a>
+                    </p>
+                    <p class="control">
+                        <a class="button is-primary">
+                                <span class="icon">
+                                <i class="fa fa-download"></i>
+                                </span>
+                            <span>Download</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="columns">
+        <div class="column">
+            <p>Database Info</p>
+            <table class="table">
+                <thead>
+                <tr>
+                    <td>Key</td>
+                    <td>Value</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(value, key) in info">
+                    <td>{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="column">
+            Form
+            <!-- FireFox does not support Date at all -->
+            <!-- http://stackoverflow.com/questions/22983013/how-to-get-html-5-input-type-date-working-in-firefox-and-or-ie-10 -->
+            <input type="date" v-model="d1">
+            <!-- NOTE: datetime is not supported by Chrome -->
+            <!--<input type="datetime">-->
+            <input type="datetime-local" v-model="dt">
+            <span>{{ d1 }}</span>
+            <span>{{ dt }}</span>
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column">
+            <div id="canvas" style="width: 600px;height:400px;"></div>
+        </div>
+        <div class="column">
+            <!-- FIXME: have to set fixed size? -->
+            <div id="editor" style="width: 600px; height: 400px;">
+{
+    "filter": {
+    }
+}
+            </div>
+        </div>
+    </div>
 </div>
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js"
+        integrity="sha256-xrr4HH5eSY+cFz4SH7ja/LaAi9qcEdjMpeMP49/iOLs=" crossorigin="anonymous"></script>
 <script>
     var app = new Vue({
         el: '#app',
@@ -59,9 +140,6 @@
         }
     });
 
-</script>
-<div id="canvas" style="width: 600px;height:400px;"></div>
-<script type="text/javascript">
     var onlyChart = echarts.init(document.getElementById('canvas'));
 
     var option = {
@@ -79,9 +157,9 @@
         },
         legend: {
             data: ['Xephon-K(Mem)', 'Xephon-K(Cassandra)', 'KairosDB', 'InfluxDB'],
-//            orient: 'vertical',
+            //            orient: 'vertical',
             orient: 'horizontal',
-//            left: 'right',
+            //            left: 'right',
             top: 'bottom'
         },
         xAxis: {
@@ -117,6 +195,10 @@
     };
 
     onlyChart.setOption(option);
+
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/json");
 </script>
 </body>
 </html>
