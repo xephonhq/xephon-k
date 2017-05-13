@@ -8,6 +8,16 @@
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ">-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .editor-con {
+            min-height: 400px;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
@@ -68,6 +78,7 @@
             </div>
         </div>
     </nav>
+    <!-- Database Information /info -->
     <div class="columns">
         <div class="column">
             <p>Database Info</p>
@@ -87,28 +98,31 @@
             </table>
         </div>
         <div class="column">
-            Form
             <!-- FireFox does not support Date at all -->
             <!-- http://stackoverflow.com/questions/22983013/how-to-get-html-5-input-type-date-working-in-firefox-and-or-ie-10 -->
-            <input type="date" v-model="d1">
+            <!--<input type="date" v-model="d1">-->
             <!-- NOTE: datetime is not supported by Chrome -->
             <!--<input type="datetime">-->
-            <input type="datetime-local" v-model="dt">
-            <span>{{ d1 }}</span>
-            <span>{{ dt }}</span>
+            <div class="field">
+                <label>start time</label>
+                <input type="datetime-local" v-model="start_time">
+                <span>{{ start_time | timestamp }}</span>
+            </div>
+            <div class="field">
+                <label>end time</label>
+                <input type="datetime-local" v-model="end_time">
+                <span>{{ end_time | timestamp }}</span>
+            </div>
         </div>
     </div>
     <div class="columns">
         <div class="column">
             <div id="canvas" style="width: 600px;height:400px;"></div>
         </div>
-        <div class="column">
+        <div class="column editor-con">
             <!-- FIXME: have to set fixed size? -->
-            <div id="editor" style="width: 600px; height: 400px;">
-{
-    "filter": {
-    }
-}
+            <!--<div id="editor" style="width: 600px; height: 400px;">-->
+            <div id="editor" class="editor">
             </div>
         </div>
     </div>
@@ -118,13 +132,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js"
         integrity="sha256-xrr4HH5eSY+cFz4SH7ja/LaAi9qcEdjMpeMP49/iOLs=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"
+        integrity="sha256-1hjUhpc44NwiNg8OwMu2QzJXhD8kcj+sJA3aCQZoUjg=" crossorigin="anonymous"></script>
 <script>
+
+    console.log(moment().format('YYYY-MM-DDTHH:mm'));
+
     var app = new Vue({
         el: '#app',
         data: {
             info: {},
-            d1: '2017-05-13',
-            dt: '2017-05-13T01:23'
+            start_time: moment().format('YYYY-MM-DDTHH:mm'),
+            end_time: moment().add(1, 'h').format('YYYY-MM-DDTHH:mm')
+        },
+        filters: {
+            timestamp: function (str) {
+                // x means Unix ms timestamp
+                return moment(str).format('x');
+            }
         },
         // TODO: maybe move it to somewhere else
         mounted: function () {
@@ -199,6 +224,7 @@
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/json");
+    editor.$blockScrolling = Infinity;
 </script>
 </body>
 </html>

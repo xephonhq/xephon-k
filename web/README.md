@@ -16,6 +16,11 @@ Code editor
 - CodeMirror https://surmon-china.github.io/vue-codemirror/
 - Brace (browserify Ace) https://admin.vuebulma.com/#/components/brace
 
+Moment 
+
+- https://momentjs.com/docs/#/parsing/string/
+- https://momentjs.com/docs/#/manipulating/add/
+
 ## Ref
 
 - Line stack http://gallery.echartsjs.com/editor.html?c=line-stack
