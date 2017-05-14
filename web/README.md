@@ -21,6 +21,12 @@ Moment
 - https://momentjs.com/docs/#/parsing/string/
 - https://momentjs.com/docs/#/manipulating/add/
 
+## Notes
+
+- Ace editor need to specify element size, otherwise it would disappear
+- FireFox does not support `date` at all http://stackoverflow.com/questions/22983013/how-to-get-html-5-input-type-date-working-in-firefox-and-or-ie-10
+- Chrome does not support `datetime`, but support `datetime-local`
+
 ## Ref
 
 - Line stack http://gallery.echartsjs.com/editor.html?c=line-stack

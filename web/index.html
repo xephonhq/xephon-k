@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
+        /* over ride bluma default */
+        a {
+            color: #1f78b4;
+        }
+
         .editor-con {
             min-height: 400px;
         }
@@ -21,63 +26,18 @@
 </head>
 
 <body>
-<div id="app">
-    <!-- FIXME: the nav bar is currently a direct copy of Example-->
-    <nav class="nav">
+<!-- FIXME: the nav bar is currently a direct copy of Example-->
+<nav class="nav">
+    <div class="container">
         <div class="nav-left">
             <a class="nav-item"><h1>Xephon-K</h1></a>
         </div>
-
-        <div class="nav-center">
-            <a class="nav-item">
-                    <span class="icon">
-                        <i class="fa fa-github"></i>
-                    </span>
-            </a>
-            <a class="nav-item">
-                    <span class="icon">
-                        <i class="fa fa-twitter"></i>
-                    </span>
-            </a>
-        </div>
-
-        <!-- This "nav-toggle" hamburger menu is only visible on mobile -->
-        <!-- You need JavaScript to toggle the "is-active" class on "nav-menu" -->
-        <span class="nav-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </span>
-
-        <!-- This "nav-menu" is hidden on mobile -->
-        <!-- Add the modifier "is-active" to display it on mobile -->
         <div class="nav-right nav-menu">
-            <a class="nav-item">Home</a>
-            <a class="nav-item">Documentation</a>
-            <a class="nav-item">Blog</a>
-
-            <div class="nav-item">
-                <div class="field is-grouped">
-                    <p class="control">
-                        <a class="button">
-                                <span class="icon">
-                                <i class="fa fa-twitter"></i>
-                                </span>
-                            <span>Tweet</span>
-                        </a>
-                    </p>
-                    <p class="control">
-                        <a class="button is-primary">
-                                <span class="icon">
-                                <i class="fa fa-download"></i>
-                                </span>
-                            <span>Download</span>
-                        </a>
-                    </p>
-                </div>
-            </div>
+            <a class="nav-item" href="https://github.com/xephonhq/xephon-k" target="_blank">Source</a>
         </div>
-    </nav>
+    </div>
+</nav>
+<div id="app" class="container">
     <!-- Database Information /info -->
     <div class="columns">
         <div class="column">
@@ -98,11 +58,31 @@
             </table>
         </div>
         <div class="column">
-            <!-- FireFox does not support Date at all -->
-            <!-- http://stackoverflow.com/questions/22983013/how-to-get-html-5-input-type-date-working-in-firefox-and-or-ie-10 -->
-            <!--<input type="date" v-model="d1">-->
-            <!-- NOTE: datetime is not supported by Chrome -->
-            <!--<input type="datetime">-->
+            <p>Internal Metrics</p>
+            <table class="table">
+                <thead>
+                <tr>
+                    <td>Key</td>
+                    <td>Value</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(value, key) in metrics">
+                    <td>{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column">
+            <div class="field">
+                <p>Query Builder</p>
+            </div>
+            <div class="field">
+                <button class="button" v-on:click="reset">reset</button>
+            </div>
             <div class="field">
                 <label>start time</label>
                 <input type="datetime-local" v-model="start_time">
@@ -113,20 +93,41 @@
                 <input type="datetime-local" v-model="end_time">
                 <span>{{ end_time | timestamp }}</span>
             </div>
+            <div class="field">
+                <button class="button" v-on:click="readTemplate">t-read</button>
+                <button class="button" v-on:click="writeTemplate">t-write</button>
+            </div>
+            <div class="field">
+                <button class="button" v-on:click="read">read</button>
+                <button class="button" v-on:click="write">write</button>
+            </div>
+        </div>
+        <div class="column editor-con">
+            <div id="editor" class="editor">
+            </div>
         </div>
     </div>
     <div class="columns">
         <div class="column">
             <div id="canvas" style="width: 600px;height:400px;"></div>
         </div>
-        <div class="column editor-con">
-            <!-- FIXME: have to set fixed size? -->
-            <!--<div id="editor" style="width: 600px; height: 400px;">-->
-            <div id="editor" class="editor">
-            </div>
-        </div>
     </div>
 </div>
+<footer class="footer">
+    <div class="container">
+        <div class="content has-text-centered">
+            <p>
+                <strong>Xephon-K</strong> by <a href="https://github.com/at15" target="_blank">at15</a>.
+                The source code is licensed <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
+            </p>
+            <p>
+                <a class="icon" href="https://github.com/xephonhq/xephon-k" target="_blank">
+                    <i class="fa fa-github"></i>
+                </a>
+            </p>
+        </div>
+    </div>
+</footer>
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
@@ -134,97 +135,7 @@
         integrity="sha256-xrr4HH5eSY+cFz4SH7ja/LaAi9qcEdjMpeMP49/iOLs=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"
         integrity="sha256-1hjUhpc44NwiNg8OwMu2QzJXhD8kcj+sJA3aCQZoUjg=" crossorigin="anonymous"></script>
-<script>
-
-    console.log(moment().format('YYYY-MM-DDTHH:mm'));
-
-    var app = new Vue({
-        el: '#app',
-        data: {
-            info: {},
-            start_time: moment().format('YYYY-MM-DDTHH:mm'),
-            end_time: moment().add(1, 'h').format('YYYY-MM-DDTHH:mm')
-        },
-        filters: {
-            timestamp: function (str) {
-                // x means Unix ms timestamp
-                return moment(str).format('x');
-            }
-        },
-        // TODO: maybe move it to somewhere else
-        mounted: function () {
-            var self = this;
-            axios.get('/info')
-                .then(function (response) {
-                    // axios will parse JSON automatically
-                    self.info = response.data;
-                })
-                .catch(function (error) {
-                    console.error(error);
-                });
-        }
-    });
-
-    var onlyChart = echarts.init(document.getElementById('canvas'));
-
-    var option = {
-        title: {
-            text: 'stack lines'
-        },
-        tooltip: {},
-        toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: true},
-                magicType: {show: true, type: ['line', 'bar']},
-                restore: {show: true},
-                saveAsImage: {show: true}
-            }
-        },
-        legend: {
-            data: ['Xephon-K(Mem)', 'Xephon-K(Cassandra)', 'KairosDB', 'InfluxDB'],
-            //            orient: 'vertical',
-            orient: 'horizontal',
-            //            left: 'right',
-            top: 'bottom'
-        },
-        xAxis: {
-            name: 'number of concurrent clients',
-            nameLocation: 'middle',
-            nameGap: 20,
-            data: ["10", "100", "1000", "5000"]
-        },
-        yAxis: {
-            name: 'total requests'
-        },
-        series: [
-            {
-                name: 'Xephon-K(Mem)',
-                type: 'line',
-                data: [12327, 21099, 31791, 12279]
-            }, {
-                name: 'Xephon-K(Cassandra)',
-                type: 'line',
-                data: [7931, 11336, 14590, 8703]
-            },
-            {
-                name: 'KairosDB',
-                type: 'line',
-                data: [15561, 26154, 26939, 16506]
-            },
-            {
-                name: 'InfluxDB',
-                type: 'line',
-                data: [118, 139, 131, 130]
-            }
-        ]
-    };
-
-    onlyChart.setOption(option);
-
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.getSession().setMode("ace/mode/json");
-    editor.$blockScrolling = Infinity;
-</script>
+<script src="util.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
