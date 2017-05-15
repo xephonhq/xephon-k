@@ -3,9 +3,9 @@ install:
   - go install ./cmd/xkc
   - go install ./cmd/xkd
   - sh -c "cp $(which xkd) script/xephon-k-cassandra/node"
-  # - go install ./pkg/bin/xnaive
-  # - go install ./pkg/bin/xbucket
-  # - go install ./pkg/bin/xapi
+  # - go install ./playground/xnaive
+  # - go install ./playground/xbucket
+  # - go install ./playground/xapi
 test:
   - go test -short -v -cover ./pkg/...
 scripts:

@@ -69,6 +69,7 @@ var app = new Vue({
             axios.post('/read', JSON.parse(val))
                 .then(function (response) {
                     console.log(response);
+                    // FIXME: why each series's length is always 10
                     console.log(response.data);
                 })
                 .catch(function (error) {

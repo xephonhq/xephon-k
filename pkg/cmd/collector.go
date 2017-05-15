@@ -111,6 +111,7 @@ var CollectorCmd = &cobra.Command{
 		// map of int series
 		// TODO: support double series
 		seriesMap := make(map[string]*common.IntSeries, len(metricNames))
+		// init all the series
 		for _, m := range metricNames {
 			seriesMap[m] = common.NewIntSeries(m)
 		}
@@ -127,10 +128,9 @@ var CollectorCmd = &cobra.Command{
 				log.Info("this is dummy clean up")
 				os.Exit(0)
 			case <-tickChan:
-				log.Info("tick")
 				// FIXME: IntPoint use UnixNano, but it is actually using millisecond
 				currentTime := time.Now().Unix() * 1000
-				//log.Info(currentTime)
+				log.Debugf("tick %d", currentTime)
 				if currentBatchSize >= batchSize {
 					// flush
 					// send the data to xephon
@@ -145,6 +145,7 @@ var CollectorCmd = &cobra.Command{
 					req := new(http.Request)
 					*req = *baseReq
 					req.Body = serializer.ReadCloser()
+					// FIXME: sending request would block following collector
 					res, err := client.Do(req)
 					if err != nil {
 						log.Warn(err)
@@ -154,6 +155,11 @@ var CollectorCmd = &cobra.Command{
 						log.Info("flushed")
 					}
 					currentBatchSize = 0
+					// FIXME: should figure out a better way to just rest the points
+					// reset all the series https://github.com/xephonhq/xephon-k/issues/33
+					for _, m := range metricNames {
+						seriesMap[m] = common.NewIntSeries(m)
+					}
 				} else {
 					currentBatchSize++
 				}
@@ -195,7 +201,7 @@ var CollectorCmd = &cobra.Command{
 				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemTotal)})
 				s = seriesMap["mem.free"]
 				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemFree)})
-
+				log.Debugf("mem.free length %d", len(s.Points))
 			}
 		}
 	},
