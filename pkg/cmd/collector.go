@@ -81,6 +81,7 @@ var CollectorCmd = &cobra.Command{
 		memCollector := system.MeminfoCollector{}
 
 		// prepare the series
+		enableCPU := false
 
 		metricNames := []string{
 			"mem.total", "mem.free",
@@ -100,12 +101,15 @@ var CollectorCmd = &cobra.Command{
 			cores[i] = fmt.Sprintf("cpu.%d.", i)
 		}
 		cores[hostInfo.NumCores] = "cpu.total."
-		// add cpu to metric names
-		for _, m := range cpuMetrics {
-			for _, p := range cores {
-				metricNames = append(metricNames, p+m)
+		if enableCPU {
+			// add cpu to metric names
+			for _, m := range cpuMetrics {
+				for _, p := range cores {
+					metricNames = append(metricNames, p+m)
+				}
 			}
 		}
+
 		log.Info(metricNames)
 
 		// map of int series
@@ -145,6 +149,9 @@ var CollectorCmd = &cobra.Command{
 					req := new(http.Request)
 					*req = *baseReq
 					req.Body = serializer.ReadCloser()
+					// For debugging https://github.com/xephonhq/xephon-k/issues/33 collector always have only 10 points on server
+					log.Debug(string(serializer.Data()))
+
 					// FIXME: sending request would block following collector
 					res, err := client.Do(req)
 					if err != nil {
@@ -154,6 +161,7 @@ var CollectorCmd = &cobra.Command{
 						res.Body.Close()
 						log.Info("flushed")
 					}
+					serializer.Reset()
 					currentBatchSize = 0
 					// FIXME: should figure out a better way to just rest the points
 					// reset all the series https://github.com/xephonhq/xephon-k/issues/33
@@ -167,35 +175,37 @@ var CollectorCmd = &cobra.Command{
 				cpuCollector.Update()
 				memCollector.Update()
 				var s *common.IntSeries
-				// FIXME: this should not be human work ....
-				for i, p := range cores {
-					var stat system.CPUStat
-					if i != hostInfo.NumCores {
-						stat = cpuCollector.CPUs[i]
-					} else {
-						stat = cpuCollector.CPUTotal
+				if enableCPU {
+					// FIXME: this should not be human work ....
+					for i, p := range cores {
+						var stat system.CPUStat
+						if i != hostInfo.NumCores {
+							stat = cpuCollector.CPUs[i]
+						} else {
+							stat = cpuCollector.CPUTotal
+						}
+						s = seriesMap[p+"user"]
+						// FIXME: .... it's too hard to add points to metrics, need a lot of copy and paste code
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.User)})
+						s = seriesMap[p+"nice"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Nice)})
+						s = seriesMap[p+"system"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.System)})
+						s = seriesMap[p+"idle"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Idle)})
+						s = seriesMap[p+"iowait"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.IOWait)})
+						s = seriesMap[p+"irq"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Irq)})
+						s = seriesMap[p+"softirq"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.SoftIrq)})
+						s = seriesMap[p+"steal"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Steal)})
+						s = seriesMap[p+"guest"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Guest)})
+						s = seriesMap[p+"guestnice"]
+						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.GuestNice)})
 					}
-					s = seriesMap[p+"user"]
-					// FIXME: .... it's too hard to add points to metrics, need a lot of copy and paste code
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.User)})
-					s = seriesMap[p+"nice"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Nice)})
-					s = seriesMap[p+"system"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.System)})
-					s = seriesMap[p+"idle"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Idle)})
-					s = seriesMap[p+"iowait"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.IOWait)})
-					s = seriesMap[p+"irq"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Irq)})
-					s = seriesMap[p+"softirq"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.SoftIrq)})
-					s = seriesMap[p+"steal"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Steal)})
-					s = seriesMap[p+"guest"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Guest)})
-					s = seriesMap[p+"guestnice"]
-					s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.GuestNice)})
 				}
 				s = seriesMap["mem.total"]
 				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemTotal)})
