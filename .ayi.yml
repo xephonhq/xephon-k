@@ -28,3 +28,8 @@ scripts:
     - sh -c "xapi"
   loc:
     - cloc --exclude-dir=vendor .
+  release:
+    - sh -c "zip xkb-linux-amd64.zip $(which xkb)"
+    - sh -c "zip xkc-linux-amd64.zip $(which xkc)"
+    - sh -c "zip xkd-linux-amd64.zip $(which xkd)"
+    

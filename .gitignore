@@ -27,3 +27,4 @@ _testmain.go
 vendor
 .vscode
 a.out
+xk*.zip
