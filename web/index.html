@@ -41,7 +41,11 @@
     <!-- Database Information /info -->
     <div class="columns">
         <div class="column">
-            <p>Database Info</p>
+            <p>
+              <span>Database Info</span>
+              <!-- FIXME: align the text and button vertically -->
+              <button class="button" v-on:click="refreshInfo"><span class="icon"><i class="fa fa-refresh"></i></span></button>
+            </p>
             <table class="table">
                 <thead>
                 <tr>
@@ -109,7 +113,8 @@
     </div>
     <div class="columns">
         <div class="column">
-            <div id="canvas" style="width: 600px;height:400px;"></div>
+            <!-- NOTE: if use canvas as container instead of div, you will get a static image, which is not what is described in the doc -->
+            <div id="canvas" style="width: 1200px;height:400px;"></div>
         </div>
     </div>
 </div>

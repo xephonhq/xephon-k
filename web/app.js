@@ -33,6 +33,11 @@ var app = new Vue({
                   name: 'cpu.idle',
                   tags: {machine: 'machine-01', os: 'ubuntu'},
                   match_policy: 'exact'
+                },
+                {
+                  name: 'mem.free',
+                  tags: {host: 'at15-PC4073'},
+                  match_policy: 'exact'
                 }
               ]
           };
@@ -51,7 +56,7 @@ var app = new Vue({
                 name: 'cpu.idle',
                 tags: {machine: 'machine-02', os: 'ubuntu'},
                 points: [[moment.now(), randomInt(0, 100)]]
-              },
+              }
             ];
             editor.setValue(JSON.stringify(writeTmpl, null, '\t'));
         },
@@ -68,9 +73,41 @@ var app = new Vue({
             }
             axios.post('/read', JSON.parse(val))
                 .then(function (response) {
-                    console.log(response);
-                    // FIXME: why each series's length is always 10
                     console.log(response.data);
+                    if (response.data.metrics.length === 0) {
+                        console.log('no metrics returned, no need to draw the graph');
+                        return;
+                    }
+                    // FIXME: currently, only draw the first series, should figure out a better way for handling multiple series
+                    // i.e. series with same name should be draw in a same graph because they have same range
+                    // TODO: the graph seems to be a straight line, could be the collector's problem again
+                    var chart = echarts.getInstanceByDom(document.getElementById('canvas'));
+                    firstSeries =  response.data.metrics[0];
+                    // remove the existing graph
+                    chart.clear();
+                    var option = {
+                        title: {
+                            text: 'stack lines'
+                        },
+                        xAxis: {
+                            type: 'time',
+                            splitLine: {
+                                show: false
+                            }
+                        },
+                        yAxis: {
+                            name: 'val'
+                        },
+                        series: [
+                            {
+                                name: firstSeries.name,
+                                type: 'line',
+                                // TODO: do I need to change timestamp into other format? Nop
+                                data: firstSeries.points
+                            }
+                        ]
+                    };
+                    chart.setOption(option);
                 })
                 .catch(function (error) {
                     console.error(error);
@@ -97,19 +134,23 @@ var app = new Vue({
                     console.error(error);
                     console.log(error.response);
                 });
+        },
+        refreshInfo: function (event) {
+            console.log('need to refresh database info');
+            var self = this;
+            axios.get('/info')
+                .then(function (response) {
+                    // axios will parse JSON automatically
+                    self.info = response.data;
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
         }
     },
-    // TODO: write function in other places
     mounted: function () {
         var self = this;
-        axios.get('/info')
-            .then(function (response) {
-                // axios will parse JSON automatically
-                self.info = response.data;
-            })
-            .catch(function (error) {
-                console.error(error);
-            });
+        self.refreshInfo();
     }
 });
 // end of Vue

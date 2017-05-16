@@ -81,7 +81,7 @@ var CollectorCmd = &cobra.Command{
 		memCollector := system.MeminfoCollector{}
 
 		// prepare the series
-		enableCPU := false
+		enableCPU := true
 
 		metricNames := []string{
 			"mem.total", "mem.free",
