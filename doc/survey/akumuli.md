@@ -48,3 +48,13 @@ Links
 - leaf node -> leaf node
 - back references during crash recovery
 - [ ] no link from leaf node to inner node?
+
+## Stuff 
+
+@Lazin I came across the blog of older version of Akumuli that use delta and run length encoding for timestamp, and for the newer version is dropped because the leaf node is small I suppose?
+
+Is it a good idea to use the delta and run length encoding for timestamp. If I plan to store data in large chunk, like 64MB instead of 4KB of a single series and compress timestamp and value separately. 
+
+``````
+series id | offset-t | offset-v | t1, t2, t3 .... | v1, v2, v3 .....
+``````

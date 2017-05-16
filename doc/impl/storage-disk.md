@@ -8,6 +8,15 @@ mmap
 - http://beej.us/guide/bgipc/output/html/multipage/mmap.html
 - https://github.com/arpith/mmapd
 
+Prometheus
+
+- https://fabxc.org/blog/2017-04-10-writing-a-tsdb/
+
+InfluxDB
+
+- https://docs.influxdata.com/influxdb/v1.2/concepts/storage_engine/
+- https://github.com/influxdata/influxdb/blob/master/tsdb/engine/tsm1/DESIGN.md
+
 ## Design
 
 - [ ] TODO: sync with the observation in [Xephon-S](https://github.com/xephonhq/xephon-s/issues/4)
@@ -21,6 +30,8 @@ DO NOT
     - [ ] figure out [InfluxDB's retention policy](https://docs.influxdata.com/influxdb/v1.2/query_language/database_management/#retention-policy-management)
     - https://github.com/influxdata/influxdb/issues/7198 need to create a continuous query
     - auto rollup is not implemented
+- support update and delete
+  - memory cache is large enough to deal with data arrive out of order
 
 DO
 
@@ -36,3 +47,12 @@ TODO
 - [ ] when to dump memory into file, by size, by time etc.
 - [ ] how to organize file
   - prometheus use folder to specify different time range
+- [ ] bulk load historical data
+- [ ] store data in time increasing order or decreasing order
+- [ ] index for time stamp when we use delta + run length encoding
+
+Compression
+
+- delta + run length
+  - http://www.dspguide.com/ch27/4.htm signal processing, it mentioned Linear Predictive Coding, which seems to be what Akumli is doing
+- it pretty like **signal**, sound wave etc.
