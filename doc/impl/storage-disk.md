@@ -1,6 +1,6 @@
 # Storage: Disk
 
-## Ref 
+## Ref
 
 mmap
 
@@ -56,3 +56,7 @@ Compression
 - delta + run length
   - http://www.dspguide.com/ch27/4.htm signal processing, it mentioned Linear Predictive Coding, which seems to be what Akumli is doing
 - it pretty like **signal**, sound wave etc.
+- AWS Redshift http://docs.aws.amazon.com/redshift/latest/dg/c_Runlength_encoding.html
+  - We do not recommend applying runlength encoding on any column that is designated as a sort key. Range-restricted scans perform better when blocks contain similar numbers of row
+- A time-series compression technique and its application to the smart grid
+- https://julien.danjou.info/blog/2016/gnocchi-carbonara-timeseries-compression

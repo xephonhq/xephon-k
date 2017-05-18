@@ -49,12 +49,17 @@ Links
 - back references during crash recovery
 - [ ] no link from leaf node to inner node?
 
-## Stuff 
+## Stuff
 
-@Lazin I came across the blog of older version of Akumuli that use delta and run length encoding for timestamp, and for the newer version is dropped because the leaf node is small I suppose?
+@Lazin I came across the blog of older version of Akumuli that use delta and run length encoding for timestamp, and for the newer version it is dropped because the leaf node is small (4KB) I suppose?
 
-Is it a good idea to use the delta and run length encoding for timestamp. If I plan to store data in large chunk, like 64MB instead of 4KB of a single series and compress timestamp and value separately. 
+Is it a good idea to use the delta and run length encoding for timestamp if I plan to store data in large chunk, like 64MB instead of 4KB of a single series and compress timestamp and value separately.
 
 ``````
 series id | offset-t | offset-v | t1, t2, t3 .... | v1, v2, v3 .....
 ``````
+
+And for current Akumuli implementation, since different series (tree) are store in same file interleaved, if I need to scan a long time range of a single series, I need to issue many concurrent reads because leaf nodes of a single series is not likely contiguous. For SSD you can have parallel read, but for HDD the performance might be poor. Also [this article](http://codecapsule.com/2014/02/12/coding-for-ssds-part-5-access-patterns-and-system-optimizations/) says
+'a single large read is better than many small concurrent reads'.
+
+@Lazin one file per series will also have the problem of running out of inode as mentioned by some guy from prometheus about their previous engine (https://fabxc.org/blog/2017-04-10-writing-a-tsdb/). But by increasing in memory cache size, you can have very large data block
