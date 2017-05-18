@@ -2,9 +2,12 @@ package generator
 
 import "github.com/xephonhq/xephon-k/pkg/common"
 
+// default time interval for fixed time interval generators in nanoseconds
+var defaultTimeInterval = int64(1000)
+
 // check interface
-var _ IntGenerator = (*ConstantGenerator)(nil)
-var _ DoubleGenerator = (*ConstantGenerator)(nil)
+var _ IntGenerator = (*ConstantValueFixedInterval)(nil)
+var _ DoubleGenerator = (*ConstantValueFixedInterval)(nil)
 
 type Generator interface {
 	GeneratorName() string

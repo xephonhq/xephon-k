@@ -1,11 +1,12 @@
 package disk
 
 import (
-	"testing"
-	"github.com/xephonhq/xephon-k/pkg/storage/disk"
+	"bytes"
 	"io/ioutil"
 	"os"
-	"bytes"
+	"testing"
+
+	"github.com/xephonhq/xephon-k/pkg/storage/disk"
 	//"encoding/binary"
 	"fmt"
 )
@@ -66,4 +67,8 @@ func TestNoCompress_Header(t *testing.T) {
 	newHeader.valueCompression = uint8(readBuf[2])
 	fmt.Printf("version %d, time compression %d, value compression %d\n",
 		newHeader.version, newHeader.timeCompression, newHeader.valueCompression)
+}
+
+func TestNoCompress_Block(t *testing.T) {
+
 }

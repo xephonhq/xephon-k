@@ -7,8 +7,8 @@ import (
 
 func TestConstantGenerator_NextIntPoint(t *testing.T) {
 	asst := assert.New(t)
-	gen := NewConstantGenerator()
+	gen := NewConstantValueFixedInterval()
 	p1 := gen.NextIntPoint()
 	p2 := gen.NextIntPoint()
-	asst.Equal(constantGeneratorDefaultTimeInterval, p2.TimeNano-p1.TimeNano)
+	asst.Equal(defaultTimeInterval, p2.TimeNano-p1.TimeNano)
 }

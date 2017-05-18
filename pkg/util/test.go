@@ -26,6 +26,8 @@ func RecoverMockedStringVar(mockID int32) {
 	*mockedVars[mockID].(*string) = mockedVarsValue[mockID].(string)
 }
 
+// TODO: use bench/generator to generate fake series for testing
+
 func init() {
 	mockedVars = make(map[int32]interface{}, 5)
 	mockedVarsValue = make(map[int32]interface{}, 5)

@@ -32,7 +32,7 @@ func NewHTTPWorker(config Config, ctx context.Context, baseReq *http.Request, tr
 
 func (worker *HTTPWorker) work() {
 	client := http.Client{Transport: worker.tr, Timeout: worker.config.Timeout}
-	gen := generator.NewConstantGenerator()
+	gen := generator.NewConstantValueFixedInterval()
 	var serializer serialize.Serializer
 	switch worker.config.TargetDB {
 	case bench.DBInfluxDB:
