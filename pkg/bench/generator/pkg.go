@@ -1,16 +1,28 @@
 package generator
 
-import "github.com/xephonhq/xephon-k/pkg/common"
+import (
+	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/xephonhq/xephon-k/pkg/util"
+	"time"
+)
 
-// default time interval for fixed time interval generators in nanoseconds
-var defaultTimeInterval = int64(1000)
+var log = util.Logger.NewEntryWithPkg("xkb.generator")
 
 // check interface
 var _ IntGenerator = (*ConstantValueFixedInterval)(nil)
 var _ DoubleGenerator = (*ConstantValueFixedInterval)(nil)
 
+var _ Option = (*DefaultOption)(nil)
+
 type Generator interface {
-	GeneratorName() string
+	GetOption() Option
+}
+
+// TODO: maybe using a concrete type is better
+type Option interface {
+	GetStartTime() time.Time
+	GetInterval() time.Duration
+	GetPrecision() time.Duration
 }
 
 type IntGenerator interface {

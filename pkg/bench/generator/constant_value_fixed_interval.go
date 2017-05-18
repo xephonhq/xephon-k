@@ -11,36 +11,58 @@ import (
 type ConstantValueFixedInterval struct {
 	intVal    int
 	doubleVal float64
-	// FIXME: this is is not nanosecond, it is a problem rooted from common.IntSeries
-	timeNano int64
-	interval int64
+	timestamp int64 // timestamp is in different precision based on the option. see https://github.com/xephonhq/xephon-k/issues/35
+	interval  int64 // interval is in same precision with timestamp
+	option    Option
 }
 
 // NewConstantValueFixedInterval returns a generator with time set to now, and interval set to 1000 nano second (1ms)
-// TODO: allow configure start time
-func NewConstantValueFixedInterval() ConstantValueFixedInterval {
+func NewConstantValueFixedInterval(option Option) ConstantValueFixedInterval {
+	// NOTE: we use int64 instead of time.Time to avoid the overhead of object creation from Add(), which creates a new time.Time
+	var startTime int64
+	var interval int64
+	switch option.GetPrecision() {
+	case time.Second:
+		startTime = option.GetStartTime().Unix()
+		interval = option.GetInterval().Nanoseconds() / 1000000000
+	case time.Millisecond:
+		startTime = option.GetStartTime().Unix() * 1000
+		interval = option.GetInterval().Nanoseconds() / 1000000
+	case time.Nanosecond:
+		startTime = option.GetStartTime().UnixNano()
+		interval = option.GetInterval().Nanoseconds()
+	default:
+		log.Panicf("un supported precision")
+		return ConstantValueFixedInterval{}
+	}
 	return ConstantValueFixedInterval{
-		timeNano:  time.Now().Unix() * 1000,
+		timestamp: startTime,
+		interval:  interval,
 		intVal:    10,
 		doubleVal: 2.33,
-		interval:  defaultTimeInterval,
+		option:    option,
 	}
 }
 
-// GeneratorName implements Generator interface
-// FIXME: this is actually string instead of name
-func (gen *ConstantValueFixedInterval) GeneratorName() string {
-	return fmt.Sprintf("constant generator of %d and %v", gen.intVal, gen.doubleVal)
+func (gen *ConstantValueFixedInterval) String() string {
+	return fmt.Sprintf("generator: constant value of %d and %v, fixed interval %v start from %v in precision of %v",
+		gen.intVal, gen.doubleVal, gen.option.GetInterval(), gen.option.GetStartTime(), gen.option.GetPrecision())
+}
+
+// GetOption implements Generator interface
+func (gen *ConstantValueFixedInterval) GetOption() Option {
+	return gen.option
 }
 
 // NextIntPoint implements IntGenerator interface
 func (gen *ConstantValueFixedInterval) NextIntPoint() common.IntPoint {
 	// NOTE: this requires using pointer receiver
-	gen.timeNano += gen.interval
-	return common.IntPoint{TimeNano: gen.timeNano, V: gen.intVal}
+	gen.timestamp += gen.interval
+	return common.IntPoint{TimeNano: gen.timestamp, V: gen.intVal}
 }
 
 // NextDoublePoint implements DoubleGenerator interface
 func (gen *ConstantValueFixedInterval) NextDoublePoint() common.DoublePoint {
-	return common.DoublePoint{TimeNano: gen.timeNano, V: gen.doubleVal}
+	gen.timestamp += gen.interval
+	return common.DoublePoint{TimeNano: gen.timestamp, V: gen.doubleVal}
 }
