@@ -8,23 +8,19 @@ import (
 )
 
 var fixedTimeInterval = []struct {
-	o        Option // generator option
+	opt      Option // generator option
 	expected int64  // expected time interval
 }{
-	{o: DefaultOption, expected: time.Millisecond.Nanoseconds() / 1000000},
-	// FIXME: why using the default Option get 0s .... because init is not called? nop
-	// Found it https://coderwall.com/p/g6vuqq/go-s-init-function
-	// package variable is executed before init function, so fixedTimeInterval got an empty option
-	// {o: DefaultNanosecondOption, expected: int64(time.Nanosecond)},
-	 {o: Option{startTime: time.Now(), interval: time.Millisecond, precision: time.Millisecond}, expected: int64(time.Nanosecond)},
-	{o: NewDefaultOption(), expected: time.Millisecond.Nanoseconds() / 1000000},
+	{opt: DefaultSecondOption, expected: time.Second.Nanoseconds() / 1000000000},
+	{opt: DefaultOption, expected: time.Millisecond.Nanoseconds() / 1000000},
+	{opt: DefaultNanosecondOption, expected: int64(time.Nanosecond)},
 }
 
 func TestConstantValueFixedInterval_NextIntPoint(t *testing.T) {
 	assert := asst.New(t)
 	// table driven test https://dave.cheney.net/2013/06/09/writing-table-driven-tests-in-go
 	for _, tt := range fixedTimeInterval {
-		gen := NewConstantValueFixedInterval(tt.o)
+		gen := NewConstantValueFixedInterval(tt.opt)
 		p1 := gen.NextIntPoint()
 		p2 := gen.NextIntPoint()
 		assert.Equal(tt.expected, p2.TimeNano-p1.TimeNano)
@@ -33,8 +29,10 @@ func TestConstantValueFixedInterval_NextIntPoint(t *testing.T) {
 
 func TestConstantValueFixedInterval_NextDoublePoint(t *testing.T) {
 	assert := asst.New(t)
-	gen := NewConstantValueFixedInterval(DefaultOption)
-	p1 := gen.NextDoublePoint()
-	p2 := gen.NextDoublePoint()
-	assert.Equal(DefaultOption.GetInterval().Nanoseconds()/1000000, p2.TimeNano-p1.TimeNano)
+	for _, tt := range fixedTimeInterval {
+		gen := NewConstantValueFixedInterval(tt.opt)
+		p1 := gen.NextDoublePoint()
+		p2 := gen.NextDoublePoint()
+		assert.Equal(tt.expected, p2.TimeNano-p1.TimeNano)
+	}
 }

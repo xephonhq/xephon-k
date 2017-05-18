@@ -22,17 +22,13 @@ func NewConstantValueFixedInterval(option Option) ConstantValueFixedInterval {
 	var startTime int64
 	var interval int64
 
-	log.Info(option.GetPrecision())
-
 	switch option.GetPrecision() {
 	case time.Second:
 		startTime = option.GetStartTime().Unix()
 		interval = option.GetInterval().Nanoseconds() / 1000000000
-		log.Info("second")
 	case time.Millisecond:
 		startTime = option.GetStartTime().Unix() * 1000
 		interval = option.GetInterval().Nanoseconds() / 1000000
-		log.Info("millisecond")
 	case time.Nanosecond:
 		startTime = option.GetStartTime().UnixNano()
 		interval = option.GetInterval().Nanoseconds()
