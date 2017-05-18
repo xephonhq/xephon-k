@@ -2,35 +2,33 @@ package generator
 
 import "time"
 
-var defaultOption DefaultOption
-var defaultNanosecondOption DefaultNanosecondOption
+var DefaultOption Option
+var DefaultNanosecondOption Option
 
-type DefaultOption struct {
+type Option struct {
+	startTime time.Time
+	interval  time.Duration
+	precision time.Duration
 }
 
-func (opt DefaultOption) GetStartTime() time.Time {
-	return time.Now()
+func (opt Option) GetStartTime() time.Time {
+	return opt.startTime
 }
 
-func (opt DefaultOption) GetInterval() time.Duration {
-	return time.Millisecond
+func (opt Option) GetInterval() time.Duration {
+	return opt.interval
 }
 
-func (opt DefaultOption) GetPrecision() time.Duration {
-	return time.Millisecond
+func (opt Option) GetPrecision() time.Duration {
+	return opt.precision
 }
 
-type DefaultNanosecondOption struct {
+func NewDefaultOption() Option {
+	return Option{startTime: time.Now(), interval: time.Millisecond, precision: time.Millisecond}
 }
 
-func (opt DefaultNanosecondOption) GetStartTime() time.Time {
-	return time.Now()
-}
-
-func (opt DefaultNanosecondOption) GetInterval() time.Duration {
-	return time.Nanosecond
-}
-
-func (opt DefaultNanosecondOption) GetPrecision() time.Duration {
-	return time.Nanosecond
+func init() {
+	log.Info("Init is called")
+	DefaultOption = Option{startTime: time.Now(), interval: time.Millisecond, precision: time.Millisecond}
+	DefaultNanosecondOption = Option{startTime: time.Now(), interval: time.Nanosecond, precision: time.Nanosecond}
 }

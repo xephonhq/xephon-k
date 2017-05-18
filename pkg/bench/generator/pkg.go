@@ -3,7 +3,6 @@ package generator
 import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/util"
-	"time"
 )
 
 var log = util.Logger.NewEntryWithPkg("xkb.generator")
@@ -12,18 +11,16 @@ var log = util.Logger.NewEntryWithPkg("xkb.generator")
 var _ IntGenerator = (*ConstantValueFixedInterval)(nil)
 var _ DoubleGenerator = (*ConstantValueFixedInterval)(nil)
 
-var _ Option = (*DefaultOption)(nil)
-
 type Generator interface {
 	GetOption() Option
 }
 
 // TODO: maybe using a concrete type is better
-type Option interface {
-	GetStartTime() time.Time
-	GetInterval() time.Duration
-	GetPrecision() time.Duration
-}
+// type Option interface {
+// 	GetStartTime() time.Time
+// 	GetInterval() time.Duration
+// 	GetPrecision() time.Duration
+// }
 
 type IntGenerator interface {
 	Generator

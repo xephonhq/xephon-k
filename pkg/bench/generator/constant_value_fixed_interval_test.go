@@ -1,17 +1,23 @@
 package generator
 
 import (
-	asst "github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	asst "github.com/stretchr/testify/assert"
 )
 
 var fixedTimeInterval = []struct {
 	o        Option // generator option
 	expected int64  // expected time interval
 }{
-	{o: defaultOption, expected: time.Millisecond.Nanoseconds() / 1000000},
-	{o: defaultNanosecondOption, expected: int64(time.Nanosecond)},
+	{o: DefaultOption, expected: time.Millisecond.Nanoseconds() / 1000000},
+	// FIXME: why using the default Option get 0s .... because init is not called? nop
+	// Found it https://coderwall.com/p/g6vuqq/go-s-init-function
+	// package variable is executed before init function, so fixedTimeInterval got an empty option
+	// {o: DefaultNanosecondOption, expected: int64(time.Nanosecond)},
+	 {o: Option{startTime: time.Now(), interval: time.Millisecond, precision: time.Millisecond}, expected: int64(time.Nanosecond)},
+	{o: NewDefaultOption(), expected: time.Millisecond.Nanoseconds() / 1000000},
 }
 
 func TestConstantValueFixedInterval_NextIntPoint(t *testing.T) {
@@ -27,8 +33,8 @@ func TestConstantValueFixedInterval_NextIntPoint(t *testing.T) {
 
 func TestConstantValueFixedInterval_NextDoublePoint(t *testing.T) {
 	assert := asst.New(t)
-	gen := NewConstantValueFixedInterval(defaultOption)
+	gen := NewConstantValueFixedInterval(DefaultOption)
 	p1 := gen.NextDoublePoint()
 	p2 := gen.NextDoublePoint()
-	assert.Equal(defaultOption.GetInterval().Nanoseconds()/1000000, p2.TimeNano-p1.TimeNano)
+	assert.Equal(DefaultOption.GetInterval().Nanoseconds()/1000000, p2.TimeNano-p1.TimeNano)
 }
