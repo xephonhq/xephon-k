@@ -1,0 +1,4 @@
+# This folder is used to share file between the Golang code and C code
+# normally written by Golang and read in C via mmap
+# 
+# Actually non of the fixtures should be put into git repository, but some are there as a momento

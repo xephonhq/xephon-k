@@ -2,7 +2,8 @@ package disk
 
 const (
 	CompressionNone = iota
-	CompressionZip
+	CompressionGzip
+	CompressionZlib
 )
 
 // https://golang.org/pkg/compress/

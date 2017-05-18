@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"bytes"
-	"encoding/binary"
+	//"encoding/binary"
+	"fmt"
 )
 
 // writing series to disk without any compression and then read it out
@@ -16,38 +17,53 @@ type fileHeader struct {
 	valueCompression uint8
 }
 
+// NOTE: must pass a pointer of buffer
+func (header *fileHeader) write(buf *bytes.Buffer) {
+	buf.WriteByte(header.version)
+	buf.WriteByte(header.timeCompression)
+	buf.WriteByte(header.valueCompression)
+}
+
 func TestNoCompress_Header(t *testing.T) {
 	header := fileHeader{version: 1, timeCompression: disk.CompressionNone, valueCompression: disk.CompressionNone}
+	//header := fileHeader{version: 1, timeCompression: disk.CompressionGzip, valueCompression: disk.CompressionZlib}
 	tmpfile, err := ioutil.TempFile("", "xephon-no-compress")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	defer os.Remove(tmpfile.Name())
+	//defer os.Remove(tmpfile.Name())
 
 	var buf bytes.Buffer
-	// TODO: binary endian
-	// - influxdb writer seems to be using BigEndian
-	// - old prometheus seems to be using LittleEndian
-	// - new prometheus tsdb seems to be using BigEndian
-	// lscpu | grep Endian
-	// - shows little endian
-	// Big endian byte ordering has been chosen as the "neutral" or standard for network data exchange and thus Big Endian byte ordering is also known as the "Network Byte Order"
-	// http://www.sqlite.org/fileformat2.html
-	// sqlite seems to be using big endian
-	// https://docs.oracle.com/cd/E17275_01/html/programmer_reference/am_misc_faq.html
-	// - BDB sort integer as byte strings, and it works badly for integer on little-endian architectures
-	binary.Write(&buf, binary.LittleEndian, header.version)
-	binary.Write(&buf, binary.LittleEndian, header.timeCompression)
-	binary.Write(&buf, binary.BigEndian, header.valueCompression)
+	// TODO: Endianness problem https://github.com/xephonhq/xephon-k/issues/34
+	// but it seems for single uint8, this is not a problem
+	//binary.Write(&buf, binary.LittleEndian, header.version)
+	//binary.Write(&buf, binary.LittleEndian, header.timeCompression)
+	//binary.Write(&buf, binary.LittleEndian, header.valueCompression)
+
+	header.write(&buf)
+
 	n, err := tmpfile.Write(buf.Bytes())
-	t.Logf("written %d bytes", n)
+	t.Logf("written %d bytes\n", n)
 	if err != nil {
 		t.Fatal(err)
 	}
 	tmpfile.Close()
 
 	// read stuff back
-	// f, err := os.Open(tmpfile.Name())
-
+	f, err := os.Open(tmpfile.Name())
+	readBuf := make([]byte, 3)
+	n, err = f.Read(readBuf)
+	t.Logf("read %d bytes\n", n)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+	// convert to header
+	newHeader := fileHeader{}
+	newHeader.version = uint8(readBuf[0])
+	newHeader.timeCompression = uint8(readBuf[1])
+	newHeader.valueCompression = uint8(readBuf[2])
+	fmt.Printf("version %d, time compression %d, value compression %d\n",
+		newHeader.version, newHeader.timeCompression, newHeader.valueCompression)
 }
