@@ -41,7 +41,7 @@ func TestStore_QueryIntSeries(t *testing.T) {
 	asst.Nil(err)
 	asst.Equal(1, len(returnedSeries))
 	asst.Equal(1, len(returnedSeries[0].Points))
-	//log.Info(returnedSeries[0].Points[0].TimeNano)
+	//log.Info(returnedSeries[0].Points[0].T)
 	log.Logger.DisableSourceLine()
 }
 

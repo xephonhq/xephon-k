@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"time"
 )
 
 type IntSeries struct {
@@ -14,11 +15,13 @@ type IntSeries struct {
 }
 
 type DoubleSeries struct {
-	Name   string            `json:"name"`
-	Tags   map[string]string `json:"tags"`
-	Points []DoublePoint     `json:"points"`
+	Name      string            `json:"name"`
+	Tags      map[string]string `json:"tags"`
+	Precision time.Duration     `json:"precision"`
+	Points    []DoublePoint     `json:"points"`
 }
 
+// TODO: int series of other precision, maybe we should add millisecond to the default function as well
 func NewIntSeries(name string) *IntSeries {
 	return &IntSeries{
 		Name: name,

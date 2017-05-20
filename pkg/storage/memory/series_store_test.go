@@ -39,5 +39,5 @@ func TestGoSemantics_StructSliceAssign(t *testing.T) {
 	ps1 := []common.IntPoint{p1, p2}
 	s1 := common.IntSeries{Name: "cpi", Tags: map[string]string{"os": "ubuntu"}, Points: ps1}
 	store.series = s1
-	//t.Log(store.series.Points[0].TimeNano)
+	//t.Log(store.series.Points[0].T)
 }

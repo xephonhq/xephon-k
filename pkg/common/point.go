@@ -16,7 +16,7 @@ type IntPoint struct {
 func (p *IntPoint) MarshalJSON() ([]byte, error) {
 	// FIXME: I think there is way for not casting value to int64, maybe use sprinf
 	return json.Marshal([2]int64{p.TimeNano, int64(p.V)})
-	//return json.Marshal([2]json.Number{p.TimeNano, int64(p.V)})
+	//return json.Marshal([2]json.Number{p.T, int64(p.V)})
 }
 
 // UnmarshalJSON implements Unmarshaler interface
@@ -60,6 +60,6 @@ func (p ByTime) Less(i int, j int) bool {
 }
 
 type DoublePoint struct {
-	TimeNano int64
-	V        float64
+	T int64
+	V float64
 }

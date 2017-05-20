@@ -57,7 +57,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 			points[k] = newSeries.Points[j]
 			j++
 		}
-		// log.Infof("value in loop is %v", points[k].TimeNano)
+		// log.Infof("value in loop is %v", points[k].T)
 		k++
 	}
 	// log.Infof("i %d j %d k %d", i, j, k)
@@ -81,7 +81,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 
 	//n := 0
 	//for n < store.length {
-	//	log.Infof("time in store %v", store.series.Points[n].TimeNano)
+	//	log.Infof("time in store %v", store.series.Points[n].T)
 	//	n++
 	//}
 }

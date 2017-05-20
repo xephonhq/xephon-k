@@ -7,6 +7,11 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
+const (
+	defaultIntVal    = 10
+	defaultDoubleVal = 2.33
+)
+
 // ConstantValueFixedInterval returns a constant value with timestamp increasing at interval
 type ConstantValueFixedInterval struct {
 	intVal    int
@@ -39,8 +44,8 @@ func NewConstantValueFixedInterval(option Option) ConstantValueFixedInterval {
 	return ConstantValueFixedInterval{
 		timestamp: startTime,
 		interval:  interval,
-		intVal:    10,
-		doubleVal: 2.33,
+		intVal:    defaultIntVal,
+		doubleVal: defaultDoubleVal,
 		option:    option,
 	}
 }
@@ -65,5 +70,5 @@ func (gen *ConstantValueFixedInterval) NextIntPoint() common.IntPoint {
 // NextDoublePoint implements DoubleGenerator interface
 func (gen *ConstantValueFixedInterval) NextDoublePoint() common.DoublePoint {
 	gen.timestamp += gen.interval
-	return common.DoublePoint{TimeNano: gen.timestamp, V: gen.doubleVal}
+	return common.DoublePoint{T: gen.timestamp, V: gen.doubleVal}
 }

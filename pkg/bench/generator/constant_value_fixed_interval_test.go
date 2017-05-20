@@ -24,6 +24,8 @@ func TestConstantValueFixedInterval_NextIntPoint(t *testing.T) {
 		p1 := gen.NextIntPoint()
 		p2 := gen.NextIntPoint()
 		assert.Equal(tt.expected, p2.TimeNano-p1.TimeNano)
+		assert.Equal(defaultIntVal, p1.V)
+		assert.Equal(p1.V, p2.V)
 	}
 }
 
@@ -33,6 +35,8 @@ func TestConstantValueFixedInterval_NextDoublePoint(t *testing.T) {
 		gen := NewConstantValueFixedInterval(tt.opt)
 		p1 := gen.NextDoublePoint()
 		p2 := gen.NextDoublePoint()
-		assert.Equal(tt.expected, p2.TimeNano-p1.TimeNano)
+		assert.Equal(tt.expected, p2.T-p1.T)
+		assert.Equal(defaultDoubleVal, p1.V)
+		assert.Equal(p1.V, p2.V)
 	}
 }
