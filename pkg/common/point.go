@@ -6,21 +6,27 @@ import (
 	"strconv"
 )
 
-// IntPoint is a time, int pair but encoded as array in JSON format for space efficiency
-// http://attilaolah.eu/2013/11/29/json-decoding-in-go/
+// IntPoint is a time, int pair. Its time precision is based on the series it belows to.
+// It is encoded as array in JSON format for space efficiency.
 type IntPoint struct {
 	TimeNano int64
 	V        int64
 }
 
-// MarshalJSON implements Marshaler interface
+// DoublePoint is a time, double pair. Used the same way as IntPoint.
+type DoublePoint struct {
+	T int64
+	V float64
+}
+
+// MarshalJSON implements Marshaler interface. Pointed is encoded as number array. i.e. [1359788400000,1]
 // https://golang.org/pkg/encoding/json/#Marshaler
 func (p *IntPoint) MarshalJSON() ([]byte, error) {
-	return json.Marshal([2]int64{p.TimeNano, p.V})
+	return []byte(fmt.Sprintf("[%d,%d]", p.TimeNano, p.V)), nil
 }
 
 func (p *IntPoint) MarshalJSON2() ([]byte, error) {
-	return []byte(fmt.Sprintf("[%d,%d]", p.TimeNano, p.V)), nil
+	return json.Marshal([2]int64{p.TimeNano, p.V})
 }
 
 func (p *IntPoint) MarshalJSON3() ([]byte, error) {
@@ -48,26 +54,61 @@ func (p *IntPoint) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ByTime implements Sort interface for IntPoint
+// IntPoints implements sort.Interface for IntPoint
 // https://golang.org/pkg/sort/
-type ByTime []IntPoint
+type IntPoints []IntPoint
 
 // Len implements Sort interface
-func (p ByTime) Len() int {
+func (p IntPoints) Len() int {
 	return len(p)
 }
 
 // Swap implements Sort interface
-func (p ByTime) Swap(i int, j int) {
+func (p IntPoints) Swap(i int, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
 // Less implements Sort interface
-func (p ByTime) Less(i int, j int) bool {
+func (p IntPoints) Less(i int, j int) bool {
 	return p[i].TimeNano < p[j].TimeNano
 }
 
-type DoublePoint struct {
-	T int64
-	V float64
+// MarshalJSON implements Marshaler interface. Point is encoded as number array. i.e. []
+func (p *DoublePoint) MarshalJSON() ([]byte, error) {
+	// TODO: precision of double value
+	return []byte(fmt.Sprintf("[%d,%f]", p.T, p.V)), nil
+}
+
+// UnmarshalJSON implements Unmarshaler interface.
+func (p *DoublePoint) UnmarshalJSON(data []byte) error {
+	var tv [2]json.Number
+	if err := json.Unmarshal(data, &tv); err != nil {
+		return err
+	}
+	t, err := tv[0].Int64()
+	if err != nil {
+		return err
+	}
+	p.T = t
+	v, err := tv[1].Float64()
+	if err != nil {
+		return err
+	}
+	p.V = v
+	return nil
+}
+
+// DoublePoints implements sort.Interface for DoublePoint
+type DoublePoints []DoublePoint
+
+func (p DoublePoints) Len() int {
+	return len(p)
+}
+
+func (p DoublePoints) Swap(i int, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p DoublePoints) Less(i int, j int) bool {
+	return p[i].T < p[j].T
 }

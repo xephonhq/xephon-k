@@ -5,12 +5,12 @@ import (
 
 	"encoding/json"
 
-	"github.com/stretchr/testify/assert"
+	asst "github.com/stretchr/testify/assert"
 	"sort"
 )
 
 func TestIntPoint_MarshalJSON(t *testing.T) {
-	asst := assert.New(t)
+	assert := asst.New(t)
 
 	//1492565887423026057 UnixNano
 	//1492566023000       Unix() * 1000
@@ -20,35 +20,56 @@ func TestIntPoint_MarshalJSON(t *testing.T) {
 	// j, err := json.Marshal(p)
 	// TODO: what happens when i use decoder instead of json.Marshal
 	j, err := json.Marshal(&p)
-	asst.Nil(err)
-	asst.Equal("[1359788400000,1]", string(j))
+	assert.Nil(err)
+	assert.Equal("[1359788400000,1]", string(j))
 }
 
 func TestIntPoint_UnmarshalJSON(t *testing.T) {
-	asst := assert.New(t)
+	assert := asst.New(t)
 
 	p := IntPoint{TimeNano: 1359788400000, V: 1}
 	j, err := json.Marshal(&p)
-	asst.Nil(err)
+	assert.Nil(err)
 	var p2 IntPoint
 	err = json.Unmarshal(j, &p2)
-	asst.Nil(err)
-	asst.Equal(p, p2)
+	assert.Nil(err)
+	assert.Equal(p, p2)
 }
 
-func TestByTime_Less(t *testing.T) {
-	asst := assert.New(t)
+func TestDoublePoint_MarshalJSON(t *testing.T) {
+	assert := asst.New(t)
+
+	p := DoublePoint{T: 1359788400000, V: 1.2}
+	//p := DoublePoint{T: 1359788400000, V: 1} // it's still 1.000000
+	j, err := json.Marshal(&p)
+	assert.Nil(err)
+	assert.Equal("[1359788400000,1.200000]", string(j))
+}
+
+func TestDoublePoint_UnmarshalJSON(t *testing.T) {
+	assert := asst.New(t)
+
+	p := DoublePoint{T: 1359788400000, V: 1.2}
+	j, err := json.Marshal(&p)
+	assert.Nil(err)
+	var p2 DoublePoint
+	err = json.Unmarshal(j, &p2)
+	assert.Equal(p, p2)
+}
+
+func TestIntPoints_Less(t *testing.T) {
+	assert := asst.New(t)
 	p1 := IntPoint{TimeNano: 1359788400000, V: 1}
 	p2 := IntPoint{TimeNano: 1359788401000, V: 1}
 	p3 := IntPoint{TimeNano: 1359788400200, V: 1}
 	p4 := IntPoint{TimeNano: 1459788400000, V: 1}
 	p := []IntPoint{p2, p1, p4, p3}
-	sort.Sort(ByTime(p))
-	asst.Equal(int64(1359788400000), p[0].TimeNano)
-	asst.Equal(int64(1459788400000), p[3].TimeNano)
+	sort.Sort(IntPoints(p))
+	assert.Equal(int64(1359788400000), p[0].TimeNano)
+	assert.Equal(int64(1459788400000), p[3].TimeNano)
 }
 
-// 5000000	       318 ns/op
+// 10000000	       222 ns/op
 func BenchmarkIntPoint_MarshalJSON(b *testing.B) {
 	p := IntPoint{TimeNano: 1359788400000, V: 1}
 	var err error
@@ -60,7 +81,7 @@ func BenchmarkIntPoint_MarshalJSON(b *testing.B) {
 	}
 }
 
-// 10000000	       225 ns/op
+// 5000000	       306 ns/op
 func BenchmarkIntPoint_MarshalJSON2(b *testing.B) {
 	p := IntPoint{TimeNano: 1359788400000, V: 1}
 	var err error

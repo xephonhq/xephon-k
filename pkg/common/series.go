@@ -29,6 +29,14 @@ func NewIntSeries(name string) *IntSeries {
 	}
 }
 
+func NewDoubleSeries(name string) *DoubleSeries {
+	return &DoubleSeries{
+		Name:      name,
+		Tags:      make(map[string]string, 1),
+		Precision: time.Millisecond,
+	}
+}
+
 // Hash returns one result for series have same name and tags
 func (series *IntSeries) Hash() SeriesID {
 	// TODO: more efficient way for hashing, every time we hash, we sort it, and using []byte

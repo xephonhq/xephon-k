@@ -32,10 +32,10 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	// TODO: efficient merge sort
 	// TODO: actually we can remove duplicate when merge by comparing with previous point
 	// TODO: if the start of the new series is smaller than the end of existing and we make sure there is no duplication we can simply append it
-	// FIXME: when using collector, store length stuck at 10, maybe new series is created every time
 
+	// TODO: add a flag to series, so we don't sort points that are already sorted
 	// store.series should already be sorted, so we only sort the newSeries
-	sort.Sort(common.ByTime(newSeries.Points))
+	sort.Sort(common.IntPoints(newSeries.Points))
 	i := 0
 	j := 0
 	k := 0
