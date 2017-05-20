@@ -235,7 +235,7 @@ func Union(postings ...[]common.SeriesID) []common.SeriesID {
 	// FIXME: this is linear search merge, the slowest one, nk, but when k is small, this is fine
 	// TODO: it seems there is not need for sorting
 	union := make([]common.SeriesID, 0, maxLength)
-	lastVal := common.SeriesID("")
+	lastVal := common.SeriesID(0)
 	for len(remainLists) > 0 {
 		// pick any one as the initial value http://stackoverflow.com/questions/23482786/get-an-arbitrary-key-item-from-a-map
 		var first int

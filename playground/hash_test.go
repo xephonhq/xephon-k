@@ -49,6 +49,9 @@ func TestHash_FNV(t *testing.T) {
 func TestHash_FNVInline(t *testing.T) {
 	h := NewInlineFNV64a()
 	h.Write([]byte("hahah"))
+	// FIXME: cannot use h (type InlineFNV64a) as type io.Writer in argument to io.WriteString:
+	// InlineFNV64a does not implement io.Writer (Write method has pointer receiver)
+	//io.WriteString(h, "hahah")
 	t.Log(h.Sum64()) // 8102845894955527583
 }
 
@@ -79,14 +82,14 @@ func md5Hash(s string) {
 // 30000000	        40.2 ns/op ... forgot to call Sum
 // 20000000	        63.2 ns/op
 func BenchmarkHash_FNV(b *testing.B) {
-	for n := 0; n < b.N;n ++ {
+	for n := 0; n < b.N; n ++ {
 		fnvHash("hahaha")
 	}
 }
 
 // 100000000	        12.0 ns/op (much faster, guess because we don't have any object?)
 func BenchmarkHash_FNVInline(b *testing.B) {
-	for n := 0; n < b.N;n ++ {
+	for n := 0; n < b.N; n ++ {
 		fnvInline("hahaha")
 	}
 }
@@ -94,7 +97,7 @@ func BenchmarkHash_FNVInline(b *testing.B) {
 // 20000000	        61.7 ns/op ... forgot to call Sum
 // 10000000	       223 ns/op
 func BenchmarkHash_MD5(b *testing.B) {
-	for n := 0; n < b.N;n ++ {
+	for n := 0; n < b.N; n ++ {
 		md5Hash("hahaha")
 	}
 }

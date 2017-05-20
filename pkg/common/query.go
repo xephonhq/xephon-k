@@ -1,10 +1,7 @@
 package common
 
 import (
-	"crypto/md5"
 	"encoding/json"
-	"fmt"
-	"io"
 	"sort"
 
 	"github.com/pkg/errors"
@@ -49,20 +46,22 @@ type QueryResult struct {
 // Hash return the same result as IntSeries's hash function
 func (query *Query) Hash() SeriesID {
 	// TODO: this is copied from series Hash
-	h := md5.New()
-	io.WriteString(h, query.Name)
+	h := NewInlineFNV64a()
+	h.Write([]byte(query.Name))
 	keys := make([]string, len(query.Tags))
 	i := 0
+	// NOTE: use range on map has different order of keys on every run, except you only have one key,
+	// thus we need to sort the keys when we calculate the hash
 	for k := range query.Tags {
 		keys[i] = k
 		i++
 	}
 	sort.Strings(keys)
 	for _, k := range keys {
-		io.WriteString(h, k)
-		io.WriteString(h, query.Tags[k])
+		h.Write([]byte(k))
+		h.Write([]byte(query.Tags[k]))
 	}
-	return SeriesID(fmt.Sprintf("%x", h.Sum(nil)))
+	return SeriesID(h.Sum64())
 }
 
 func (filter *Filter) UnmarshalJSON(data []byte) error {

@@ -1,9 +1,6 @@
 package common
 
 import (
-	"crypto/md5"
-	"fmt"
-	"io"
 	"sort"
 	"time"
 )
@@ -39,10 +36,10 @@ func NewDoubleSeries(name string) *DoubleSeries {
 
 // Hash returns one result for series have same name and tags
 func (series *IntSeries) Hash() SeriesID {
-	// TODO: more efficient way for hashing, every time we hash, we sort it, and using []byte
-	// should be more efficient than string
-	h := md5.New()
-	io.WriteString(h, series.Name)
+	// TODO: more efficient way for hashing, every time we hash, we sort it,
+	// and using []byte should be more efficient than string
+	h := NewInlineFNV64a()
+	h.Write([]byte(series.Name))
 	keys := make([]string, len(series.Tags))
 	i := 0
 	// NOTE: use range on map has different order of keys on every run, except you only have one key,
@@ -53,8 +50,8 @@ func (series *IntSeries) Hash() SeriesID {
 	}
 	sort.Strings(keys)
 	for _, k := range keys {
-		io.WriteString(h, k)
-		io.WriteString(h, series.Tags[k])
+		h.Write([]byte(k))
+		h.Write([]byte(series.Tags[k]))
 	}
-	return SeriesID(fmt.Sprintf("%x", h.Sum(nil)))
+	return SeriesID(h.Sum64())
 }

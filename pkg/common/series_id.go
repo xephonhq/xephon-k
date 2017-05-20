@@ -5,4 +5,4 @@ package common
 // - locality sensitive hashing https://github.com/xephonhq/xephon-k/issues/25
 // - distributed hashing
 // - use integer instead of string https://github.com/xephonhq/xephon-k/issues/36
-type SeriesID string
+type SeriesID uint64
