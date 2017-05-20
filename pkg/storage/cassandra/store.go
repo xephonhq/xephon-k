@@ -85,7 +85,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		// NOTE: both time and int64 works
 		// var metricTimestamp time.Time
 		var metricTimestamp int64
-		var metricValue int
+		var metricValue int64
 		oneSeries := common.IntSeries{}
 		// TODO: may specify capacity to improve performance
 		oneSeries.Points = make([]common.IntPoint, 0)

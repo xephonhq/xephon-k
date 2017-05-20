@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	defaultIntVal    = 10
+	defaultIntVal    = int64(10)
 	defaultDoubleVal = 2.33
 )
 
 // ConstantValueFixedInterval returns a constant value with timestamp increasing at interval
 type ConstantValueFixedInterval struct {
-	intVal    int
+	intVal    int64
 	doubleVal float64
 	timestamp int64 // timestamp is in different precision based on the option. see https://github.com/xephonhq/xephon-k/issues/35
 	interval  int64 // interval is in same precision with timestamp

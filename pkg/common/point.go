@@ -8,15 +8,14 @@ import (
 // http://attilaolah.eu/2013/11/29/json-decoding-in-go/
 type IntPoint struct {
 	TimeNano int64
-	V        int
+	V        int64
 }
 
 // MarshalJSON implements Marshaler interface
 // https://golang.org/pkg/encoding/json/#Marshaler
 func (p *IntPoint) MarshalJSON() ([]byte, error) {
 	// FIXME: I think there is way for not casting value to int64, maybe use sprinf
-	return json.Marshal([2]int64{p.TimeNano, int64(p.V)})
-	//return json.Marshal([2]json.Number{p.T, int64(p.V)})
+	return json.Marshal([2]int64{p.TimeNano, p.V})
 }
 
 // UnmarshalJSON implements Unmarshaler interface
@@ -33,7 +32,7 @@ func (p *IntPoint) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	v, err := tv[1].Int64()
-	p.V = int(v)
+	p.V = v
 	if err != nil {
 		return err
 	}
