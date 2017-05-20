@@ -2,6 +2,8 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 )
 
 // IntPoint is a time, int pair but encoded as array in JSON format for space efficiency
@@ -14,8 +16,15 @@ type IntPoint struct {
 // MarshalJSON implements Marshaler interface
 // https://golang.org/pkg/encoding/json/#Marshaler
 func (p *IntPoint) MarshalJSON() ([]byte, error) {
-	// FIXME: I think there is way for not casting value to int64, maybe use sprinf
 	return json.Marshal([2]int64{p.TimeNano, p.V})
+}
+
+func (p *IntPoint) MarshalJSON2() ([]byte, error) {
+	return []byte(fmt.Sprintf("[%d,%d]", p.TimeNano, p.V)), nil
+}
+
+func (p *IntPoint) MarshalJSON3() ([]byte, error) {
+	return []byte("[" + strconv.FormatInt(p.TimeNano, 10) + "," + strconv.FormatInt(p.V, 10) + "]"), nil
 }
 
 // UnmarshalJSON implements Unmarshaler interface

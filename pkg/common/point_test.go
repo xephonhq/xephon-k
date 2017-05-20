@@ -47,3 +47,39 @@ func TestByTime_Less(t *testing.T) {
 	asst.Equal(int64(1359788400000), p[0].TimeNano)
 	asst.Equal(int64(1459788400000), p[3].TimeNano)
 }
+
+// 5000000	       318 ns/op
+func BenchmarkIntPoint_MarshalJSON(b *testing.B) {
+	p := IntPoint{TimeNano: 1359788400000, V: 1}
+	var err error
+	for i := 0; i < b.N; i++ {
+		_, err = p.MarshalJSON()
+	}
+	if err != nil {
+		err.Error()
+	}
+}
+
+// 10000000	       225 ns/op
+func BenchmarkIntPoint_MarshalJSON2(b *testing.B) {
+	p := IntPoint{TimeNano: 1359788400000, V: 1}
+	var err error
+	for i := 0; i < b.N; i++ {
+		_, err = p.MarshalJSON2()
+	}
+	if err != nil {
+		err.Error()
+	}
+}
+
+// 10000000	       139 ns/op
+func BenchmarkIntPoint_MarshalJSON3(b *testing.B) {
+	p := IntPoint{TimeNano: 1359788400000, V: 1}
+	var err error
+	for i := 0; i < b.N; i++ {
+		_, err = p.MarshalJSON3()
+	}
+	if err != nil {
+		err.Error()
+	}
+}
