@@ -30,29 +30,23 @@ func TestIntSeries_JSON(t *testing.T) {
 
 func TestIntSeries_Hash(t *testing.T) {
 	assert := asst.New(t)
-
-	tags := make(map[string]string)
-	tags["os"] = "ubuntu"
-	tags["region"] = "us-east"
+	// TODO: change to a table test
+	tags := map[string]string{"os": "ubuntu", "region": "us-east"}
 	p1 := IntPoint{TimeNano: 1359788400000, V: 1}
 	p2 := IntPoint{TimeNano: 1359788400001, V: 2}
-	ps1 := []IntPoint{p1}
-	ps2 := []IntPoint{p2}
-	s1 := IntSeries{Name: "cpi", Tags: tags, Points: ps1}
-	s2 := IntSeries{Name: "cpi", Tags: tags, Points: ps2}
-	s3 := IntSeries{Name: "ipc", Tags: tags, Points: ps2} // different name
+	s1 := IntSeries{Name: "cpi", Tags: tags, Points: []IntPoint{p1}}
+	s2 := IntSeries{Name: "cpi", Tags: tags, Points: []IntPoint{p2}}
+	s3 := IntSeries{Name: "ipc", Tags: tags, Points: []IntPoint{p2}} // different name
 	tags2 := make(map[string]string)
-	s4 := IntSeries{Name: "cpi", Tags: tags2, Points: ps1} // different tag
-	tags3 := make(map[string]string)
-	tags3["os"] = "ubuntu"
-	tags3["region"] = "us-east"
-	// same tag, different tag object, and simply range on tags should have different result on every run, that's why we
-	// sort it before we calculate the hash
-	s5 := IntSeries{Name: "cpi", Tags: tags3, Points: ps1}
-	assert.Equal(s1.Hash(), s2.Hash())
-	assert.NotEqual(s1.Hash(), s3.Hash())
-	assert.NotEqual(s1.Hash(), s4.Hash())
-	assert.Equal(s1.Hash(), s5.Hash())
+	s4 := IntSeries{Name: "cpi", Tags: tags2, Points: []IntPoint{p1}} // different tag
+	tags3 := map[string]string{"os": "ubuntu", "region": "us-east"}
+	// same tag, different tag object, and simply range on tags should have different result on every run,
+	// that's why we sort it before we calculate the hash
+	s5 := IntSeries{Name: "cpi", Tags: tags3, Points: []IntPoint{p1}}
+	assert.Equal(Hash(&s1), Hash(&s2))
+	assert.NotEqual(Hash(&s1), Hash(&s3))
+	assert.NotEqual(Hash(&s1), Hash(&s4))
+	assert.Equal(Hash(&s1), Hash(&s5))
 }
 
 func TestDoubleSeries_JSON(t *testing.T) {

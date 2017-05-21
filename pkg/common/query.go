@@ -2,7 +2,6 @@ package common
 
 import (
 	"encoding/json"
-	"sort"
 
 	"github.com/pkg/errors"
 )
@@ -43,25 +42,12 @@ type QueryResult struct {
 	Matched int `json:"matched"`
 }
 
-// Hash return the same result as IntSeries's hash function
-func (query *Query) Hash() SeriesID {
-	// TODO: this is copied from series Hash
-	h := NewInlineFNV64a()
-	h.Write([]byte(query.Name))
-	keys := make([]string, len(query.Tags))
-	i := 0
-	// NOTE: use range on map has different order of keys on every run, except you only have one key,
-	// thus we need to sort the keys when we calculate the hash
-	for k := range query.Tags {
-		keys[i] = k
-		i++
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		h.Write([]byte(k))
-		h.Write([]byte(query.Tags[k]))
-	}
-	return SeriesID(h.Sum64())
+func (query *Query) GetName() string {
+	return query.Name
+}
+
+func (query *Query) GetTags() map[string]string {
+	return query.Tags
 }
 
 func (filter *Filter) UnmarshalJSON(data []byte) error {

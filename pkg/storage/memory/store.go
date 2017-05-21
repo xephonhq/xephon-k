@@ -37,7 +37,7 @@ func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryRe
 		queryResult := common.QueryResult{Query: query, Matched: 0}
 		switch query.MatchPolicy {
 		case "exact":
-			seriesID := query.Hash()
+			seriesID := common.Hash(&query)
 			oneSeries, ok := store.data[seriesID]
 			if ok {
 				queryResult.Matched = 1
@@ -74,7 +74,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 	switch query.MatchPolicy {
 	case "exact":
 		// fetch the series
-		seriesID := query.Hash()
+		seriesID := common.Hash(&query)
 		// TODO: should we make a copy of the points, what would happen if there are
 		// write when we are encoding it to json
 		// TODO: there is mutex on IntSeries store, how does prometheus etc. handle this?
@@ -97,8 +97,9 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 
 // WriteIntSeries implements Store interface
 func (store Store) WriteIntSeries(series []common.IntSeries) error {
+	// TODO: will using range and array access have difference
 	for _, oneSeries := range series {
-		id := oneSeries.Hash()
+		id := common.Hash(&oneSeries)
 		// TODO: this should return error and we should handle it somehow
 		// Write Data
 		store.data.WriteIntSeries(id, oneSeries)

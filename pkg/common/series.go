@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+// check interface
+var _ Series = (*IntSeries)(nil)
+var _ Series = (*DoubleSeries)(nil)
+
+type Series interface {
+	Hashable
+}
+
 type IntSeries struct {
 	Name   string            `json:"name"`
 	Tags   map[string]string `json:"tags"`
@@ -34,10 +42,24 @@ func NewDoubleSeries(name string) *DoubleSeries {
 	}
 }
 
-// Hash returns one result for series have same name and tags
-func (series *IntSeries) Hash() SeriesID {
-	// TODO: more efficient way for hashing, every time we hash, we sort it,
-	// and using []byte should be more efficient than string
+func (series *IntSeries) GetName() string {
+	return series.Name
+}
+
+func (series *IntSeries) GetTags() map[string]string {
+	return series.Tags
+}
+
+func (series *DoubleSeries) GetName() string {
+	return series.Name
+}
+
+func (series *DoubleSeries) GetTags() map[string]string {
+	return series.Tags
+}
+
+func (series *DoubleSeries) Hash() SeriesID {
+	// TODO: copied from double series
 	h := NewInlineFNV64a()
 	h.Write([]byte(series.Name))
 	keys := make([]string, len(series.Tags))
