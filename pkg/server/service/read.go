@@ -39,8 +39,7 @@ type readResponse struct {
 	Error        bool                 `json:"error"`
 	ErrorMsg     string               `json:"error_msg"`
 	QueryResults []common.QueryResult `json:"query_results"`
-	// TODO: where is the data?
-	Metrics []common.IntSeries `json:"metrics"`
+	Metrics      []common.IntSeries   `json:"metrics"`
 }
 
 type ReadServiceHTTPFactory struct {

@@ -25,6 +25,7 @@ An array of series, see `common/series.go`
 - old date can come in
 - duplication between the existing in memory series and the new series is handled
 - duplication inside a series is not handled
+- [ ] TODO: document precision and type, they are using number instead of string
 
 ````json
 [
