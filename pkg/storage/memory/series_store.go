@@ -29,7 +29,7 @@ func NewIntSeriesStore() *IntSeriesStore {
 
 // WriteSeries merges the new series with existing one and replace old points with new points if their timestamp matches
 // TODO: what happens when no memory is available? maybe this function should return error
-func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
+func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
@@ -90,6 +90,9 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	//	log.Infof("time in store %v", store.series.Points[n].T)
 	//	n++
 	//}
+
+	// TODO: return real error
+	return nil
 }
 
 // ReadByStartEndTime filters and return a copy of the data

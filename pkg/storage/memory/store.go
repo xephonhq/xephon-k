@@ -1,6 +1,9 @@
 package memory
 
-import "github.com/xephonhq/xephon-k/pkg/common"
+import (
+	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg/common"
+)
 
 // Store is the in memory storage with data and index
 type Store struct {
@@ -67,16 +70,19 @@ func (store *Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryR
 
 // WriteIntSeries implements Store interface
 func (store *Store) WriteIntSeries(series []common.IntSeries) error {
-	// TODO: will using range and array access have difference
-	for _, oneSeries := range series {
-		id := common.Hash(&oneSeries)
-		// TODO: this should return error and we should handle it somehow
+	for i := 0; i < len(series); i++ {
+		id := common.Hash(&series[i])
 		// Write Data
-		store.data.WriteIntSeries(id, oneSeries)
+		err := store.data.WriteIntSeries(id, series[i])
+		if err != nil {
+			return errors.Wrapf(err, "write data failed for %s %v", series[i].Name, series[i].Tags)
+		}
 		// Write Index
+		// TODO: write index and write data can be parallel, though I don't know if it has performance boost
+		// TODO: write index should also have error
 		// NOTE: we store series name as special tag
-		store.index.Add(id, nameTagKey, oneSeries.Name)
-		for k, v := range oneSeries.Tags {
+		store.index.Add(id, nameTagKey, series[i].Name)
+		for k, v := range series[i].Tags {
 			store.index.Add(id, k, v)
 		}
 	}

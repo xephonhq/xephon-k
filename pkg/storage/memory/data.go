@@ -20,13 +20,15 @@ func NewData(capacity int) *Data {
 }
 
 // WriteIntSeries create the entry if it does not exist, otherwise merge with existing
-// TODO: return error
 // TODO: shouldn't we use pointer here?
-func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) {
+func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) error {
 	seriesStore, ok := data.intSeries[id]
 	if ok {
-		log.Debugf("mem:data create new entry %s %v in map", series.Name, series.Tags)
-		seriesStore.WriteSeries(series)
+		log.Debugf("mem:data merge with entry %s %v in map", series.Name, series.Tags)
+		err := seriesStore.WriteSeries(series)
+		if err != nil {
+			return err
+		}
 	} else {
 		log.Debugf("mem:data create new entry %s %v in map", series.Name, series.Tags)
 		data.intSeries[id] = NewIntSeriesStore()
@@ -37,4 +39,5 @@ func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) {
 		// FIXED, we should set the length as well
 		seriesStore.length = len(series.Points)
 	}
+	return nil
 }
