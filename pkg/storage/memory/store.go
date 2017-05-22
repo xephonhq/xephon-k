@@ -17,12 +17,12 @@ func NewMemStore() *Store {
 }
 
 // StoreType implements Store interface
-func (store Store) StoreType() string {
+func (store *Store) StoreType() string {
 	return "memory"
 }
 
 // QueryIntSeriesBatch implements Store interface
-func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+func (store *Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
 	result := make([]common.QueryResult, 0, len(queries))
 	series := make([]common.IntSeries, 0, len(queries))
 	// TODO:
@@ -66,7 +66,7 @@ func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryRe
 }
 
 // WriteIntSeries implements Store interface
-func (store Store) WriteIntSeries(series []common.IntSeries) error {
+func (store *Store) WriteIntSeries(series []common.IntSeries) error {
 	// TODO: will using range and array access have difference
 	for _, oneSeries := range series {
 		id := common.Hash(&oneSeries)
@@ -84,6 +84,6 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 }
 
 // Shutdown TODO: gracefully flush in memory data to disk
-func (store Store) Shutdown() {
-	log.Info("shutting down memoery store, nothing to do, have a nice weekend~")
+func (store *Store) Shutdown() {
+	log.Info("shutting down memory store, nothing to do, have a nice weekend~")
 }
