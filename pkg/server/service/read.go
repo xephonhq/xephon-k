@@ -114,12 +114,12 @@ func NewReadServiceCassandra(host string) *ReadServiceServerImpl {
 }
 
 // ServiceName implements Service
-func (ReadServiceServerImpl) ServiceName() string {
+func (rs *ReadServiceServerImpl) ServiceName() string {
 	return "read"
 }
 
 // QueryInt implements ReadService
-func (rs ReadServiceServerImpl) QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+func (rs *ReadServiceServerImpl) QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
 	return rs.store.QueryIntSeriesBatch(queries)
 }
 

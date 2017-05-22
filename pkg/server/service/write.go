@@ -132,12 +132,12 @@ func NewWriteServiceCassandra(host string) *WriteServiceServerImpl {
 }
 
 // ServiceName implements Service
-func (WriteServiceServerImpl) ServiceName() string {
+func (ws *WriteServiceServerImpl) ServiceName() string {
 	return "write"
 }
 
 // WriteInt implements WriteService
-func (ws WriteServiceServerImpl) WriteInt(series []common.IntSeries) error {
+func (ws *WriteServiceServerImpl) WriteInt(series []common.IntSeries) error {
 	// write to memory storage
 	// NOTE: maybe we should wrap error instead of just return it
 	return ws.store.WriteIntSeries(series)
