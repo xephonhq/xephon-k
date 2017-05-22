@@ -15,7 +15,7 @@ func TestIntSeries_JSON(t *testing.T) {
 	s := IntSeries{
 		Name:   "cpi",
 		Tags:   map[string]string{"os": "ubuntu"},
-		Points: []IntPoint{{TimeNano: 1359788400000, V: 1}, {TimeNano: 1359788400001, V: 2}},
+		Points: []IntPoint{{T: 1359788400000, V: 1}, {T: 1359788400001, V: 2}},
 	}
 	j, err := json.Marshal(s)
 	assert.Nil(err)
@@ -25,15 +25,15 @@ func TestIntSeries_JSON(t *testing.T) {
 	err = json.Unmarshal(j, &s2)
 	assert.Nil(err)
 	assert.Equal("ubuntu", s2.Tags["os"])
-	assert.Equal(int64(1359788400000), s2.Points[0].TimeNano)
+	assert.Equal(int64(1359788400000), s2.Points[0].T)
 }
 
 func TestIntSeries_Hash(t *testing.T) {
 	assert := asst.New(t)
 	// TODO: change to a table test
 	tags := map[string]string{"os": "ubuntu", "region": "us-east"}
-	p1 := IntPoint{TimeNano: 1359788400000, V: 1}
-	p2 := IntPoint{TimeNano: 1359788400001, V: 2}
+	p1 := IntPoint{T: 1359788400000, V: 1}
+	p2 := IntPoint{T: 1359788400001, V: 2}
 	s1 := IntSeries{Name: "cpi", Tags: tags, Points: []IntPoint{p1}}
 	s2 := IntSeries{Name: "cpi", Tags: tags, Points: []IntPoint{p2}}
 	s3 := IntSeries{Name: "ipc", Tags: tags, Points: []IntPoint{p2}} // different name

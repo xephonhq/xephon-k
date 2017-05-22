@@ -90,7 +90,7 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		// TODO: may specify capacity to improve performance
 		oneSeries.Points = make([]common.IntPoint, 0)
 		for iter.Scan(&metricTimestamp, &metricValue) {
-			oneSeries.Points = append(oneSeries.Points, common.IntPoint{TimeNano: metricTimestamp, V: metricValue})
+			oneSeries.Points = append(oneSeries.Points, common.IntPoint{T: metricTimestamp, V: metricValue})
 			//log.Infof("%v %d", metricTimestamp, metricValue)
 		}
 		if err := iter.Close(); err != nil {
@@ -113,7 +113,7 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 		batch := session.NewBatch(gocql.UnloggedBatch)
 		for _, p := range oneSeries.Points {
 			// http://stackoverflow.com/questions/35401344/passing-a-map-as-a-value-to-insert-into-cassandra
-			batch.Query(insertIntStmt, oneSeries.Name, p.TimeNano, oneSeries.Tags, p.V)
+			batch.Query(insertIntStmt, oneSeries.Name, p.T, oneSeries.Tags, p.V)
 		}
 		err := session.ExecuteBatch(batch)
 		if err != nil {

@@ -23,7 +23,7 @@ type DoubleSeriesStore struct {
 // NewIntSeriesStore creates a IntSeriesStore
 func NewIntSeriesStore() *IntSeriesStore {
 	series := common.IntSeries{}
-	series.Points = make([]common.IntPoint, initPointsLength)
+	series.Points = make([]common.IntPoint, 0, initPointsLength)
 	return &IntSeriesStore{series: series, length: 0}
 }
 
@@ -51,10 +51,10 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) {
 	// log.Infof("ol %d nl %d", oldLength, newLength)
 	points := make([]common.IntPoint, oldLength+newLength)
 	for i < oldLength && j < newLength {
-		if store.series.Points[i].TimeNano < newSeries.Points[j].TimeNano {
+		if store.series.Points[i].T < newSeries.Points[j].T {
 			points[k] = store.series.Points[i]
 			i++
-		} else if store.series.Points[i].TimeNano == newSeries.Points[j].TimeNano {
+		} else if store.series.Points[i].T == newSeries.Points[j].T {
 			// if there is duplicate, overwrite the old point with new point
 			points[k] = newSeries.Points[j]
 			i++
@@ -115,7 +115,7 @@ func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) 
 		// FIXED: wrong fake time in test
 		//1359788400002
 		//144788400002
-		if store.series.Points[i].TimeNano >= startTime && store.series.Points[i].TimeNano <= endTime {
+		if store.series.Points[i].T >= startTime && store.series.Points[i].T <= endTime {
 			// TODO: maybe we should add a append method to IntSeries and let it create a new copy of the point
 			log.Tracef("need to append the points!")
 			returnSeries.Points = append(returnSeries.Points, store.series.Points[i])

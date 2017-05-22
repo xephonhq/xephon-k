@@ -74,6 +74,6 @@ func (influx *InfluxDBSerialize) WriteInt(series common.IntSeries) {
 	pointLength := len(series.Points)
 	for i = 0; i < pointLength; i++ {
 		influx.buf.Write(prefix)
-		influx.buf.WriteString(fmt.Sprintf("value=%d %d\n", series.Points[i].V, series.Points[i].TimeNano))
+		influx.buf.WriteString(fmt.Sprintf("value=%d %d\n", series.Points[i].V, series.Points[i].T))
 	}
 }

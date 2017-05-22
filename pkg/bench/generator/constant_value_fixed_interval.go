@@ -64,7 +64,7 @@ func (gen *ConstantValueFixedInterval) GetOption() Option {
 func (gen *ConstantValueFixedInterval) NextIntPoint() common.IntPoint {
 	// NOTE: this requires using pointer receiver
 	gen.timestamp += gen.interval
-	return common.IntPoint{TimeNano: gen.timestamp, V: gen.intVal}
+	return common.IntPoint{T: gen.timestamp, V: gen.intVal}
 }
 
 // NextDoublePoint implements DoubleGenerator interface

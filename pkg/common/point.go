@@ -9,8 +9,8 @@ import (
 // IntPoint is a time, int pair. Its time precision is based on the series it belows to.
 // It is encoded as array in JSON format for space efficiency.
 type IntPoint struct {
-	TimeNano int64
-	V        int64
+	T int64
+	V int64
 }
 
 // DoublePoint is a time, double pair. Used the same way as IntPoint.
@@ -22,15 +22,15 @@ type DoublePoint struct {
 // MarshalJSON implements Marshaler interface. Pointed is encoded as number array. i.e. [1359788400000,1]
 // https://golang.org/pkg/encoding/json/#Marshaler
 func (p *IntPoint) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf("[%d,%d]", p.TimeNano, p.V)), nil
+	return []byte(fmt.Sprintf("[%d,%d]", p.T, p.V)), nil
 }
 
 func (p *IntPoint) MarshalJSON2() ([]byte, error) {
-	return json.Marshal([2]int64{p.TimeNano, p.V})
+	return json.Marshal([2]int64{p.T, p.V})
 }
 
 func (p *IntPoint) MarshalJSON3() ([]byte, error) {
-	return []byte("[" + strconv.FormatInt(p.TimeNano, 10) + "," + strconv.FormatInt(p.V, 10) + "]"), nil
+	return []byte("[" + strconv.FormatInt(p.T, 10) + "," + strconv.FormatInt(p.V, 10) + "]"), nil
 }
 
 // UnmarshalJSON implements Unmarshaler interface
@@ -42,7 +42,7 @@ func (p *IntPoint) UnmarshalJSON(data []byte) error {
 	}
 	// FIXME: this error checking seems to be very low efficient
 	t, err := tv[0].Int64()
-	p.TimeNano = t
+	p.T = t
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (p IntPoints) Swap(i int, j int) {
 
 // Less implements Sort interface
 func (p IntPoints) Less(i int, j int) bool {
-	return p[i].TimeNano < p[j].TimeNano
+	return p[i].T < p[j].T
 }
 
 // MarshalJSON implements Marshaler interface. Point is encoded as number array. i.e. []
