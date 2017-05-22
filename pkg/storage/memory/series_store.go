@@ -7,6 +7,11 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
+type SeriesStore interface {
+	common.Hashable
+	GetSeriesType() int
+}
+
 // IntSeriesStore protects the underlying IntSeries with a RWMutex
 type IntSeriesStore struct {
 	mu     sync.RWMutex
@@ -25,6 +30,18 @@ func NewIntSeriesStore() *IntSeriesStore {
 	series := common.IntSeries{}
 	series.Points = make([]common.IntPoint, 0, initPointsLength)
 	return &IntSeriesStore{series: series, length: 0}
+}
+
+func (store *IntSeriesStore) GetName() string {
+	return store.series.Name
+}
+
+func (store *IntSeriesStore) GetTags() map[string]string {
+	return store.series.Tags
+}
+
+func (store *IntSeriesStore) GetSeriesType() int {
+	return store.series.SeriesType
 }
 
 // WriteSeries merges the new series with existing one and replace old points with new points if their timestamp matches
@@ -98,13 +115,14 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 // ReadByStartEndTime filters and return a copy of the data
 // TODO: we were previously returning *common.IntSeries, but there should not have any copy of the underlying points I
 // suppose?
-func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) common.IntSeries {
+func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.IntSeries {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
 	log.Trace("read the series!")
 	log.Tracef("store length %d", store.length)
 
 	// TODO: may use pool for points
+	// TODO: copy other fields, precision, type etc.
 	returnSeries := common.IntSeries{
 		Name: store.series.Name,
 		Tags: store.series.Tags,
@@ -124,5 +142,5 @@ func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) 
 			returnSeries.Points = append(returnSeries.Points, store.series.Points[i])
 		}
 	}
-	return returnSeries
+	return &returnSeries
 }

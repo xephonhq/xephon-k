@@ -40,10 +40,17 @@ func (store *Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryR
 		switch query.MatchPolicy {
 		case "exact":
 			seriesID := common.Hash(&query)
-			oneSeries, ok := store.data.intSeries[seriesID]
+			// TODO: move this to data
+			//oneSeries, ok := store.data.intSeries[seriesID]
+			//if ok {
+			//	queryResult.Matched = 1
+			//	series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+			//}
+			s, ok, err := store.data.ReadSeries(seriesID, query.StartTime, query.EndTime)
 			if ok {
 				queryResult.Matched = 1
-				series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+				// FIXME: change the function return type
+				//series = append(series, *s)
 			}
 		case "filter":
 			// TODO: we should also expose a HTTP API for query series ID only

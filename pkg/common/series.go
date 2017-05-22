@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -101,4 +102,19 @@ func (series *DoubleSeries) GetTags() map[string]string {
 
 func (series *DoubleSeries) GetSeriesType() int {
 	return TypeDoubleSeries
+}
+
+func SeriesTypeString(seriesType int) string {
+	switch seriesType {
+	case TypeIntSeries:
+		return "int"
+	case TypeDoubleSeries:
+		return "double"
+	case TypeBoolSeries:
+		return "bool"
+	case TypeStringSeries:
+		return "string"
+	default:
+		return fmt.Sprintf("unknown: %d", seriesType)
+	}
 }
