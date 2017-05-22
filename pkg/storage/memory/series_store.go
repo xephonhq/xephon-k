@@ -14,6 +14,12 @@ type IntSeriesStore struct {
 	length int
 }
 
+type DoubleSeriesStore struct {
+	mu     sync.RWMutex
+	series common.DoubleSeries
+	length int
+}
+
 // NewIntSeriesStore creates a IntSeriesStore
 func NewIntSeriesStore() *IntSeriesStore {
 	series := common.IntSeries{}

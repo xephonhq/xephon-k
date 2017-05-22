@@ -16,8 +16,6 @@ type Store interface {
 	StoreType() string
 	// TODO: support double
 	QueryIntSeriesBatch([]common.Query) ([]common.QueryResult, []common.IntSeries, error)
-	// Deprecated: Use QueryIntSeriesBatch instead
-	QueryIntSeries(common.Query) ([]common.IntSeries, error)
 	WriteIntSeries([]common.IntSeries) error
 	Shutdown()
 }
