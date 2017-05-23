@@ -1,49 +1,43 @@
 package memory
 
 import (
+	"github.com/xephonhq/xephon-k/pkg/common"
 	"sort"
 	"sync"
-
-	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
-type SeriesStore interface {
-	common.Hashable
-	GetSeriesType() int
-}
+// FIXME: this should be generated instead of copy and pasted
 
-// IntSeriesStore protects the underlying IntSeries with a RWMutex
-type IntSeriesStore struct {
+type DoubleSeriesStore struct {
 	mu     sync.RWMutex
-	series common.IntSeries
+	series common.DoubleSeries
 	length int
 }
 
-// NewIntSeriesStore creates a IntSeriesStore
-func NewIntSeriesStore(s common.IntSeries) *IntSeriesStore {
-	series := common.NewIntSeries(s.Name)
+func NewDoubleSeriesStore(s common.DoubleSeries) *DoubleSeriesStore {
+	series := common.NewDoubleSeries(s.Name)
 	series.Tags = s.Tags
 	series.Precision = s.Precision
 	// TODO: maybe we should copy the points if any
-	series.Points = make([]common.IntPoint, 0, initPointsLength)
-	return &IntSeriesStore{series: *series, length: 0}
+	series.Points = make([]common.DoublePoint, 0, initPointsLength)
+	return &DoubleSeriesStore{series: *series, length: 0}
 }
 
-func (store *IntSeriesStore) GetName() string {
+func (store *DoubleSeriesStore) GetName() string {
 	return store.series.Name
 }
 
-func (store *IntSeriesStore) GetTags() map[string]string {
+func (store *DoubleSeriesStore) GetTags() map[string]string {
 	return store.series.Tags
 }
 
-func (store *IntSeriesStore) GetSeriesType() int {
+func (store *DoubleSeriesStore) GetSeriesType() int {
 	return store.series.SeriesType
 }
 
 // WriteSeries merges the new series with existing one and replace old points with new points if their timestamp matches
 // TODO: what happens when no memory is available? maybe this function should return error
-func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
+func (store *DoubleSeriesStore) WriteSeries(newSeries common.DoubleSeries) error {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
@@ -55,7 +49,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 
 	// TODO: add a flag to series, so we don't sort points that are already sorted
 	// store.series should already be sorted, so we only sort the newSeries
-	sort.Sort(common.IntPoints(newSeries.Points))
+	sort.Sort(common.DoublePoints(newSeries.Points))
 	i := 0
 	j := 0
 	k := 0
@@ -63,7 +57,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 	oldLength := store.length
 	newLength := len(newSeries.Points)
 	// log.Infof("ol %d nl %d", oldLength, newLength)
-	points := make([]common.IntPoint, oldLength+newLength)
+	points := make([]common.DoublePoint, oldLength+newLength)
 	for i < oldLength && j < newLength {
 		if store.series.Points[i].T < newSeries.Points[j].T {
 			points[k] = store.series.Points[i]
@@ -112,7 +106,7 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 // ReadByStartEndTime filters and return a copy of the data
 // TODO: we were previously returning *common.IntSeries, but there should not have any copy of the underlying points I
 // suppose?
-func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.IntSeries {
+func (store *DoubleSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.DoubleSeries {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
 	log.Trace("read the series!")
@@ -120,7 +114,7 @@ func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) 
 
 	// TODO: may use pool for points
 	// TODO: copy other fields, precision, type etc.
-	returnSeries := common.IntSeries{
+	returnSeries := common.DoubleSeries{
 		Name: store.series.Name,
 		Tags: store.series.Tags,
 	}

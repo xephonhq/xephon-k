@@ -75,7 +75,7 @@ func (p IntPoints) Less(i int, j int) bool {
 
 // MarshalJSON implements Marshaler interface. Point is encoded as number array. i.e. []
 func (p *DoublePoint) MarshalJSON() ([]byte, error) {
-	// TODO: precision of double value
+	// TODO: precision of double value, need to copy the code in `json/encode.go`
 	return []byte(fmt.Sprintf("[%d,%f]", p.T, p.V)), nil
 }
 

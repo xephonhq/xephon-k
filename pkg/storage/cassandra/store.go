@@ -6,6 +6,7 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	//"time"
+	"github.com/pkg/errors"
 )
 
 var storeMap StoreMap
@@ -130,6 +131,11 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 		}
 	}
 	return nil
+}
+
+func (store Store) WriteDoubleSeries(series []common.DoubleSeries) error {
+	log.Panic("write double series is not implemented for Cassandra")
+	return errors.New("write double series is not implemented for Cassandra")
 }
 
 func (store Store) Shutdown() {

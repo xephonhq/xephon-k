@@ -51,10 +51,10 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 		"points":[[1493363958000,0],[1493363959000,1],[1493363960000,2],[1493363961000,3],[1493363962000,4]]
 	},
 	{
-		"name":"cpid",
+		"name":"cpi",
 		"type": 2,
 		"precision": 1000000,
-		"tags":{"machine":"machine-02","os":"ubuntu"},
+		"tags":{"machine":"machine-02","os":"ubuntu", "extra":"double"},
 		"points":[[1493363958000,0.2],[1493363959000,1.3],[1493363960000,2.0],[1493363961000,3.0],[1493363962000,4.1]]
 	}
 	]`

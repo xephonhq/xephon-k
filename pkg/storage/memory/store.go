@@ -100,6 +100,27 @@ func (store *Store) WriteIntSeries(series []common.IntSeries) error {
 	return nil
 }
 
+// WriteDoubleSeries implements Store interface
+func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
+	for i := 0; i < len(series); i++ {
+		id := common.Hash(&series[i])
+		// Write Data
+		err := store.data.WriteDoubleSeries(id, series[i])
+		if err != nil {
+			return errors.Wrapf(err, "write data failed for %s %v", series[i].Name, series[i].Tags)
+		}
+		// Write Index
+		// TODO: write index and write data can be parallel, though I don't know if it has performance boost
+		// TODO: write index should also have error
+		// NOTE: we store series name as special tag
+		store.index.Add(id, nameTagKey, series[i].Name)
+		for k, v := range series[i].Tags {
+			store.index.Add(id, k, v)
+		}
+	}
+	return nil
+}
+
 // Shutdown TODO: gracefully flush in memory data to disk
 func (store *Store) Shutdown() {
 	log.Info("shutting down memory store, nothing to do, have a nice weekend~")

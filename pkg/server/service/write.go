@@ -17,7 +17,10 @@ import (
 type WriteService interface {
 	Service
 	WriteInt([]common.IntSeries) error
+	WriteDouble([]common.DoubleSeries) error
 }
+
+var _ WriteService = (*WriteServiceServerImpl)(nil)
 
 // WriteServiceServerImpl is the server implementation of WriteService
 type WriteServiceServerImpl struct {
@@ -50,13 +53,24 @@ func (WriteServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 			log.Panic("should be writeRequest")
 		}
 		res := writeResponse{Error: false, ErrorMsg: ""}
-		// TODO: write double series
-		err := writeSvc.WriteInt(req.intSeries)
-		if err != nil {
-			res.Error = true
-			res.ErrorMsg = err.Error()
-			// TODO: maybe we should return error and let upper encode it into json
-			return res, nil
+
+		if len(req.intSeries) > 0 {
+			err := writeSvc.WriteInt(req.intSeries)
+			if err != nil {
+				res.Error = true
+				res.ErrorMsg = err.Error()
+				// TODO: maybe we should return error and let upper encode it into json
+				return res, nil
+			}
+		}
+		if len(req.doubleSeries) > 0 {
+			err := writeSvc.WriteDouble(req.doubleSeries)
+			if err != nil {
+				res.Error = true
+				res.ErrorMsg = err.Error()
+				// TODO: maybe we should return error and let upper encode it into json
+				return res, nil
+			}
 		}
 		return res, nil
 	}
@@ -141,4 +155,9 @@ func (ws *WriteServiceServerImpl) WriteInt(series []common.IntSeries) error {
 	// write to memory storage
 	// NOTE: maybe we should wrap error instead of just return it
 	return ws.store.WriteIntSeries(series)
+}
+
+// WriteDouble implements WriteService
+func (ws *WriteServiceServerImpl) WriteDouble(series []common.DoubleSeries) error {
+	return ws.store.WriteDoubleSeries(series)
 }

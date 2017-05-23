@@ -16,5 +16,6 @@ type Store interface {
 	StoreType() string
 	QuerySeries([]common.Query) ([]common.QueryResult, []common.Series, error)
 	WriteIntSeries([]common.IntSeries) error
+	WriteDoubleSeries([]common.DoubleSeries) error
 	Shutdown()
 }
