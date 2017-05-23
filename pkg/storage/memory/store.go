@@ -24,10 +24,10 @@ func (store *Store) StoreType() string {
 	return "memory"
 }
 
-// QueryIntSeriesBatch implements Store interface
-func (store *Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+// QuerySeries implements Store interface
+func (store *Store) QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error) {
 	result := make([]common.QueryResult, 0, len(queries))
-	series := make([]common.IntSeries, 0, len(queries))
+	series := make([]common.Series, 0, len(queries))
 	// TODO:
 	// - first look up the series id
 	// - add match number
@@ -40,17 +40,14 @@ func (store *Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryR
 		switch query.MatchPolicy {
 		case "exact":
 			seriesID := common.Hash(&query)
-			// TODO: move this to data
-			//oneSeries, ok := store.data.intSeries[seriesID]
-			//if ok {
-			//	queryResult.Matched = 1
-			//	series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
-			//}
 			s, ok, err := store.data.ReadSeries(seriesID, query.StartTime, query.EndTime)
 			if ok {
 				queryResult.Matched = 1
-				// FIXME: change the function return type
-				//series = append(series, *s)
+				series = append(series, s)
+			}
+			if err != nil {
+				// TODO: wrap the error
+				return result, series, err
 			}
 		case "filter":
 			// TODO: we should also expose a HTTP API for query series ID only
@@ -64,11 +61,18 @@ func (store *Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryR
 			for j := 0; j < len(seriesIDs); j++ {
 				// TODO: let's just assume all series in the index is all in the memory, so we don't check the data map
 				seriesID := seriesIDs[j]
-				series = append(series, store.data.intSeries[seriesID].ReadByStartEndTime(query.StartTime, query.EndTime))
+				s, ok, err := store.data.ReadSeries(seriesID, query.StartTime, query.EndTime)
+				if ok {
+					series = append(series, s)
+				}
+				if err != nil {
+					// TODO: wrap the error
+					return result, series, err
+				}
 			}
 		default:
-			// TODO: query the index to do the filter
-			log.Warn("non exact match is not supported!")
+			// TODO: return error to warn the user
+			log.Warn("unsupported match policy %s", query.MatchPolicy)
 		}
 		result = append(result, queryResult)
 	}

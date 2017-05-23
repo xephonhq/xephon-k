@@ -56,10 +56,10 @@ func NewLoggingReadServiceMiddleware(service service.ReadService) LoggingReadSer
 	return LoggingReadServiceMiddleware{ReadService: service, logger: logger}
 }
 
-func (mw LoggingReadServiceMiddleware) QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+func (mw LoggingReadServiceMiddleware) QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error) {
 	defer func(begin time.Time) {
 		// TODO: human readable time format, what's the number, ms, ns?
 		mw.logger.Infof("POST /read %d", time.Since(begin))
 	}(time.Now())
-	return mw.ReadService.QueryInt(queries)
+	return mw.ReadService.QuerySeries(queries)
 }

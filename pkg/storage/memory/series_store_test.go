@@ -9,7 +9,7 @@ import (
 
 func TestIntSeriesStore_WriteSeries(t *testing.T) {
 	asst := assert.New(t)
-	store := NewIntSeriesStore()
+	store := NewIntSeriesStore(common.IntSeries{})
 	asst.Equal(0, store.length)
 	tags := map[string]string{"os": "ubuntu"}
 	p1 := common.IntPoint{T: 1359788400002, V: 1}
@@ -33,7 +33,7 @@ func TestIntSeriesStore_WriteSeries(t *testing.T) {
 // TODO: move this to playground's slice test, it is coupled with current package, and it is used for debugging sth, but
 // the only thing I remember is this is not the source of that bug and nothing more
 func TestGoSemantics_StructSliceAssign(t *testing.T) {
-	store := NewIntSeriesStore()
+	store := NewIntSeriesStore(common.IntSeries{})
 	p1 := common.IntPoint{T: 1359788400002, V: 1}
 	p2 := common.IntPoint{T: 1359788400003, V: 2}
 	ps1 := []common.IntPoint{p1, p2}

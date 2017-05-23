@@ -26,10 +26,13 @@ type DoubleSeriesStore struct {
 }
 
 // NewIntSeriesStore creates a IntSeriesStore
-func NewIntSeriesStore() *IntSeriesStore {
-	series := common.IntSeries{}
+func NewIntSeriesStore(s common.IntSeries) *IntSeriesStore {
+	series := common.NewIntSeries(s.Name)
+	series.Tags = s.Tags
+	series.Precision = s.Precision
+	// TODO: maybe we should copy the points if any
 	series.Points = make([]common.IntPoint, 0, initPointsLength)
-	return &IntSeriesStore{series: series, length: 0}
+	return &IntSeriesStore{series: *series, length: 0}
 }
 
 func (store *IntSeriesStore) GetName() string {

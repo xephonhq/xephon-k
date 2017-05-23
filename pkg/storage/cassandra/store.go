@@ -65,6 +65,14 @@ func (store Store) StoreType() string {
 	return "cassandra"
 }
 
+func (store Store) QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error) {
+	log.Panic("not implemented!")
+
+	result := make([]common.QueryResult, 0)
+	series := make([]common.Series, 0)
+	return result, series, nil
+}
+
 // QueryIntSeriesBatch implements Store interface
 func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
 	log.Panic("not implemented!")
