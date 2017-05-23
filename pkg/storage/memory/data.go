@@ -1,33 +1,86 @@
 package memory
 
 import (
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
 var initPointsLength = 100
 
 // Data is a map using SeriesID as key
-// TODO: should be able to allow double etc later, maybe wrap it using a struct
-type Data map[common.SeriesID]*IntSeriesStore
+type Data struct {
+	series map[common.SeriesID]SeriesStore
+}
 
-// WriteIntSeries create the entry if it does not exist, otherwise merge with existing
-// TODO: return error
-// TODO: shouldn't we use pointer here?
-func (data Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) {
-	seriesStore, ok := data[id]
-	if ok {
-		log.Debugf("mem:data merge with existing series %s", series.Name)
-		seriesStore.WriteSeries(series)
-	} else {
-		// TODO: log the tags, at least metric name
-		log.Debugf("mem:data create new entry %s in map", series.Name)
-		data[id] = NewIntSeriesStore()
-		// FIXED: http://stackoverflow.com/questions/32751537/why-do-i-get-a-cannot-assign-error-when-setting-value-to-a-struct-as-a-value-i
-		// store.data[id].series = oneSeries
-		seriesStore = data[id]
-		// TODO: I think this does not work
-		seriesStore.series = series
-		// FIXED, we should set the length as well
-		seriesStore.length = len(series.Points)
+func NewData(capacity int) *Data {
+	return &Data{
+		series: make(map[common.SeriesID]SeriesStore, capacity),
+	}
+}
+
+func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) error {
+	store, ok := data.series[id]
+	if !ok {
+		// create the new store and put it in the map
+		log.Debugf("mem:data create new entry %s %v in map", series.Name, series.Tags)
+		data.series[id] = NewIntSeriesStore(series)
+		store = data.series[id]
+	}
+	intStore, ok := store.(*IntSeriesStore)
+	if !ok {
+		return errors.Errorf("%s %v is %s but tried to write int", store.GetName(), store.GetTags(), store.GetSeriesType())
+	}
+	err := intStore.WriteSeries(series)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (data *Data) WriteDoubleSeries(id common.SeriesID, series common.DoubleSeries) error {
+	store, ok := data.series[id]
+	if !ok {
+		// create the new store and put it in the map
+		log.Debugf("mem:data create new entry %s %v in map", series.Name, series.Tags)
+		data.series[id] = NewDoubleSeriesStore(series)
+		store = data.series[id]
+	}
+	doubleStore, ok := store.(*DoubleSeriesStore)
+	if !ok {
+		return errors.Errorf("%s %v is %s but tried to write double", store.GetName(), store.GetTags(), store.GetSeriesType())
+	}
+	err := doubleStore.WriteSeries(series)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (data *Data) ReadSeries(id common.SeriesID, startTime int64, endTime int64) (common.Series, bool, error) {
+	// TODO: auto convert the start and end time based on series precision
+	store, ok := data.series[id]
+	if !ok {
+		return &common.MetaSeries{}, false, nil
+	}
+	switch store.GetSeriesType() {
+	case common.TypeIntSeries:
+		intStore, ok := store.(*IntSeriesStore)
+		if !ok {
+			return &common.MetaSeries{}, false, errors.Errorf("%s %v is marked as int but actually %s",
+				store.GetName(), store.GetTags(), common.SeriesTypeString(store.GetSeriesType()))
+		}
+		// TODO: this should also return error
+		return intStore.ReadByStartEndTime(startTime, endTime), true, nil
+	case common.TypeDoubleSeries:
+		doubleStore, ok := store.(*DoubleSeriesStore)
+		if !ok {
+			return &common.MetaSeries{}, false, errors.Errorf("%s %v is marked as double but actually %s",
+				store.GetName(), store.GetTags(), common.SeriesTypeString(store.GetSeriesType()))
+		}
+		// TODO: this should also return error
+		return doubleStore.ReadByStartEndTime(startTime, endTime), true, nil
+	default:
+		return &common.MetaSeries{}, false, errors.Errorf("%s %v has unsupported type %s",
+			store.GetName(), store.GetTags(), common.SeriesTypeString(store.GetSeriesType()))
 	}
 }

@@ -1,49 +1,120 @@
 package common
 
 import (
-	"crypto/md5"
+	"encoding/json"
 	"fmt"
-	"io"
-	"sort"
+	"time"
 )
 
+// check interface
+var _ Series = (*MetaSeries)(nil)
+var _ Series = (*IntSeries)(nil)
+var _ Series = (*DoubleSeries)(nil)
+
+const (
+	_ = iota
+	TypeIntSeries
+	TypeDoubleSeries
+	TypeBoolSeries
+	TypeStringSeries
+)
+
+type Series interface {
+	Hashable
+	GetSeriesType() int
+}
+
+type MetaSeries struct {
+	Name       string            `json:"name"`
+	Tags       map[string]string `json:"tags"`
+	SeriesType int               `json:"type"`
+	Precision  time.Duration     `json:"precision"`
+	Points     json.RawMessage   `json:"points"`
+}
+
 type IntSeries struct {
-	Name   string            `json:"name"`
-	Tags   map[string]string `json:"tags"`
-	Points []IntPoint        `json:"points"`
+	Name       string            `json:"name"`
+	Tags       map[string]string `json:"tags"`
+	SeriesType int               `json:"type,omitempty"`
+	Precision  time.Duration     `json:"precision,omitempty"`
+	Points     []IntPoint        `json:"points"`
 }
 
 type DoubleSeries struct {
-	Name   string            `json:"name"`
-	Tags   map[string]string `json:"tags"`
-	Points []DoublePoint     `json:"points"`
+	Name       string            `json:"name"`
+	Tags       map[string]string `json:"tags"`
+	SeriesType int               `json:"type,omitempty"`
+	Precision  time.Duration     `json:"precision,omitempty"`
+	Points     []DoublePoint     `json:"points"`
 }
 
+// TODO: int series of other precision, maybe we should add millisecond to the default function as well
 func NewIntSeries(name string) *IntSeries {
 	return &IntSeries{
-		Name: name,
-		Tags: make(map[string]string, 1),
+		Name:       name,
+		Tags:       make(map[string]string, 1),
+		SeriesType: TypeIntSeries,
+		Precision:  time.Millisecond,
 	}
 }
 
-// Hash returns one result for series have same name and tags
-func (series *IntSeries) Hash() SeriesID {
-	// TODO: more efficient way for hashing, every time we hash, we sort it, and using []byte
-	// should be more efficient than string
-	h := md5.New()
-	io.WriteString(h, series.Name)
-	keys := make([]string, len(series.Tags))
-	i := 0
-	// NOTE: use range on map has different order of keys on every run, except you only have one key,
-	// thus we need to sort the keys when we calculate the hash
-	for k := range series.Tags {
-		keys[i] = k
-		i++
+func NewDoubleSeries(name string) *DoubleSeries {
+	return &DoubleSeries{
+		Name:       name,
+		Tags:       make(map[string]string, 1),
+		SeriesType: TypeDoubleSeries,
+		Precision:  time.Millisecond,
 	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		io.WriteString(h, k)
-		io.WriteString(h, series.Tags[k])
+}
+
+func (series *MetaSeries) GetName() string {
+	return series.Name
+}
+
+func (series *MetaSeries) GetTags() map[string]string {
+	return series.Tags
+}
+
+func (series *MetaSeries) GetSeriesType() int {
+	return series.SeriesType
+}
+
+func (series *IntSeries) GetName() string {
+	return series.Name
+}
+
+func (series *IntSeries) GetTags() map[string]string {
+	return series.Tags
+}
+
+func (series *IntSeries) GetSeriesType() int {
+	// TODO: do we still need the variable if we return constant, and should we check consistency for that
+	return TypeIntSeries
+}
+
+func (series *DoubleSeries) GetName() string {
+	return series.Name
+}
+
+func (series *DoubleSeries) GetTags() map[string]string {
+	return series.Tags
+}
+
+func (series *DoubleSeries) GetSeriesType() int {
+	return TypeDoubleSeries
+}
+
+func SeriesTypeString(seriesType int) string {
+	switch seriesType {
+	case TypeIntSeries:
+		return "int"
+	case TypeDoubleSeries:
+		return "double"
+	case TypeBoolSeries:
+		return "bool"
+	case TypeStringSeries:
+		return "string"
+	default:
+		return fmt.Sprintf("unknown: %d", seriesType)
 	}
-	return SeriesID(fmt.Sprintf("%x", h.Sum(nil)))
 }

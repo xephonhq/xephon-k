@@ -8,71 +8,71 @@ import (
 
 func TestIntersect(t *testing.T) {
 	assert := asst.New(t)
-	l1 := []common.SeriesID{"n1", "n2", "n3"}
-	l2 := []common.SeriesID{"n1", "n2", "n3", "n4"}
-	l3 := []common.SeriesID{"n1", "n2"}
-	l4 := []common.SeriesID{"n2"}
+	l1 := []common.SeriesID{1, 2, 3}
+	l2 := []common.SeriesID{1, 2, 3, 4}
+	l3 := []common.SeriesID{1, 2}
+	l4 := []common.SeriesID{2}
 
-	assert.Equal([]common.SeriesID{"n2"}, Intersect(l1, l2, l3, l4))
+	assert.Equal([]common.SeriesID{2}, Intersect(l1, l2, l3, l4))
 
 	// longer list reaches end before short list does
 	// NOTE: should see `break outer in 1 th list` if the log is enabled
-	assert.Equal([]common.SeriesID{"1"}, Intersect([]common.SeriesID{"1", "8", "11"}, []common.SeriesID{"1", "4", "5", "6"}))
+	assert.Equal([]common.SeriesID{1}, Intersect([]common.SeriesID{1, 8, 11}, []common.SeriesID{1, 4, 5, 6}))
 }
 
 func TestUnion(t *testing.T) {
 	assert := asst.New(t)
 
 	// simple union without duplication
-	l1 := []common.SeriesID{"n1", "n2"}
-	l2 := []common.SeriesID{"n3"}
-	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l1, l2))
+	l1 := []common.SeriesID{1, 2}
+	l2 := []common.SeriesID{3}
+	assert.Equal([]common.SeriesID{1, 2, 3}, Union(l1, l2))
 
 	// duplication
-	l3 := []common.SeriesID{"n1", "n2"}
-	l4 := []common.SeriesID{"n1", "n2", "n3"}
+	l3 := []common.SeriesID{1, 2}
+	l4 := []common.SeriesID{1, 2, 3}
 	// FIXED: result is n1, n2, n2, by adding
 	//if lastVal == smallestVal {
 	//	continue
 	//}
-	assert.Equal([]common.SeriesID{"n1", "n2", "n3"}, Union(l3, l4))
+	assert.Equal([]common.SeriesID{1, 2, 3}, Union(l3, l4))
 
 	//log.Logger.EnableSourceLine()
 	// three way
-	l5 := []common.SeriesID{"n9"}
+	l5 := []common.SeriesID{9}
 	//fmt.Println("index_test.go:44") // works for IDEA
 	//fmt.Println("source=index_test.go:44") // does not works for IDEA
 	//fmt.Println("source= index_test.go:44") // works for IDEA
-	// FIXED: {"n1", "n2", "n9", "n3"} would show up randomly, sometimes the test just pass
+	// FIXED: {1, 2, 9, 3} would show up randomly, sometimes the test just pass
 	// Got!! when we deal with dup, we need to use its next value to compare if there is any, the random is caused by picking the first value
-	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5))
+	assert.Equal([]common.SeriesID{1, 2, 3, 9}, Union(l3, l4, l5))
 	//log.Logger.DisableSourceLine()
 
 	// just want to write one more test
-	l6 := []common.SeriesID{"n1", "n9"}
-	assert.Equal([]common.SeriesID{"n1", "n2", "n3", "n9"}, Union(l3, l4, l5, l6))
+	l6 := []common.SeriesID{1, 9}
+	assert.Equal([]common.SeriesID{1, 2, 3, 9}, Union(l3, l4, l5, l6))
 }
 
 func TestIndex_Filter(t *testing.T) {
 	assert := asst.New(t)
 	idx := NewIndex(5)
-	idx.Add(common.SeriesID("n1"), "app", "nginx")
-	idx.Add(common.SeriesID("n1"), nameTagKey, "response_time")
-	idx.Add(common.SeriesID("n2"), "app", "apache")
-	idx.Add(common.SeriesID("n2"), nameTagKey, "response_time")
+	idx.Add(common.SeriesID(1), "app", "nginx")
+	idx.Add(common.SeriesID(1), nameTagKey, "response_time")
+	idx.Add(common.SeriesID(2), "app", "apache")
+	idx.Add(common.SeriesID(2), nameTagKey, "response_time")
 	filterResponse := common.Filter{Type: "tag_match", Key: nameTagKey, Value: "response_time"}
-	assert.Equal([]common.SeriesID{"n1", "n2"}, idx.Filter(&filterResponse))
+	assert.Equal([]common.SeriesID{1, 2}, idx.Filter(&filterResponse))
 	filterNginxResponse := common.Filter{Type: "and",
 		LeftOperand:  &common.Filter{Type: "tag_match", Key: nameTagKey, Value: "response_time"},
 		RightOperand: &common.Filter{Type: "tag_match", Key: "app", Value: "nginx"}}
-	assert.Equal([]common.SeriesID{"n1"}, idx.Filter(&filterNginxResponse))
+	assert.Equal([]common.SeriesID{1}, idx.Filter(&filterNginxResponse))
 }
 
 func TestIndex_Get(t *testing.T) {
 	assert := asst.New(t)
 	idx := NewIndex(1)
-	idx.Add(common.SeriesID("n1"), "app", "nginx")
-	assert.Equal([]common.SeriesID{"n1"}, idx.Get("app", "nginx"))
+	idx.Add(common.SeriesID(1), "app", "nginx")
+	assert.Equal([]common.SeriesID{1}, idx.Get("app", "nginx"))
 	assert.Equal([]common.SeriesID{}, idx.Get("foo", "bar"))
 	assert.Equal(0, len(idx.Get("foo", "bar")))
 }
@@ -80,25 +80,26 @@ func TestIndex_Get(t *testing.T) {
 func TestIndex_Add(t *testing.T) {
 	assert := asst.New(t)
 	idx := NewIndex(1)
-	idx.Add(common.SeriesID("n1"), "app", "nginx")
-	idx.Add(common.SeriesID("n2"), "app", "nginx")
-	idx.Add(common.SeriesID("a1"), "app", "apache")
+	idx.Add(common.SeriesID(1), "app", "nginx")
+	// NOTE: they just share one tag pair, so they can have different series ID
+	idx.Add(common.SeriesID(2), "app", "nginx")
+	idx.Add(common.SeriesID(3), "app", "apache")
 	assert.Equal(true, idx.tagKeyIndex["app"]["nginx"])
 	assert.Equal(true, idx.tagKeyIndex["app"]["apache"])
 	assert.Equal(false, idx.tagKeyIndex["app"]["IIS"])
 	// FIXME: currently we don't add separator between tagKey and tagValue
-	assert.Equal([]common.SeriesID{"n1", "n2"}, idx.invertedIndexes["appnginx"].Postings)
+	assert.Equal([]common.SeriesID{1, 2}, idx.invertedIndexes["appnginx"].Postings)
 }
 
 func TestInvertedIndex_Add(t *testing.T) {
 	assert := asst.New(t)
 	iidx := newInvertedIndex("foo")
-	iidx.Add(common.SeriesID("d"))
-	iidx.Add(common.SeriesID("e"))
-	iidx.Add(common.SeriesID("a"))
-	iidx.Add(common.SeriesID("a"))
-	iidx.Add(common.SeriesID("b"))
-	assert.Equal(iidx.Postings, []common.SeriesID{"a", "b", "d", "e"})
+	iidx.Add(common.SeriesID(5))
+	iidx.Add(common.SeriesID(1))
+	iidx.Add(common.SeriesID(2))
+	iidx.Add(common.SeriesID(2))
+	iidx.Add(common.SeriesID(4))
+	assert.Equal(iidx.Postings, []common.SeriesID{1, 2, 4, 5})
 }
 
 func TestMin(t *testing.T) {

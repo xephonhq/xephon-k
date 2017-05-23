@@ -18,7 +18,7 @@ script:
   - go test -race ./pkg/...
 #  NOTE: cannot use test profile flag with multiple packages
 #  - go test -covermode=count -coverprofile=coverage.out ./pkg/...
-  - overalls -project=github.com/xephonhq/xephon-k -debug
+  - overalls -project=github.com/xephonhq/xephon-k/pkg -debug
 
 after_success:
   - $HOME/gopath/bin/goveralls -service=travis-ci -coverprofile=overalls.coverprofile

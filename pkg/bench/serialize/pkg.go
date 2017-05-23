@@ -35,7 +35,7 @@ func createDummyIntPoints() common.IntSeries {
 	startTime := time.Now().Unix() * 1000
 	s := common.IntSeries{Name: "cpi", Tags: tags}
 	for i := 0; i < 5; i++ {
-		s.Points = append(s.Points, common.IntPoint{TimeNano: startTime + int64(i*1000), V: i})
+		s.Points = append(s.Points, common.IntPoint{T: startTime + int64(i*1000), V: int64(i)})
 	}
 	return s
 }

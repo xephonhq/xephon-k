@@ -7,9 +7,10 @@ import (
 )
 
 // TODO:
-// - write
-// - write & read struct
-// - write in golang, read in C/C++
+// - [ ] write
+// - [ ] write & read struct
+// - [x] write in golang, read in C/C++
+// - [ ] support larger than 4GB
 
 func TestMmap_Read(t *testing.T) {
 	// C source files not allowed when not using cgo or SWIG
@@ -22,6 +23,7 @@ func TestMmap_Read(t *testing.T) {
 	size := stat.Size()
 	// NOTE: from https://github.com/google/codesearch/blob/master/index/mmap_linux.go#L19
 	// we can't handle single file larger than 4GB, due to the len function does not work with slice longer than 2^32
+	// NOTE: bolt use unsafe to convert to byte array to support 256TB ... https://github.com/boltdb/bolt/blob/master/bolt_unix.go#L48
 	// TODO: why not use int64(int(size)) == size
 	if int64(int(size+4095)) != size+4095 {
 		t.Fatalf("%s: too large for mmap", f.Name())

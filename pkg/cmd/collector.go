@@ -186,31 +186,31 @@ var CollectorCmd = &cobra.Command{
 						}
 						s = seriesMap[p+"user"]
 						// FIXME: .... it's too hard to add points to metrics, need a lot of copy and paste code
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.User)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.User)})
 						s = seriesMap[p+"nice"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Nice)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.Nice)})
 						s = seriesMap[p+"system"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.System)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.System)})
 						s = seriesMap[p+"idle"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Idle)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.Idle)})
 						s = seriesMap[p+"iowait"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.IOWait)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.IOWait)})
 						s = seriesMap[p+"irq"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Irq)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.Irq)})
 						s = seriesMap[p+"softirq"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.SoftIrq)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.SoftIrq)})
 						s = seriesMap[p+"steal"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Steal)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.Steal)})
 						s = seriesMap[p+"guest"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.Guest)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.Guest)})
 						s = seriesMap[p+"guestnice"]
-						s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(stat.GuestNice)})
+						s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(stat.GuestNice)})
 					}
 				}
 				s = seriesMap["mem.total"]
-				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemTotal)})
+				s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(memCollector.MemTotal)})
 				s = seriesMap["mem.free"]
-				s.Points = append(s.Points, common.IntPoint{TimeNano: currentTime, V: int(memCollector.MemFree)})
+				s.Points = append(s.Points, common.IntPoint{T: currentTime, V: int64(memCollector.MemFree)})
 				log.Debugf("mem.free length %d", len(s.Points))
 			}
 		}

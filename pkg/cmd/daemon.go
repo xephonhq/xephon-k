@@ -25,6 +25,7 @@ var DaemonCmd = &cobra.Command{
 		fmt.Print(banner)
 		srv := server.HTTPServer{Port: port, Backend: backend, CassandraHost: cassandraHost}
 		srv.Start()
+		// TODO: capture ctrl + c and call shutdown of store
 	},
 }
 

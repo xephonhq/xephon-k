@@ -55,14 +55,15 @@ func (worker *HTTPWorker) work() {
 			return
 		default:
 			// generate the series based on batch
-			series := common.IntSeries{Name: "xephon", Tags: tags}
+			series := common.NewIntSeries("xephon")
+			series.Tags = tags
 			// TODO: pre allocate the batch size slice should be more efficient
 			for i := 0; i < worker.config.BatchSize; i++ {
 				series.Points = append(series.Points, gen.NextIntPoint())
 			}
 
 			serializer.Start()
-			serializer.WriteInt(series)
+			serializer.WriteInt(*series)
 			serializer.End()
 
 			result := &bench.RequestMetric{

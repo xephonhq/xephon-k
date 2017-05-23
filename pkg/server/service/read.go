@@ -17,7 +17,7 @@ import (
 
 type ReadService interface {
 	Service
-	QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error)
+	QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error)
 }
 
 type ReadServiceServerImpl struct {
@@ -39,8 +39,7 @@ type readResponse struct {
 	Error        bool                 `json:"error"`
 	ErrorMsg     string               `json:"error_msg"`
 	QueryResults []common.QueryResult `json:"query_results"`
-	// TODO: where is the data?
-	Metrics []common.IntSeries `json:"metrics"`
+	Metrics      []common.Series      `json:"metrics"`
 }
 
 type ReadServiceHTTPFactory struct {
@@ -82,7 +81,7 @@ func (ReadServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 			// TODO: handle __name__, and also add __name__ to tag would result in different hash of SeriesID
 		}
 
-		queryResults, series, err := readSvc.QueryInt(req.Queries)
+		queryResults, series, err := readSvc.QuerySeries(req.Queries)
 		res.QueryResults = queryResults
 		res.Metrics = series
 
@@ -115,13 +114,13 @@ func NewReadServiceCassandra(host string) *ReadServiceServerImpl {
 }
 
 // ServiceName implements Service
-func (ReadServiceServerImpl) ServiceName() string {
+func (rs *ReadServiceServerImpl) ServiceName() string {
 	return "read"
 }
 
-// QueryInt implements ReadService
-func (rs ReadServiceServerImpl) QueryInt(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
-	return rs.store.QueryIntSeriesBatch(queries)
+// QuerySeries implements ReadService
+func (rs *ReadServiceServerImpl) QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error) {
+	return rs.store.QuerySeries(queries)
 }
 
 // UnmarshalJSON implements Unmarshaler interface

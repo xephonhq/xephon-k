@@ -6,6 +6,7 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	//"time"
+	"github.com/pkg/errors"
 )
 
 var storeMap StoreMap
@@ -65,6 +66,14 @@ func (store Store) StoreType() string {
 	return "cassandra"
 }
 
+func (store Store) QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error) {
+	log.Panic("not implemented!")
+
+	result := make([]common.QueryResult, 0)
+	series := make([]common.Series, 0)
+	return result, series, nil
+}
+
 // QueryIntSeriesBatch implements Store interface
 func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
 	log.Panic("not implemented!")
@@ -85,12 +94,12 @@ func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error
 		// NOTE: both time and int64 works
 		// var metricTimestamp time.Time
 		var metricTimestamp int64
-		var metricValue int
+		var metricValue int64
 		oneSeries := common.IntSeries{}
 		// TODO: may specify capacity to improve performance
 		oneSeries.Points = make([]common.IntPoint, 0)
 		for iter.Scan(&metricTimestamp, &metricValue) {
-			oneSeries.Points = append(oneSeries.Points, common.IntPoint{TimeNano: metricTimestamp, V: metricValue})
+			oneSeries.Points = append(oneSeries.Points, common.IntPoint{T: metricTimestamp, V: metricValue})
 			//log.Infof("%v %d", metricTimestamp, metricValue)
 		}
 		if err := iter.Close(); err != nil {
@@ -113,7 +122,7 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 		batch := session.NewBatch(gocql.UnloggedBatch)
 		for _, p := range oneSeries.Points {
 			// http://stackoverflow.com/questions/35401344/passing-a-map-as-a-value-to-insert-into-cassandra
-			batch.Query(insertIntStmt, oneSeries.Name, p.TimeNano, oneSeries.Tags, p.V)
+			batch.Query(insertIntStmt, oneSeries.Name, p.T, oneSeries.Tags, p.V)
 		}
 		err := session.ExecuteBatch(batch)
 		if err != nil {
@@ -122,6 +131,11 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 		}
 	}
 	return nil
+}
+
+func (store Store) WriteDoubleSeries(series []common.DoubleSeries) error {
+	log.Panic("write double series is not implemented for Cassandra")
+	return errors.New("write double series is not implemented for Cassandra")
 }
 
 func (store Store) Shutdown() {

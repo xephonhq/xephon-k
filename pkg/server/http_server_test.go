@@ -7,12 +7,21 @@ import (
 	"github.com/dyweb/gommon/requests"
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg"
+	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
 func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skip HTTP e2e test")
 	}
+
+	util.UseTraceLog()
+	util.ShowSourceLine()
+
+	defer func() {
+		util.UseDefaultLog()
+		util.HideSourceLine()
+	}()
 
 	srv := HTTPServer{Backend: "memory"}
 	ts := httptest.NewServer(srv.Mux())
@@ -25,16 +34,28 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 		assert.Equal(pkg.Version, info["version"])
 	})
 
+	// TODO: type and precision should be string in client side instead of integers
 	writeData := `[
 	{
 		"name":"cpi",
+		"type": 1,
+		"precision": 1000000,
 		"tags":{"machine":"machine-01","os":"ubuntu"},
 		"points":[[1493363958000,0],[1493363959000,1],[1493363960000,2],[1493363961000,3],[1493363962000,4]]
 	},
 	{
 		"name":"cpi",
+		"type": 1,
+		"precision": 1000000,
 		"tags":{"machine":"machine-02","os":"ubuntu"},
 		"points":[[1493363958000,0],[1493363959000,1],[1493363960000,2],[1493363961000,3],[1493363962000,4]]
+	},
+	{
+		"name":"cpi",
+		"type": 2,
+		"precision": 1000000,
+		"tags":{"machine":"machine-02","os":"ubuntu", "extra":"double"},
+		"points":[[1493363958000,0.2],[1493363959000,1.3],[1493363960000,2.0],[1493363961000,3.0],[1493363962000,4.1]]
 	}
 	]`
 

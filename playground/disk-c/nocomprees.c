@@ -45,10 +45,15 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    // it seems I don't need to care about byte order for single byte (since there is no order problem for single byte?)
-    printf("version is %d\n", data[0]);
-    printf("time compression is %d\n", data[1]);
-    printf("value compression is %d\n", data[2]);
+    // TODO: it seems I don't need to care about byte order for single byte (since there is no order problem for single byte?)
+    printf("magic number:");
+    for (int i = 0; i < 8; i++) {
+        printf("%c", data[i]);
+    }
+    printf("\n"); // the magic number should be xephon-k when printed out
+    printf("version is %d\n", data[8]);
+    printf("time compression is %d\n", data[9]);
+    printf("value compression is %d\n", data[10]);
 
     munmap(data, sbuf.st_size);
     close(fd);

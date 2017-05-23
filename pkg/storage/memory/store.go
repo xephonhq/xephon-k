@@ -1,31 +1,33 @@
 package memory
 
-import "github.com/xephonhq/xephon-k/pkg/common"
+import (
+	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg/common"
+)
 
 // Store is the in memory storage with data and index
 type Store struct {
-	data  Data
-	index *Index // TODO: might change to value instead of pointer
+	data  *Data
+	index *Index // TODO: might change to value instead of pointer (why I said that?)
 }
 
 // NewMemStore creates an in memory storage with small allocated space
 func NewMemStore() *Store {
 	store := Store{}
-	// TODO: add a function to create the data?
-	store.data = make(Data, initSeriesCount)
+	store.data = NewData(initSeriesCount)
 	store.index = NewIndex(initSeriesCount)
 	return &store
 }
 
 // StoreType implements Store interface
-func (store Store) StoreType() string {
+func (store *Store) StoreType() string {
 	return "memory"
 }
 
-// QueryIntSeriesBatch implements Store interface
-func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryResult, []common.IntSeries, error) {
+// QuerySeries implements Store interface
+func (store *Store) QuerySeries(queries []common.Query) ([]common.QueryResult, []common.Series, error) {
 	result := make([]common.QueryResult, 0, len(queries))
-	series := make([]common.IntSeries, 0, len(queries))
+	series := make([]common.Series, 0, len(queries))
 	// TODO:
 	// - first look up the series id
 	// - add match number
@@ -37,11 +39,15 @@ func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryRe
 		queryResult := common.QueryResult{Query: query, Matched: 0}
 		switch query.MatchPolicy {
 		case "exact":
-			seriesID := query.Hash()
-			oneSeries, ok := store.data[seriesID]
+			seriesID := common.Hash(&query)
+			s, ok, err := store.data.ReadSeries(seriesID, query.StartTime, query.EndTime)
 			if ok {
 				queryResult.Matched = 1
-				series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+				series = append(series, s)
+			}
+			if err != nil {
+				// TODO: wrap the error
+				return result, series, err
 			}
 		case "filter":
 			// TODO: we should also expose a HTTP API for query series ID only
@@ -55,57 +61,60 @@ func (store Store) QueryIntSeriesBatch(queries []common.Query) ([]common.QueryRe
 			for j := 0; j < len(seriesIDs); j++ {
 				// TODO: let's just assume all series in the index is all in the memory, so we don't check the data map
 				seriesID := seriesIDs[j]
-				series = append(series, store.data[seriesID].ReadByStartEndTime(query.StartTime, query.EndTime))
+				s, ok, err := store.data.ReadSeries(seriesID, query.StartTime, query.EndTime)
+				if ok {
+					series = append(series, s)
+				}
+				if err != nil {
+					// TODO: wrap the error
+					return result, series, err
+				}
 			}
 		default:
-			// TODO: query the index to do the filter
-			log.Warn("non exact match is not supported!")
+			// TODO: return error to warn the user
+			log.Warn("unsupported match policy %s", query.MatchPolicy)
 		}
 		result = append(result, queryResult)
 	}
 	return result, series, nil
 }
 
-// QueryIntSeries implements Store interface
-// Deprecated: Use QueryIntSeriesBatch instead
-func (store Store) QueryIntSeries(query common.Query) ([]common.IntSeries, error) {
-	series := make([]common.IntSeries, 0)
-	// TODO: not hard coded string
-	switch query.MatchPolicy {
-	case "exact":
-		// fetch the series
-		seriesID := query.Hash()
-		// TODO: should we make a copy of the points, what would happen if there are
-		// write when we are encoding it to json
-		// TODO: there is mutex on IntSeries store, how does prometheus etc. handle this?
-		// should we have a get method or things like that?
-		// prometheus use Iterator .... maybe we need custom implements, I think it also have blocks
-		oneSeries, ok := store.data[seriesID]
-		if ok {
-			series = append(series, oneSeries.ReadByStartEndTime(query.StartTime, query.EndTime))
+// WriteIntSeries implements Store interface
+func (store *Store) WriteIntSeries(series []common.IntSeries) error {
+	for i := 0; i < len(series); i++ {
+		id := common.Hash(&series[i])
+		// Write Data
+		err := store.data.WriteIntSeries(id, series[i])
+		if err != nil {
+			return errors.Wrapf(err, "write data failed for %s %v", series[i].Name, series[i].Tags)
 		}
-		return series, nil
-	case "filter":
-		// TODO: real filter
-		log.Warn("TODO: write code for filter")
-	default:
-		// TODO: query the index to do the filter
-		log.Warn("non exact match is not supported!")
+		// Write Index
+		// TODO: write index and write data can be parallel, though I don't know if it has performance boost
+		// TODO: write index should also have error
+		// NOTE: we store series name as special tag
+		store.index.Add(id, nameTagKey, series[i].Name)
+		for k, v := range series[i].Tags {
+			store.index.Add(id, k, v)
+		}
 	}
-	return series, nil
+	return nil
 }
 
-// WriteIntSeries implements Store interface
-func (store Store) WriteIntSeries(series []common.IntSeries) error {
-	for _, oneSeries := range series {
-		id := oneSeries.Hash()
-		// TODO: this should return error and we should handle it somehow
+// WriteDoubleSeries implements Store interface
+func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
+	for i := 0; i < len(series); i++ {
+		id := common.Hash(&series[i])
 		// Write Data
-		store.data.WriteIntSeries(id, oneSeries)
+		err := store.data.WriteDoubleSeries(id, series[i])
+		if err != nil {
+			return errors.Wrapf(err, "write data failed for %s %v", series[i].Name, series[i].Tags)
+		}
 		// Write Index
+		// TODO: write index and write data can be parallel, though I don't know if it has performance boost
+		// TODO: write index should also have error
 		// NOTE: we store series name as special tag
-		store.index.Add(id, nameTagKey, oneSeries.Name)
-		for k, v := range oneSeries.Tags {
+		store.index.Add(id, nameTagKey, series[i].Name)
+		for k, v := range series[i].Tags {
 			store.index.Add(id, k, v)
 		}
 	}
@@ -113,6 +122,6 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 }
 
 // Shutdown TODO: gracefully flush in memory data to disk
-func (store Store) Shutdown() {
-	log.Info("shutting down memoery store, nothing to do, have a nice weekend~")
+func (store *Store) Shutdown() {
+	log.Info("shutting down memory store, nothing to do, have a nice weekend~")
 }

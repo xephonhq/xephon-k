@@ -1,11 +1,7 @@
 package common
 
 import (
-	"crypto/md5"
 	"encoding/json"
-	"fmt"
-	"io"
-	"sort"
 
 	"github.com/pkg/errors"
 )
@@ -46,23 +42,12 @@ type QueryResult struct {
 	Matched int `json:"matched"`
 }
 
-// Hash return the same result as IntSeries's hash function
-func (query *Query) Hash() SeriesID {
-	// TODO: this is copied from series Hash
-	h := md5.New()
-	io.WriteString(h, query.Name)
-	keys := make([]string, len(query.Tags))
-	i := 0
-	for k := range query.Tags {
-		keys[i] = k
-		i++
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		io.WriteString(h, k)
-		io.WriteString(h, query.Tags[k])
-	}
-	return SeriesID(fmt.Sprintf("%x", h.Sum(nil)))
+func (query *Query) GetName() string {
+	return query.Name
+}
+
+func (query *Query) GetTags() map[string]string {
+	return query.Tags
 }
 
 func (filter *Filter) UnmarshalJSON(data []byte) error {

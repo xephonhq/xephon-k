@@ -14,10 +14,8 @@ var _ Store = (*cassandra.Store)(nil)
 // TODO: each store should maintains some counter for internal metrics
 type Store interface {
 	StoreType() string
-	// TODO: support double
-	QueryIntSeriesBatch([]common.Query) ([]common.QueryResult, []common.IntSeries, error)
-	// Deprecated: Use QueryIntSeriesBatch instead
-	QueryIntSeries(common.Query) ([]common.IntSeries, error)
+	QuerySeries([]common.Query) ([]common.QueryResult, []common.Series, error)
 	WriteIntSeries([]common.IntSeries) error
+	WriteDoubleSeries([]common.DoubleSeries) error
 	Shutdown()
 }
