@@ -10,6 +10,10 @@ import (
 	//"encoding/binary"
 	"fmt"
 	"encoding/binary"
+	"io"
+	"bufio"
+	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -31,6 +35,124 @@ func (header *fileHeader) write(buf *bytes.Buffer) {
 	buf.WriteByte(header.version)
 	buf.WriteByte(header.timeCompression)
 	buf.WriteByte(header.valueCompression)
+}
+
+func (header *fileHeader) Bytes() []byte {
+	var buf bytes.Buffer
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, magicnumber)
+	buf.Write(b)
+	buf.WriteByte(header.version)
+	buf.WriteByte(header.timeCompression)
+	buf.WriteByte(header.valueCompression)
+	return buf.Bytes()
+}
+
+/*
+
+ file
+
+ | magic | version | time compression | value compression | blocks | indexes | footer | magic |
+
+ footer
+
+ | offset of indexes |
+
+ blocks
+ | b1 | b2 | b3|
+
+ block
+ | t1, t2, ... | v1, v2, .... |
+
+ indexes
+ | num indexes | i1 | i2 ... |
+
+ index
+ | len | tags | num blocks |b1 offset | b1 size | b1 count | b2 .... |
+ */
+type blockWriter struct {
+	header         fileHeader
+	originalWriter io.WriteCloser
+	w              *bufio.Writer
+	n              int64
+}
+
+const intBlock byte = 1
+const doubleBlock byte = 2
+
+type indexEntry struct {
+	blockType byte
+	offset    int64
+	size      int64
+}
+
+func NewBlockWriter(w io.WriteCloser) *blockWriter {
+	return &blockWriter{
+		originalWriter: w,
+		w:              bufio.NewWriter(w),
+		n:              0,
+	}
+}
+
+func (w *blockWriter) WriteIntSeries(series *common.IntSeries) error {
+	n := 0
+	// write header if it does not exists
+	if w.n == 0 {
+		hbits, err := w.w.Write(w.header.Bytes())
+		if err != nil {
+			return err
+		}
+		n += hbits
+	}
+	// write timestamps and values separately
+	var tBuf bytes.Buffer
+	var vBuf bytes.Buffer
+	b := make([]byte, 10)
+	for i := 0; i < len(series.Points); i++ {
+		written := binary.PutVarint(b, series.Points[i].T)
+		tBuf.Write(b[:written])
+		written = binary.PutVarint(b, series.Points[i].V)
+		vBuf.Write(b[:written])
+	}
+	tbits, err := w.w.Write(tBuf.Bytes())
+	if err != nil {
+		return errors.Wrap(err, "fail writing time ")
+	}
+	n += tbits
+	vbits, err := w.w.Write(vBuf.Bytes())
+	if err != nil {
+		return errors.Wrap(err, "fail writing value")
+	}
+	n += vbits
+	// TODO: add the index
+
+	w.n += int64(n)
+	return nil
+}
+
+func (w *blockWriter) WriteIndex() error {
+	// TODO: implementation
+	return nil
+}
+
+func (w *blockWriter) Flush() error {
+	if err := w.w.Flush(); err != nil {
+		return err
+	}
+
+	if f, ok := w.originalWriter.(*os.File); ok {
+		if err := f.Sync(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (w *blockWriter) Close() error {
+	if err := w.Flush(); err != nil {
+		return err
+	}
+	return w.originalWriter.Close()
 }
 
 func TestMagicNumber(t *testing.T) {
@@ -60,7 +182,7 @@ func TestMagicNumber(t *testing.T) {
 	t.Log(binary.BigEndian.Uint64(b))
 
 	// Uvarint would use less than 8 byte for small value
-	t.Log(binary.PutUvarint(b, 1)) // 1
+	t.Log(binary.PutUvarint(b, 1))   // 1
 	t.Log(binary.PutUvarint(b, 256)) // 2
 }
 
@@ -72,7 +194,7 @@ func TestNoCompress_Header(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	//defer os.Remove(tmpfile.Name())
+	defer os.Remove(tmpfile.Name())
 
 	var buf bytes.Buffer
 	// TODO: Endianness problem https://github.com/xephonhq/xephon-k/issues/34
@@ -114,5 +236,17 @@ func TestNoCompress_Header(t *testing.T) {
 }
 
 func TestNoCompress_Block(t *testing.T) {
+	tmpfile, err := ioutil.TempFile("", "xephon-no-compress")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	defer os.Remove(tmpfile.Name())
+
+	w := NewBlockWriter(tmpfile)
+	s := common.NewIntSeries("s")
+	s.Points = []common.IntPoint{{T: 1359788400000, V: 1}, {T: 1359788500000, V: 2}}
+	w.WriteIntSeries(s)
+	t.Log(w.n)
+	w.Close()
 }
