@@ -13,13 +13,11 @@ const (
 	MagicNumber uint64 = 0x786570686F6E2D6B
 )
 
-const (
-	CompressionNone = iota
-	CompressionGzip
-	CompressionZlib
-)
-
 var log = util.Logger.NewEntryWithPkg("k.s.disk")
+
+func MagicBytes() []byte {
+	return []byte("xephon-k")
+}
 
 func IsMagic(buf []byte) bool {
 	// binary.BigEndian.Uint64 don't check the length of the slice

@@ -3,6 +3,7 @@ package memory
 import (
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"reflect"
 )
 
 var initPointsLength = 100
@@ -67,7 +68,7 @@ func (data *Data) ReadSeries(id common.SeriesID, startTime int64, endTime int64)
 		intStore, ok := store.(*IntSeriesStore)
 		if !ok {
 			return &common.MetaSeries{}, false, errors.Errorf("%s %v is marked as int but actually %s",
-				store.GetName(), store.GetTags(), common.SeriesTypeString(store.GetSeriesType()))
+				store.GetName(), store.GetTags(), reflect.TypeOf(store))
 		}
 		// TODO: this should also return error
 		return intStore.ReadByStartEndTime(startTime, endTime), true, nil
@@ -75,7 +76,7 @@ func (data *Data) ReadSeries(id common.SeriesID, startTime int64, endTime int64)
 		doubleStore, ok := store.(*DoubleSeriesStore)
 		if !ok {
 			return &common.MetaSeries{}, false, errors.Errorf("%s %v is marked as double but actually %s",
-				store.GetName(), store.GetTags(), common.SeriesTypeString(store.GetSeriesType()))
+				store.GetName(), store.GetTags(), reflect.TypeOf(store))
 		}
 		// TODO: this should also return error
 		return doubleStore.ReadByStartEndTime(startTime, endTime), true, nil

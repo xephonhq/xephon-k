@@ -1,6 +1,11 @@
 package util
 
-import "sync/atomic"
+import (
+	"io/ioutil"
+	"os"
+	"sync/atomic"
+	"testing"
+)
 
 var dummyVar = "dummy"
 var mockID int32
@@ -27,6 +32,15 @@ func RecoverMockedStringVar(mockID int32) {
 }
 
 // TODO: use bench/generator to generate fake series for testing
+
+// TempFile wraps ioutil.TempFile to avoid checking return value and pass dir during test
+func TempFile(t *testing.T, prefix string) *os.File {
+	f, err := ioutil.TempFile("", prefix)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return f
+}
 
 func init() {
 	mockedVars = make(map[int32]interface{}, 5)

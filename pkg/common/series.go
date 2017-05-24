@@ -12,7 +12,7 @@ var _ Series = (*IntSeries)(nil)
 var _ Series = (*DoubleSeries)(nil)
 
 const (
-	_                = iota
+	_ = iota
 	TypeIntSeries
 	TypeDoubleSeries
 	TypeBoolSeries

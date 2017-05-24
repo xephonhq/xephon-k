@@ -2,9 +2,15 @@ package disk
 
 import (
 	"bytes"
-	asst "github.com/stretchr/testify/assert"
 	"testing"
+
+	asst "github.com/stretchr/testify/assert"
 )
+
+func TestMagicBytes(t *testing.T) {
+	assert := asst.New(t)
+	assert.True(IsMagic(MagicBytes()))
+}
 
 func TestIsMagic(t *testing.T) {
 	assert := asst.New(t)

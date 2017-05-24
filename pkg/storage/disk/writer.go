@@ -1,40 +1,71 @@
 package disk
 
+/*
+
+On disk file has header, blocks, index, footer
+
+ ---------------------------------------------------
+|  Header   |   Blocks   |  Index     |    Footer   |
+|  9 bytes  |	N bytes	 |	M bytes	  |   17 bytes  |
+ ---------------------------------------------------
+
+- Header: Magic (xephon-k in bigendian) + Version
+- Footer: Index offset (bigendian uint64) + Version + Magic
+- Blocks
+
+| time encoding | value encoding |  encoded timestamps |  encoded values |
+|  1 byte       |  1 byte        |      A bytes        |     B bytes     |
+
+The writer code is greatly inspired by InfluxDB https://github.com/influxdata/influxdb/blob/master/tsdb/engine/tsm1/writer.go
+
+*/
+
 import (
+	"bufio"
+	"encoding/binary"
+	"fmt"
+	"io"
 	"sort"
 
-	"io"
-
-	"bufio"
+	"reflect"
 
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
 var _ FileWriter = (*LocalFileWriter)(nil)
-
-// var _ BlockWriter = (*LocalFileBlockWriter)(nil)
 var _ IndexWriter = (*LocalFileIndexWriter)(nil)
 
+var (
+	ErrNoData       = fmt.Errorf("no data written, can't write index")
+	ErrNotFinalized = fmt.Errorf("index is not written, the file is unreadable")
+	ErrFinalized    = fmt.Errorf("index is already written, this file can no longer be updated")
+)
+
+const (
+	DefaultBufferSize = 4 * 1024 // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
+)
+
+// FileWriter writes data to disk, index is at the end of the file for locating data blocks.
+// It is NOT thread safe
 type FileWriter interface {
+	// WriteHeader writes the magic number and version, it will be called by WriteSeries automatically for once
+	WriteHeader() error
 	WriteSeries(series common.Series) error
-	// Finalize write index data and trailing magic number into the end of the file (buffer). You can only call it once
-	// TODO: did/how influxdb restrict it only get called once, and can't write series once index is written
-	Finalize() error
+	// Finalized returns if the index is written and the file can be closed
+	Finalized() bool
+	// WriteIndex writes index data and trailing magic number into the end of the file (buffer). You can only call it once
+	WriteIndex() error
 	// Flush flushes data in the buffer to disk
 	Flush() error
 	// Close closes the underlying file, the file must be finalized, otherwise it can't be read
 	Close() error
 }
 
-// type BlockWriter interface {
-// 	WriteSeries(w io.Writer, series common.Series) error
-// }
-
 type IndexWriter interface {
-	// TODO: why influx db store offset as int64 instead of uint64
 	Add(series common.Series, offset uint64, size uint64) error
 	SortedID() []common.SeriesID
+	Len() int
 	// TODO: we need to record information like int/double, precision, min, max time etc. and we don't need to duplicate
 	// series info like name tags for each entry, store in IndexEntries
 	// TODO: use must means we will panic if use non exist ID
@@ -58,22 +89,26 @@ type IndexEntry struct {
 type LocalFileWriter struct {
 	originalWriter io.WriteCloser
 	w              io.Writer
-	// block          BlockWriter
-	index IndexWriter
-}
-
-type LocalFileBlockWriter struct {
+	index          IndexWriter
+	n              uint64
+	finalized      bool
 }
 
 type LocalFileIndexWriter struct {
 	series map[common.SeriesID]*IndexEntries
 }
 
-func NewLocalFileWriter(w io.WriteCloser) *LocalFileWriter {
+func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalFileWriter {
+	if bufferSize <= 0 {
+		bufferSize = DefaultBufferSize
+	}
+
 	return &LocalFileWriter{
 		originalWriter: w,
-		w:              bufio.NewWriter(w),
+		w:              bufio.NewWriterSize(w, bufferSize),
 		index:          NewLocalFileIndexWriter(),
+		n:              0,
+		finalized:      false,
 	}
 }
 
@@ -83,13 +118,113 @@ func NewLocalFileIndexWriter() *LocalFileIndexWriter {
 	}
 }
 
-func (writer *LocalFileWriter) WriteSeries(series common.Series) error {
-	// TODO: cast to different types
+func (writer *LocalFileWriter) WriteHeader() error {
+	var buf [9]byte
+	binary.BigEndian.PutUint64(buf[:8], MagicNumber)
+	buf[8] = Version
+	n, err := writer.w.Write(buf[:])
+	if err != nil {
+		return errors.Wrap(err, "can't write header (magic number + version)")
+	}
+	if n != 9 {
+		return errors.Errorf("header should be 9 bytes, but %d is written", n)
+	}
+	writer.n += 9
 	return nil
 }
 
-func (writer *LocalFileWriter) Finalize() error {
-	// TODO: write index to the end of the file
+func (writer *LocalFileWriter) WriteSeries(series common.Series) error {
+	if writer.Finalized() {
+		return ErrFinalized
+	}
+	// write header if this is the first series
+	if writer.n == 0 {
+		if err := writer.WriteHeader(); err != nil {
+			return err
+		}
+	}
+
+	n := 0
+	var tenc TimeEncoder
+	var venc ValueEncoder
+	var tBytes, vBytes []byte
+	var tBytesCount, vBytesCount int
+	var err error
+
+	// encode time and value separately
+	// TODO: only use RawBigEndianTime/IntEncoder for now
+	tenc = &RawBigEndianTimeEncoder{}
+	switch series.GetSeriesType() {
+	case common.TypeIntSeries:
+		intSeries, ok := series.(*common.IntSeries)
+		if !ok {
+			return errors.Errorf("%s %v is marked as int but actually %s",
+				series.GetName(), series.GetTags(), reflect.TypeOf(series))
+		}
+		intEnc := &RawBigEndianIntEncoder{}
+		for i := 0; i < len(intSeries.Points); i++ {
+			tenc.Write(intSeries.Points[i].T)
+			intEnc.Write(intSeries.Points[i].V)
+		}
+		venc = intEnc
+	default:
+		return errors.Errorf("unsupported series type %d", series.GetSeriesType())
+	}
+	// write encoding information
+	writer.w.Write([]byte{tenc.Encoding(), venc.Encoding()})
+	n += 2
+	// write encoded time and values
+	if tBytes, err = tenc.Bytes(); err != nil {
+		return errors.Wrap(err, "can't get encoded time as bytes")
+	}
+	if vBytes, err = venc.Bytes(); err != nil {
+		return errors.Wrap(err, "can't get encoded value as bytes")
+	}
+	if tBytesCount, err = writer.w.Write(tBytes); err != nil {
+		return errors.Wrap(err, "cant write encoded time to buffer")
+	}
+	n += tBytesCount
+	if vBytesCount, err = writer.w.Write(vBytes); err != nil {
+		return errors.Wrap(err, "can't write encoded value to buffer")
+	}
+	n += vBytesCount
+
+	// TODO: Add Index
+
+	writer.n += uint64(n)
+	return nil
+}
+
+func (writer *LocalFileWriter) Finalized() bool {
+	return writer.finalized
+}
+
+func (writer *LocalFileWriter) WriteIndex() error {
+	if writer.Finalized() {
+		return ErrFinalized
+	}
+
+	if writer.index.Len() == 0 {
+		return ErrNoData
+	}
+
+	// TODO: write index
+	indexPos := writer.n
+
+	// write footer
+	// | index position (8) | version (1) | magic (8) |
+	var buf [17]byte
+	binary.BigEndian.PutUint64(buf[:8], indexPos)
+	buf[8] = Version
+	binary.BigEndian.PutUint64(buf[9:], MagicNumber)
+	n, err := writer.w.Write(buf[:])
+	if err != nil {
+		return errors.Wrap(err, "can't write index position and magic number")
+	}
+	if n != 17 {
+		return errors.Errorf("footer should be 17 bytes, but %d is written", n)
+	}
+	writer.finalized = true
 	return nil
 }
 
@@ -99,6 +234,9 @@ func (writer *LocalFileWriter) Flush() error {
 }
 
 func (writer *LocalFileWriter) Close() error {
+	if !writer.Finalized() {
+		return ErrNotFinalized
+	}
 	if err := writer.Flush(); err != nil {
 		return errors.Wrap(err, "can't flush before close")
 	}
@@ -123,6 +261,10 @@ func (idx *LocalFileIndexWriter) SortedID() []common.SeriesID {
 	}
 	sort.Sort(common.SeriesIDs(keys))
 	return keys
+}
+
+func (idx *LocalFileIndexWriter) Len() int {
+	return len(idx.series)
 }
 
 func (idx *LocalFileIndexWriter) MustEntries(id common.SeriesID) *IndexEntries {
