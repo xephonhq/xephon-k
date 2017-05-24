@@ -31,6 +31,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"os"
 )
 
 var _ FileWriter = (*LocalFileWriter)(nil)
@@ -88,7 +89,7 @@ type IndexEntry struct {
 
 type LocalFileWriter struct {
 	originalWriter io.WriteCloser
-	w              io.Writer
+	w              *bufio.Writer
 	index          IndexWriter
 	n              uint64
 	finalized      bool
@@ -229,7 +230,15 @@ func (writer *LocalFileWriter) WriteIndex() error {
 }
 
 func (writer *LocalFileWriter) Flush() error {
-	// TODO: flush and sync underlying file
+	if err := writer.w.Flush(); err != nil {
+		return errors.Wrap(err, "can't flush bufio.Writer")
+	}
+
+	if f, ok := writer.originalWriter.(*os.File); ok {
+		if err := f.Sync(); err != nil {
+			return errors.Wrap(err, "can't flush underlying os.File")
+		}
+	}
 	return nil
 }
 
