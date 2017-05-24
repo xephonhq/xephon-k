@@ -62,7 +62,10 @@ Compression
   - We do not recommend applying runlength encoding on any column that is designated as a sort key. Range-restricted scans perform better when blocks contain similar numbers of row
 - A time-series compression technique and its application to the smart grid
 - https://julien.danjou.info/blog/2016/gnocchi-carbonara-timeseries-compression
-
+- https://golang.org/pkg/compress/
+  - https://github.com/klauspost/compress a drop in replace that claims to be faster
+- https://github.com/golang/snappy
+  
 ## Implementation
 
 - early code can be found on `playground/disk/nocompress_test.go`

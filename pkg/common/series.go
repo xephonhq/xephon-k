@@ -12,19 +12,27 @@ var _ Series = (*IntSeries)(nil)
 var _ Series = (*DoubleSeries)(nil)
 
 const (
-	_ = iota
+	_                = iota
 	TypeIntSeries
 	TypeDoubleSeries
 	TypeBoolSeries
 	TypeStringSeries
 )
 
+// check interface
+var _ Series = (*MetaSeries)(nil)
+var _ Series = (*IntSeries)(nil)
+var _ Series = (*DoubleSeries)(nil)
+
 type Series interface {
 	Hashable
 	GetSeriesType() int
+	// TODO: replace hash with GetSeriesID and see if it works with series decoded from JSON
+	GetSeriesID() SeriesID
 }
 
 type MetaSeries struct {
+	id         SeriesID
 	Name       string            `json:"name"`
 	Tags       map[string]string `json:"tags"`
 	SeriesType int               `json:"type"`
@@ -33,6 +41,7 @@ type MetaSeries struct {
 }
 
 type IntSeries struct {
+	id         SeriesID
 	Name       string            `json:"name"`
 	Tags       map[string]string `json:"tags"`
 	SeriesType int               `json:"type,omitempty"`
@@ -41,6 +50,7 @@ type IntSeries struct {
 }
 
 type DoubleSeries struct {
+	id         SeriesID
 	Name       string            `json:"name"`
 	Tags       map[string]string `json:"tags"`
 	SeriesType int               `json:"type,omitempty"`
@@ -79,6 +89,13 @@ func (series *MetaSeries) GetSeriesType() int {
 	return series.SeriesType
 }
 
+func (series *MetaSeries) GetSeriesID() SeriesID {
+	if series.id == 0 {
+		series.id = Hash(series)
+	}
+	return series.id
+}
+
 func (series *IntSeries) GetName() string {
 	return series.Name
 }
@@ -92,6 +109,13 @@ func (series *IntSeries) GetSeriesType() int {
 	return TypeIntSeries
 }
 
+func (series *IntSeries) GetSeriesID() SeriesID {
+	if series.id == 0 {
+		series.id = Hash(series)
+	}
+	return series.id
+}
+
 func (series *DoubleSeries) GetName() string {
 	return series.Name
 }
@@ -102,6 +126,13 @@ func (series *DoubleSeries) GetTags() map[string]string {
 
 func (series *DoubleSeries) GetSeriesType() int {
 	return TypeDoubleSeries
+}
+
+func (series *DoubleSeries) GetSeriesID() SeriesID {
+	if series.id == 0 {
+		series.id = Hash(series)
+	}
+	return series.id
 }
 
 func SeriesTypeString(seriesType int) string {

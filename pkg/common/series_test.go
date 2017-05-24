@@ -9,6 +9,24 @@ import (
 	"time"
 )
 
+// FIXME: tags are passed by reference not value https://github.com/xephonhq/xephon-k/issues/40
+func TestIntSeries_GetTags(t *testing.T) {
+	t.Skip("FIXME: https://github.com/xephonhq/xephon-k/issues/40")
+
+	assert := asst.New(t)
+
+	s := IntSeries{
+		Name:   "cpi",
+		Tags:   map[string]string{"os": "ubuntu"},
+		Points: []IntPoint{{T: 1359788400000, V: 1}, {T: 1359788400001, V: 2}},
+	}
+	// FIXME: returned map is a reference to map stored in series, not a copy
+	tagsCopy := s.GetTags()
+	tagsCopy["os"] = "fedora"
+
+	assert.Equal("ubuntu", s.Tags["os"])
+}
+
 func TestIntSeries_JSON(t *testing.T) {
 	assert := asst.New(t)
 

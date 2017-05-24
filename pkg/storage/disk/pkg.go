@@ -1,21 +1,30 @@
 package disk
 
+import (
+	"encoding/binary"
+
+	"github.com/xephonhq/xephon-k/pkg/util"
+)
+
+const (
+	// Version is current supported file format version
+	Version byte = 1
+	// MagicNumber is 'xephon-k', 8 bytes stored in big endian in uint64, used for identify file without relying on extension
+	MagicNumber uint64 = 0x786570686F6E2D6B
+)
+
 const (
 	CompressionNone = iota
 	CompressionGzip
 	CompressionZlib
 )
 
-// https://golang.org/pkg/compress/
-// - https://github.com/klauspost/compress a drop in replace that claims to be faster
-// https://github.com/golang/snappy
+var log = util.Logger.NewEntryWithPkg("k.s.disk")
 
-// uncompressed size (saw it from archive/zip)
-// if the compressed data can be traverse
-
-// NOTE: saw this when browse prometheus's code
-// LSB means Least Significant Bits first, as used in the GIF file format.
-// LSB Order = iota
-// MSB means Most Significant Bits first, as used in the TIFF and PDF
-// file formats.
-// MSB
+func IsMagic(buf []byte) bool {
+	// binary.BigEndian.Uint64 don't check the length of the slice
+	if len(buf) < 8 {
+		return false
+	}
+	return binary.BigEndian.Uint64(buf) == MagicNumber
+}
