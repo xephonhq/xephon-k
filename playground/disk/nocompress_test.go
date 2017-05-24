@@ -3,17 +3,21 @@ package disk
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 
 	"github.com/xephonhq/xephon-k/pkg/storage/disk"
 	//"encoding/binary"
-	"fmt"
-	"encoding/binary"
-	"io"
 	"bufio"
-	"github.com/xephonhq/xephon-k/pkg/common"
+	"encoding/binary"
+	"fmt"
+	"io"
+
+	"sort"
+
 	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
 const (
@@ -64,15 +68,18 @@ func (header *fileHeader) Bytes() []byte {
  block
  | t1, t2, ... | v1, v2, .... |
 
+OR, we can use a new file to store the index, maybe just using json would work ...
+
  indexes
- | num indexes | i1 | i2 ... |
+ | num indexes | offest i1 | offset i2 ... | i1 | i2 ... |
 
  index
- | len | tags | num blocks |b1 offset | b1 size | b1 count | b2 .... |
- */
+ | tags length | tags | num blocks |b1 offset | b1 size | b1 count | b2 .... |
+*/
 type blockWriter struct {
 	header         fileHeader
 	originalWriter io.WriteCloser
+	idx            index
 	w              *bufio.Writer
 	n              int64
 }
@@ -80,10 +87,46 @@ type blockWriter struct {
 const intBlock byte = 1
 const doubleBlock byte = 2
 
-type indexEntry struct {
+type index struct {
+	entries map[common.SeriesID]*indexEntries
+}
+
+func (idx *index) Add(series common.Series, offset int64, size int64, count int64) error {
+	id := common.Hash(series)
+	entries, ok := idx.entries[id]
+	// create new entries
+	if !ok {
+		entries = &indexEntries{
+			Name: series.GetName(),
+			Tags: series.GetTags(),
+		}
+		switch series.GetSeriesType() {
+		case common.TypeIntSeries:
+			entries.blockType = intBlock
+		case common.TypeDoubleSeries:
+			entries.blockType = doubleBlock
+		default:
+			return errors.Errorf("unsupported series type %d", series.GetSeriesType())
+		}
+		idx.entries[id] = entries
+	}
+	// append the index of a new block
+	entries.entries = append(entries.entries, indexEntry{offset: offset, size: size, count: count})
+	log.Print(entries)
+	return nil
+}
+
+type indexEntries struct {
 	blockType byte
-	offset    int64
-	size      int64
+	Name      string
+	Tags      map[string]string
+	entries   []indexEntry
+}
+
+type indexEntry struct {
+	offset int64
+	size   int64
+	count  int64
 }
 
 func NewBlockWriter(w io.WriteCloser) *blockWriter {
@@ -91,6 +134,7 @@ func NewBlockWriter(w io.WriteCloser) *blockWriter {
 		originalWriter: w,
 		w:              bufio.NewWriter(w),
 		n:              0,
+		idx:            index{entries: make(map[common.SeriesID]*indexEntries)},
 	}
 }
 
@@ -102,13 +146,14 @@ func (w *blockWriter) WriteIntSeries(series *common.IntSeries) error {
 		if err != nil {
 			return err
 		}
-		n += hbits
+		w.n += int64(hbits)
 	}
 	// write timestamps and values separately
 	var tBuf bytes.Buffer
 	var vBuf bytes.Buffer
 	b := make([]byte, 10)
-	for i := 0; i < len(series.Points); i++ {
+	count := len(series.Points)
+	for i := 0; i < count; i++ {
 		written := binary.PutVarint(b, series.Points[i].T)
 		tBuf.Write(b[:written])
 		written = binary.PutVarint(b, series.Points[i].V)
@@ -124,14 +169,19 @@ func (w *blockWriter) WriteIntSeries(series *common.IntSeries) error {
 		return errors.Wrap(err, "fail writing value")
 	}
 	n += vbits
-	// TODO: add the index
-
+	w.idx.Add(series, w.n, int64(n), int64(count))
 	w.n += int64(n)
 	return nil
 }
 
 func (w *blockWriter) WriteIndex() error {
-	// TODO: implementation
+	// write the index in the order of series ids
+	keys := make([]common.SeriesID, 0, len(w.idx.entries))
+	for k := range w.idx.entries {
+		keys = append(keys, k)
+	}
+	sort.Sort(common.SeriesIDs(keys))
+
 	return nil
 }
 
@@ -245,8 +295,13 @@ func TestNoCompress_Block(t *testing.T) {
 
 	w := NewBlockWriter(tmpfile)
 	s := common.NewIntSeries("s")
+	s.Tags = map[string]string{"os": "ubuntu", "machine": "machine-01"}
 	s.Points = []common.IntPoint{{T: 1359788400000, V: 1}, {T: 1359788500000, V: 2}}
 	w.WriteIntSeries(s)
 	t.Log(w.n)
+	t.Log(w.idx)
+	w.WriteIntSeries(s)
+	t.Log(w.n)
+	t.Log(w.idx)
 	w.Close()
 }

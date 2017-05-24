@@ -32,6 +32,7 @@ DO NOT
     - auto rollup is not implemented
 - support update and delete
   - memory cache is large enough to deal with data arrive out of order
+  - bulk load backfill can be treated differently
 
 DO
 
@@ -50,7 +51,8 @@ TODO
 - [ ] bulk load historical data
 - [ ] store data in time increasing order or decreasing order
 - [ ] index for time stamp when we use delta + run length encoding
-
+- [ ] separate data and meta into two different files?
+ 
 Compression
 
 - delta + run length
@@ -60,3 +62,54 @@ Compression
   - We do not recommend applying runlength encoding on any column that is designated as a sort key. Range-restricted scans perform better when blocks contain similar numbers of row
 - A time-series compression technique and its application to the smart grid
 - https://julien.danjou.info/blog/2016/gnocchi-carbonara-timeseries-compression
+
+## Implementation
+
+- early code can be found on `playground/disk/nocompress_test.go`
+- currently we store both data and indexes in one file
+  - NOTE: the indexes is not the inverted index.
+
+````
+| header | blocks | indexes | footer |
+````
+
+Header stores magic number and format version, which is used for identifying file without extension
+
+````
+| magic | version |
+````
+
+Footer stores the offset of the indexes
+
+````
+| indexes offset | magic |
+````
+
+Blocks is a list of blocks, written by the order they comes in
+
+- NOTE： there is no number of blocks like in indexes because we write index after we have wrote all the blocks
+
+````
+| encoding | number of points | compressed times | compressed values |
+````
+
+Indexes is a list of indexes, sorted by SeriesID
+
+````
+| number of indexes | index 1 | index 2 |
+````
+
+Index contains the meta of series and the position of all blocks of this series
+
+- series name is stored as `__name__` in tags
+- NOTE: we can denote the entries count using (total len - tags len) / size(entries)
+
+````
+| total len | tags len | json encoded tags | entries |
+````
+
+Entries contains the position and aggregation of each blocks
+
+````
+| offset | min time | min time's value | max time | max time's value | min value's time | min value | max value's time | max value | 
+````

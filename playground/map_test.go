@@ -1,9 +1,13 @@
 package playground
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
+
+type index struct {
+	m map[string]string
+}
 
 func TestNestedMap(t *testing.T) {
 	var m map[string]map[string]bool
@@ -12,4 +16,11 @@ func TestNestedMap(t *testing.T) {
 	fmt.Println(len(m["app"]))
 	// NOTE: you can't use cap on map http://devs.cloudimmunity.com/gotchas-and-common-mistakes-in-go-golang/index.html#map_cap
 	// fmt.Println(cap(m["app"]))
+}
+
+func TestMap_Init(t *testing.T) {
+	i := index{}
+	// i.m["ha"] = "hahah" // assignment to entry in nil map [recovered]
+	i.m = make(map[string]string)
+	i.m["ha"] = "hahah"
 }
