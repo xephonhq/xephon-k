@@ -266,7 +266,9 @@ func (idx *LocalFileIndexWriter) SortedID() []common.SeriesID {
 	for k := range idx.series {
 		keys = append(keys, k)
 	}
-	sort.Sort(common.SeriesIDs(keys))
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
 	return keys
 }
 

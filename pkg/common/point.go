@@ -54,25 +54,6 @@ func (p *IntPoint) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// IntPoints implements sort.Interface for IntPoint
-// https://golang.org/pkg/sort/
-type IntPoints []IntPoint
-
-// Len implements Sort interface
-func (p IntPoints) Len() int {
-	return len(p)
-}
-
-// Swap implements Sort interface
-func (p IntPoints) Swap(i int, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
-// Less implements Sort interface
-func (p IntPoints) Less(i int, j int) bool {
-	return p[i].T < p[j].T
-}
-
 // MarshalJSON implements Marshaler interface. Point is encoded as number array. i.e. []
 func (p *DoublePoint) MarshalJSON() ([]byte, error) {
 	// TODO: precision of double value, need to copy the code in `json/encode.go`
@@ -96,19 +77,4 @@ func (p *DoublePoint) UnmarshalJSON(data []byte) error {
 	}
 	p.V = v
 	return nil
-}
-
-// DoublePoints implements sort.Interface for DoublePoint
-type DoublePoints []DoublePoint
-
-func (p DoublePoints) Len() int {
-	return len(p)
-}
-
-func (p DoublePoints) Swap(i int, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
-func (p DoublePoints) Less(i int, j int) bool {
-	return p[i].T < p[j].T
 }

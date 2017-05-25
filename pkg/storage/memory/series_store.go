@@ -55,7 +55,9 @@ func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 
 	// TODO: add a flag to series, so we don't sort points that are already sorted
 	// store.series should already be sorted, so we only sort the newSeries
-	sort.Sort(common.IntPoints(newSeries.Points))
+	sort.SliceStable(newSeries.Points, func(i, j int) bool {
+		return newSeries.Points[i].T < newSeries.Points[j].T
+	})
 	i := 0
 	j := 0
 	k := 0

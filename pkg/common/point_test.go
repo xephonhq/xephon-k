@@ -64,7 +64,9 @@ func TestIntPoints_Less(t *testing.T) {
 	p3 := IntPoint{T: 1359788400200, V: 1}
 	p4 := IntPoint{T: 1459788400000, V: 1}
 	p := []IntPoint{p2, p1, p4, p3}
-	sort.Sort(IntPoints(p))
+	sort.Slice(p, func(i, j int) bool {
+		return p[i].T < p[j].T
+	})
 	assert.Equal(int64(1359788400000), p[0].T)
 	assert.Equal(int64(1459788400000), p[3].T)
 }
