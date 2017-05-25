@@ -9,10 +9,13 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 option (gogoproto.sizer_all) = true;
 option (gogoproto.marshaler_all) = true;
 option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
 
 message Meta {
-    string Name = 1;
-    map<string, string> Tags = 2;
+    uint64 id = 1;
+    int64 type = 2;
+    string name = 3;
+    map<string, string> tags = 4;
 }
 
 message IntPoint {
@@ -21,8 +24,8 @@ message IntPoint {
 }
 
 message IntSeries {
-    Meta meta = 1;
-    repeated IntPoint Points = 2;
+    Meta meta = 1 [(gogoproto.nullable) = false];
+    repeated IntPoint points = 2 [(gogoproto.nullable) = false];
 }
 
 message DoublePoint {
@@ -31,6 +34,6 @@ message DoublePoint {
 }
 
 message DoubleSeries {
-    Meta meta = 1;
-    repeated DoublePoint Points = 2;
+    Meta meta = 1 [(gogoproto.nullable) = false];
+    repeated DoublePoint points = 2 [(gogoproto.nullable) = false];
 }
