@@ -1,0 +1,36 @@
+// go get github.com/gogo/protobuf/protoc-gen-gogo
+// protoc --proto_path=/home/at15/workspace/src/:. --gogo_out=. common.proto
+syntax = "proto3";
+
+package common;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option (gogoproto.sizer_all) = true;
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+
+message Meta {
+    string Name = 1;
+    map<string, string> Tags = 2;
+}
+
+message IntPoint {
+    int64 T = 1;
+    int64 V = 2;
+}
+
+message IntSeries {
+    Meta meta = 1;
+    repeated IntPoint Points = 2;
+}
+
+message DoublePoint {
+    int64 T = 1;
+    double V = 2;
+}
+
+message DoubleSeries {
+    Meta meta = 1;
+    repeated DoublePoint Points = 2;
+}

@@ -15,6 +15,9 @@ import:
 - package: github.com/pkg/errors
   vcs: git
   version: 0.8.0
+- package: github.com/gogo/protobuf
+  vcs: git
+  version: 9df9efe4c742f1a2bfdedf1c3b6902fc6e814c6b
 testImport:
 - package: github.com/stretchr/testify
   vcs: git
