@@ -7,7 +7,8 @@ import (
 )
 
 // check interface
-var _ Series = (*MetaSeries)(nil)
+var _ Series = (*SeriesMeta)(nil)
+var _ Series = (*RawSeries)(nil)
 var _ Series = (*IntSeries)(nil)
 var _ Series = (*DoubleSeries)(nil)
 
@@ -19,19 +20,22 @@ const (
 	TypeStringSeries
 )
 
-// check interface
-var _ Series = (*MetaSeries)(nil)
-var _ Series = (*IntSeries)(nil)
-var _ Series = (*DoubleSeries)(nil)
-
 type Series interface {
 	Hashable
 	GetSeriesType() int
-	// TODO: replace hash with GetSeriesID and see if it works with series decoded from JSON
+	// NOTE: series decoded from JSON has 0 as SeriesID, so the implementation would recalculate the Hash
 	GetSeriesID() SeriesID
 }
 
-type MetaSeries struct {
+type SeriesMeta struct {
+	id         SeriesID
+	Name       string            `json:"name"`
+	Tags       map[string]string `json:"tags"`
+	SeriesType int               `json:"type"`
+	Precision  time.Duration     `json:"precision"`
+}
+
+type RawSeries struct {
 	id         SeriesID
 	Name       string            `json:"name"`
 	Tags       map[string]string `json:"tags"`
@@ -77,19 +81,38 @@ func NewDoubleSeries(name string) *DoubleSeries {
 	}
 }
 
-func (series *MetaSeries) GetName() string {
+func (series *SeriesMeta) GetName() string {
 	return series.Name
 }
 
-func (series *MetaSeries) GetTags() map[string]string {
+func (series *SeriesMeta) GetTags() map[string]string {
 	return series.Tags
 }
 
-func (series *MetaSeries) GetSeriesType() int {
+func (series *SeriesMeta) GetSeriesType() int {
 	return series.SeriesType
 }
 
-func (series *MetaSeries) GetSeriesID() SeriesID {
+func (series *SeriesMeta) GetSeriesID() SeriesID {
+	if series.id == 0 {
+		series.id = Hash(series)
+	}
+	return series.id
+}
+
+func (series *RawSeries) GetName() string {
+	return series.Name
+}
+
+func (series *RawSeries) GetTags() map[string]string {
+	return series.Tags
+}
+
+func (series *RawSeries) GetSeriesType() int {
+	return series.SeriesType
+}
+
+func (series *RawSeries) GetSeriesID() SeriesID {
 	if series.id == 0 {
 		series.id = Hash(series)
 	}

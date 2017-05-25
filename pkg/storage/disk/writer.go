@@ -74,9 +74,7 @@ type IndexWriter interface {
 }
 
 type IndexEntries struct {
-	// TODO: series info,
-	// TODO: we can't directly modify the tags returned by GetTags, because it is a reference
-	tags    map[string]string
+	// TODO: series info, use meta series
 	entries []IndexEntry
 }
 
@@ -209,7 +207,7 @@ func (writer *LocalFileWriter) WriteIndex() error {
 		return ErrNoData
 	}
 
-	// TODO: write index
+	// TODO: write index to underlying writer
 	indexPos := writer.n
 
 	// write footer

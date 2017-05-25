@@ -78,7 +78,7 @@ func (WriteServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 
 func (WriteServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var metaSeries []common.MetaSeries
+		var metaSeries []common.RawSeries
 		var intSeries []common.IntSeries
 		var doubleSeries []common.DoubleSeries
 		// FIXME: go-kit does not handle decode error?

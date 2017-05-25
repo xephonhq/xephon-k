@@ -27,6 +27,16 @@ func TestIntSeries_GetTags(t *testing.T) {
 	assert.Equal("ubuntu", s.Tags["os"])
 }
 
+func TestIntSeries_GetSeriesID(t *testing.T) {
+	assert := asst.New(t)
+
+	s := IntSeries{}
+	err := json.Unmarshal([]byte(`{"name":"cpi","tags":{"os":"ubuntu"},"points":[[1359788400000,1],[1359788400001,2]]}`), &s)
+	assert.Nil(err)
+
+	assert.Equal(Hash(&s), s.GetSeriesID())
+}
+
 func TestIntSeries_JSON(t *testing.T) {
 	assert := asst.New(t)
 
