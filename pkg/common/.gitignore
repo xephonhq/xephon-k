@@ -1,0 +1,4 @@
+# temporarily disable generated files
+*.pb.go
+*_raw.go
+*_double.go
