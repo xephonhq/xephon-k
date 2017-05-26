@@ -27,9 +27,9 @@ scripts:
   api:
     - sh -c "xapi"
   loc:
-    - cloc --exclude-dir=vendor,.idea .
-  loc-noplay:
     - cloc --exclude-dir=vendor,.idea,playground .
+  loc-play:
+    - cloc --exclude-dir=vendor,.idea .
   release:
     - sh -c "zip xkb-linux-amd64.zip $(which xkb)"
     - sh -c "zip xkc-linux-amd64.zip $(which xkc)"

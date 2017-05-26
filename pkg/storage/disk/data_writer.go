@@ -34,8 +34,8 @@ import (
 	"os"
 )
 
-var _ FileWriter = (*LocalFileWriter)(nil)
-var _ IndexWriter = (*LocalFileIndexWriter)(nil)
+var _ DataFileWriter = (*LocalDataFileWriter)(nil)
+var _ DataFileIndexWriter = (*LocalDataFileIndexWriter)(nil)
 
 var (
 	ErrNoData       = fmt.Errorf("no data written, can't write index")
@@ -47,9 +47,9 @@ const (
 	DefaultBufferSize = 4 * 1024 // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
 )
 
-// FileWriter writes data to disk, index is at the end of the file for locating data blocks.
+// DataFileWriter writes data to disk, index is at the end of the file for locating data blocks.
 // It is NOT thread safe
-type FileWriter interface {
+type DataFileWriter interface {
 	// WriteHeader writes the magic number and version, it will be called by WriteSeries automatically for once
 	WriteHeader() error
 	WriteSeries(series common.Series) error
@@ -63,46 +63,34 @@ type FileWriter interface {
 	Close() error
 }
 
-type IndexWriter interface {
+type DataFileIndexWriter interface {
 	Add(series common.Series, offset uint64, size uint64) error
 	SortedID() []common.SeriesID
 	Len() int
-	// TODO: we need to record information like int/double, precision, min, max time etc. and we don't need to duplicate
-	// series info like name tags for each entry, store in IndexEntries
+	// TODO: we need to record information like int/double, precision, min, max time etc.
+	// TODO: we don't need to duplicate series info like name tags for each entry, store in IndexEntries
 	// TODO: use must means we will panic if use non exist ID
 	MustEntries(id common.SeriesID) *IndexEntries
 }
 
-type IndexEntries struct {
-	// TODO: series info, use meta series
-	entries []IndexEntry
-}
-
-type IndexEntry struct {
-	// The absolute position where the data block starts
-	Offset uint64
-	// The size of the data block in bytes
-	Size uint64
-}
-
-type LocalFileWriter struct {
+type LocalDataFileWriter struct {
 	originalWriter io.WriteCloser
 	w              *bufio.Writer
-	index          IndexWriter
+	index          DataFileIndexWriter
 	n              uint64
 	finalized      bool
 }
 
-type LocalFileIndexWriter struct {
+type LocalDataFileIndexWriter struct {
 	series map[common.SeriesID]*IndexEntries
 }
 
-func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalFileWriter {
+func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalDataFileWriter {
 	if bufferSize <= 0 {
 		bufferSize = DefaultBufferSize
 	}
 
-	return &LocalFileWriter{
+	return &LocalDataFileWriter{
 		originalWriter: w,
 		w:              bufio.NewWriterSize(w, bufferSize),
 		index:          NewLocalFileIndexWriter(),
@@ -111,13 +99,13 @@ func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalFileWriter {
 	}
 }
 
-func NewLocalFileIndexWriter() *LocalFileIndexWriter {
-	return &LocalFileIndexWriter{
+func NewLocalFileIndexWriter() *LocalDataFileIndexWriter {
+	return &LocalDataFileIndexWriter{
 		series: map[common.SeriesID]*IndexEntries{},
 	}
 }
 
-func (writer *LocalFileWriter) WriteHeader() error {
+func (writer *LocalDataFileWriter) WriteHeader() error {
 	var buf [9]byte
 	binary.BigEndian.PutUint64(buf[:8], MagicNumber)
 	buf[8] = Version
@@ -132,7 +120,7 @@ func (writer *LocalFileWriter) WriteHeader() error {
 	return nil
 }
 
-func (writer *LocalFileWriter) WriteSeries(series common.Series) error {
+func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 	if writer.Finalized() {
 		return ErrFinalized
 	}
@@ -188,17 +176,19 @@ func (writer *LocalFileWriter) WriteSeries(series common.Series) error {
 	}
 	n += vBytesCount
 
-	// TODO: Add Index
+	// record block position in index
+	// TODO: should store some aggregated information as well
+	writer.index.Add(series, writer.n, uint64(n))
 
 	writer.n += uint64(n)
 	return nil
 }
 
-func (writer *LocalFileWriter) Finalized() bool {
+func (writer *LocalDataFileWriter) Finalized() bool {
 	return writer.finalized
 }
 
-func (writer *LocalFileWriter) WriteIndex() error {
+func (writer *LocalDataFileWriter) WriteIndex() error {
 	if writer.Finalized() {
 		return ErrFinalized
 	}
@@ -227,7 +217,7 @@ func (writer *LocalFileWriter) WriteIndex() error {
 	return nil
 }
 
-func (writer *LocalFileWriter) Flush() error {
+func (writer *LocalDataFileWriter) Flush() error {
 	if err := writer.w.Flush(); err != nil {
 		return errors.Wrap(err, "can't flush bufio.Writer")
 	}
@@ -240,28 +230,37 @@ func (writer *LocalFileWriter) Flush() error {
 	return nil
 }
 
-func (writer *LocalFileWriter) Close() error {
+func (writer *LocalDataFileWriter) Close() error {
 	if !writer.Finalized() {
 		return ErrNotFinalized
 	}
 	if err := writer.Flush(); err != nil {
 		return errors.Wrap(err, "can't flush before close")
 	}
-	// TODO: close the underlying file
-	return nil
-}
-
-func (idx *LocalFileIndexWriter) Add(series common.Series, offset uint64, size uint64) error {
-	id := series.GetSeriesID()
-	_, ok := idx.series[id]
-	// create new IndexEntries if this series has not been added
-	if !ok {
-
+	if err := writer.originalWriter.Close(); err != nil {
+		return errors.Wrap(err, "flushed but can't close")
 	}
 	return nil
 }
 
-func (idx *LocalFileIndexWriter) SortedID() []common.SeriesID {
+func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, size uint64) error {
+	id := series.GetSeriesID()
+	entries, ok := idx.series[id]
+	// create new IndexEntries if this series has not been added
+	if !ok {
+		entries = &IndexEntries{
+			meta: series.GetMetaCopy(),
+		}
+		idx.series[id] = entries
+	}
+	entries.entries = append(entries.entries, IndexEntry{
+		Offset: offset,
+		Size:   size,
+	})
+	return nil
+}
+
+func (idx *LocalDataFileIndexWriter) SortedID() []common.SeriesID {
 	keys := make([]common.SeriesID, 0, len(idx.series))
 	for k := range idx.series {
 		keys = append(keys, k)
@@ -272,11 +271,11 @@ func (idx *LocalFileIndexWriter) SortedID() []common.SeriesID {
 	return keys
 }
 
-func (idx *LocalFileIndexWriter) Len() int {
+func (idx *LocalDataFileIndexWriter) Len() int {
 	return len(idx.series)
 }
 
-func (idx *LocalFileIndexWriter) MustEntries(id common.SeriesID) *IndexEntries {
+func (idx *LocalDataFileIndexWriter) MustEntries(id common.SeriesID) *IndexEntries {
 	entries, ok := idx.series[id]
 	if !ok {
 		log.Panicf("can't find entries for %d", id)
