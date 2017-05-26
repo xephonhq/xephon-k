@@ -33,7 +33,9 @@ func createDummyIntPoints() common.IntSeries {
 	tags["os"] = "ubuntu"
 	tags["machine"] = "machine-01"
 	startTime := time.Now().Unix() * 1000
-	s := common.IntSeries{Name: "cpi", Tags: tags}
+	s := common.IntSeries{
+		SeriesMeta: common.SeriesMeta{Name: "cpi", Tags: tags},
+	}
 	for i := 0; i < 5; i++ {
 		s.Points = append(s.Points, common.IntPoint{T: startTime + int64(i*1000), V: int64(i)})
 	}
