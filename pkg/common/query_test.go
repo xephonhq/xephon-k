@@ -111,6 +111,6 @@ func TestQuery_Hash(t *testing.T) {
 	tags2["region"] = "us"
 
 	q := Query{Tags: tags1, Name: "cpu.idle", MatchPolicy: "exact"}
-	s := IntSeries{Tags: tags2, Name: "cpu.idle"}
+	s := IntSeries{SeriesMeta: SeriesMeta{Tags: tags2, Name: "cpu.idle"}}
 	assert.Equal(Hash(&q), Hash(&s))
 }

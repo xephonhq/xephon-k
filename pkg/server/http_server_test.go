@@ -37,24 +37,30 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 	// TODO: type and precision should be string in client side instead of integers
 	writeData := `[
 	{
-		"name":"cpi",
-		"type": 1,
-		"precision": 1000000,
-		"tags":{"machine":"machine-01","os":"ubuntu"},
+		"meta": {
+			"name":"cpi",
+			"type": 1,
+			"precision": 1000000,
+			"tags":{"machine":"machine-01","os":"ubuntu"}
+		},
 		"points":[[1493363958000,0],[1493363959000,1],[1493363960000,2],[1493363961000,3],[1493363962000,4]]
 	},
 	{
-		"name":"cpi",
-		"type": 1,
-		"precision": 1000000,
-		"tags":{"machine":"machine-02","os":"ubuntu"},
+		"meta": {
+			"name":"cpi",
+			"type": 1,
+			"precision": 1000000,
+			"tags":{"machine":"machine-02","os":"ubuntu"}
+		},
 		"points":[[1493363958000,0],[1493363959000,1],[1493363960000,2],[1493363961000,3],[1493363962000,4]]
 	},
 	{
-		"name":"cpi",
-		"type": 2,
-		"precision": 1000000,
-		"tags":{"machine":"machine-02","os":"ubuntu", "extra":"double"},
+		"meta": {
+			"name":"cpi",
+			"type": 2,
+			"precision": 1000000,
+			"tags":{"machine":"machine-02","os":"ubuntu", "extra":"double"}
+		},
 		"points":[[1493363958000,0.2],[1493363959000,1.3],[1493363960000,2.0],[1493363961000,3.0],[1493363962000,4.1]]
 	}
 	]`

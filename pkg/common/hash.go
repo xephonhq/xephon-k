@@ -12,6 +12,8 @@ var _ Hashable = (*IntSeries)(nil)
 var _ Hashable = (*DoubleSeries)(nil)
 var _ Hashable = (*Query)(nil)
 
+// TODO: hashable can be changed to get meta or generate methods for series
+// TODO: also gogo protobuf support generate as embedded fields
 type Hashable interface {
 	GetName() string
 	GetTags() map[string]string

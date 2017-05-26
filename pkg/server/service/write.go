@@ -78,29 +78,26 @@ func (WriteServiceHTTPFactory) MakeEndpoint(service Service) endpoint.Endpoint {
 
 func (WriteServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var metaSeries []common.MetaSeries
+		var rawSeries []common.RawSeries
 		var intSeries []common.IntSeries
 		var doubleSeries []common.DoubleSeries
 		// FIXME: go-kit does not handle decode error?
 		// https://github.com/xephonhq/xephon-k/issues/6
 		// https://github.com/go-kit/kit/issues/133
-		if err := json.NewDecoder(r.Body).Decode(&metaSeries); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&rawSeries); err != nil {
 			return nil, errors.Wrap(err, "can't decode write request into meta series")
 		}
-		totalSeries := len(metaSeries)
-		log.Tracef("got %d meta series after decode ", len(metaSeries))
+		totalSeries := len(rawSeries)
+		log.Tracef("got %d meta series after decode ", len(rawSeries))
 		for i := 0; i < totalSeries; i++ {
-			switch metaSeries[i].SeriesType {
+			switch rawSeries[i].GetSeriesType() {
 			case common.TypeIntSeries:
 				// copy the meta and decode the points
 				s := common.IntSeries{
-					Name:       metaSeries[i].Name,
-					Tags:       metaSeries[i].Tags,
-					SeriesType: common.TypeIntSeries,
-					Precision:  metaSeries[i].Precision,
+					SeriesMeta: rawSeries[i].GetMetaCopy(),
 				}
 				points := make([]common.IntPoint, 0)
-				err := json.Unmarshal(metaSeries[i].Points, &points)
+				err := json.Unmarshal(rawSeries[i].Points, &points)
 				if err != nil {
 					return writeRequest{}, errors.Wrapf(err, "can't decode %s into int series", s.Name)
 				}
@@ -108,20 +105,17 @@ func (WriteServiceHTTPFactory) MakeDecode() httptransport.DecodeRequestFunc {
 				intSeries = append(intSeries, s)
 			case common.TypeDoubleSeries:
 				s := common.DoubleSeries{
-					Name:       metaSeries[i].Name,
-					Tags:       metaSeries[i].Tags,
-					SeriesType: common.TypeDoubleSeries,
-					Precision:  metaSeries[i].Precision,
+					SeriesMeta: rawSeries[i].GetMetaCopy(),
 				}
 				points := make([]common.DoublePoint, 0)
-				err := json.Unmarshal(metaSeries[i].Points, &points)
+				err := json.Unmarshal(rawSeries[i].Points, &points)
 				if err != nil {
 					return writeRequest{}, errors.Wrapf(err, "can't decode %s into double series", s.Name)
 				}
 				s.Points = points
 				doubleSeries = append(doubleSeries, s)
 			default:
-				return writeRequest{}, errors.Errorf("unsupported series type %d", metaSeries[i].SeriesType)
+				return writeRequest{}, errors.Errorf("unsupported series type %d", rawSeries[i].GetSeriesType())
 			}
 		}
 		log.Tracef("got %d int series after decode ", len(intSeries))

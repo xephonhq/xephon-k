@@ -1,43 +1,44 @@
 package memory
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/common"
 	"sort"
 	"sync"
+
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
-// FIXME: this should be generated instead of copy and pasted
-
-type DoubleSeriesStore struct {
+// IntSeriesStore protects the underlying IntSeries with a RWMutex
+type IntSeriesStore struct {
 	mu     sync.RWMutex
-	series common.DoubleSeries
+	series common.IntSeries
 	length int
 }
 
-func NewDoubleSeriesStore(s common.DoubleSeries) *DoubleSeriesStore {
-	series := common.NewDoubleSeries(s.Name)
+// NewIntSeriesStore creates a IntSeriesStore
+func NewIntSeriesStore(s common.IntSeries) *IntSeriesStore {
+	series := common.NewIntSeries(s.Name)
 	series.Tags = s.Tags
 	series.Precision = s.Precision
 	// TODO: maybe we should copy the points if any
-	series.Points = make([]common.DoublePoint, 0, initPointsLength)
-	return &DoubleSeriesStore{series: *series, length: 0}
+	series.Points = make([]common.IntPoint, 0, initPointsLength)
+	return &IntSeriesStore{series: *series, length: 0}
 }
 
-func (store *DoubleSeriesStore) GetName() string {
+func (store *IntSeriesStore) GetName() string {
 	return store.series.Name
 }
 
-func (store *DoubleSeriesStore) GetTags() map[string]string {
+func (store *IntSeriesStore) GetTags() map[string]string {
 	return store.series.Tags
 }
 
-func (store *DoubleSeriesStore) GetSeriesType() int {
-	return store.series.SeriesType
+func (store *IntSeriesStore) GetSeriesType() int64 {
+	return store.series.Type
 }
 
 // WriteSeries merges the new series with existing one and replace old points with new points if their timestamp matches
 // TODO: what happens when no memory is available? maybe this function should return error
-func (store *DoubleSeriesStore) WriteSeries(newSeries common.DoubleSeries) error {
+func (store *IntSeriesStore) WriteSeries(newSeries common.IntSeries) error {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
@@ -49,7 +50,9 @@ func (store *DoubleSeriesStore) WriteSeries(newSeries common.DoubleSeries) error
 
 	// TODO: add a flag to series, so we don't sort points that are already sorted
 	// store.series should already be sorted, so we only sort the newSeries
-	sort.Sort(common.DoublePoints(newSeries.Points))
+	sort.SliceStable(newSeries.Points, func(i, j int) bool {
+		return newSeries.Points[i].T < newSeries.Points[j].T
+	})
 	i := 0
 	j := 0
 	k := 0
@@ -57,7 +60,7 @@ func (store *DoubleSeriesStore) WriteSeries(newSeries common.DoubleSeries) error
 	oldLength := store.length
 	newLength := len(newSeries.Points)
 	// log.Infof("ol %d nl %d", oldLength, newLength)
-	points := make([]common.DoublePoint, oldLength+newLength)
+	points := make([]common.IntPoint, oldLength+newLength)
 	for i < oldLength && j < newLength {
 		if store.series.Points[i].T < newSeries.Points[j].T {
 			points[k] = store.series.Points[i]
@@ -106,7 +109,7 @@ func (store *DoubleSeriesStore) WriteSeries(newSeries common.DoubleSeries) error
 // ReadByStartEndTime filters and return a copy of the data
 // TODO: we were previously returning *common.IntSeries, but there should not have any copy of the underlying points I
 // suppose?
-func (store *DoubleSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.DoubleSeries {
+func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) *common.IntSeries {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
 	log.Trace("read the series!")
@@ -114,9 +117,10 @@ func (store *DoubleSeriesStore) ReadByStartEndTime(startTime int64, endTime int6
 
 	// TODO: may use pool for points
 	// TODO: copy other fields, precision, type etc.
-	returnSeries := common.DoubleSeries{
-		Name: store.series.Name,
-		Tags: store.series.Tags,
+	returnSeries := common.IntSeries{
+		SeriesMeta: common.SeriesMeta{
+			Name: store.series.Name,
+			Tags: store.series.Tags},
 	}
 	// TODO: we can assume the data has fixed interval and start from a more close position instead of zero
 	// TODO: we can simply copy by the start and end instead of going it one by one since the int series store should already be sorted

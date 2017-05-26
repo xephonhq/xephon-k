@@ -1,11 +1,12 @@
-hash: 4cd154e7f0cb13dda41f32f46a9f3c55915826ce2baa91bbc29e6660752c8cac
-updated: 2017-05-01T17:28:16.721235108-07:00
+hash: c9aa126ebacf8b3ab11675c05c6cb317dfcd7f7429968b07ab2352c988c5aca0
+updated: 2017-05-24T19:42:48.603722006-07:00
 imports:
 - name: github.com/dyweb/gommon
   version: 8ca50631c052f4dd995c69ee35bda0fb79a1e0bf
   vcs: git
   subpackages:
   - log
+  - requests
   - structure
 - name: github.com/go-kit/kit
   version: fadad6fffe0466b19df9efd9acde5c9a52df5fa4
@@ -17,7 +18,7 @@ imports:
 - name: github.com/go-logfmt/logfmt
   version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
 - name: github.com/go-stack/stack
-  version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
+  version: 7a2f19628aabfe68f0766b59e74d6315f8347d22
 - name: github.com/gocql/gocql
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
   vcs: git
@@ -25,8 +26,15 @@ imports:
   - internal/lru
   - internal/murmur
   - internal/streams
+- name: github.com/gogo/protobuf
+  version: 9df9efe4c742f1a2bfdedf1c3b6902fc6e814c6b
+  vcs: git
+  subpackages:
+  - gogoproto
+  - proto
+  - protoc-gen-gogo/descriptor
 - name: github.com/golang/snappy
-  version: 553a641470496b2327abcac10b36396bd98e45c9
+  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/inconshreveable/mousetrap
@@ -40,9 +48,9 @@ imports:
   version: 6ed17b5128e8932c9ecd4c3970e8ea5e60a418ac
   vcs: git
 - name: github.com/spf13/pflag
-  version: f1d95a35e132e8a1868023a08932b14f0b8b8fcb
+  version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: golang.org/x/net
-  version: da118f7b8e5954f39d0d2130ab35d4bf0e3cb344
+  version: 7dcfb8076726a3fdd9353b6b8a1f1b6be6811bd6
   subpackages:
   - context
   - context/ctxhttp

@@ -20,7 +20,10 @@ func createDummySeries() []common.IntSeries {
 		p1 := common.IntPoint{T: 1359788400002, V: 1}
 		p2 := common.IntPoint{T: 1359788500002, V: 2}
 		ps1 := []common.IntPoint{p1, p2}
-		s1 := common.IntSeries{Name: "cpi", Tags: tags, Points: ps1}
+		s1 := common.IntSeries{
+			SeriesMeta: common.SeriesMeta{Name: "cpi", Tags: tags},
+			Points:     ps1,
+		}
 		multipleSeries = append(multipleSeries, s1)
 	}
 	return multipleSeries

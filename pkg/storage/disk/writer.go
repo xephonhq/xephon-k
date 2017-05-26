@@ -74,9 +74,7 @@ type IndexWriter interface {
 }
 
 type IndexEntries struct {
-	// TODO: series info,
-	// TODO: we can't directly modify the tags returned by GetTags, because it is a reference
-	tags    map[string]string
+	// TODO: series info, use meta series
 	entries []IndexEntry
 }
 
@@ -209,7 +207,7 @@ func (writer *LocalFileWriter) WriteIndex() error {
 		return ErrNoData
 	}
 
-	// TODO: write index
+	// TODO: write index to underlying writer
 	indexPos := writer.n
 
 	// write footer
@@ -268,7 +266,9 @@ func (idx *LocalFileIndexWriter) SortedID() []common.SeriesID {
 	for k := range idx.series {
 		keys = append(keys, k)
 	}
-	sort.Sort(common.SeriesIDs(keys))
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
 	return keys
 }
 

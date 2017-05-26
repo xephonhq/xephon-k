@@ -13,6 +13,15 @@ type Data struct {
 	series map[common.SeriesID]SeriesStore
 }
 
+// check interface
+var _ SeriesStore = (*IntSeriesStore)(nil)
+var _ SeriesStore = (*DoubleSeriesStore)(nil)
+
+type SeriesStore interface {
+	common.Hashable
+	GetSeriesType() int64
+}
+
 func NewData(capacity int) *Data {
 	return &Data{
 		series: make(map[common.SeriesID]SeriesStore, capacity),
@@ -61,13 +70,14 @@ func (data *Data) ReadSeries(id common.SeriesID, startTime int64, endTime int64)
 	// TODO: auto convert the start and end time based on series precision
 	store, ok := data.series[id]
 	if !ok {
-		return &common.MetaSeries{}, false, nil
+		// FIXME: use EmptySeries
+		return &common.RawSeries{}, false, nil
 	}
 	switch store.GetSeriesType() {
 	case common.TypeIntSeries:
 		intStore, ok := store.(*IntSeriesStore)
 		if !ok {
-			return &common.MetaSeries{}, false, errors.Errorf("%s %v is marked as int but actually %s",
+			return &common.RawSeries{}, false, errors.Errorf("%s %v is marked as int but actually %s",
 				store.GetName(), store.GetTags(), reflect.TypeOf(store))
 		}
 		// TODO: this should also return error
@@ -75,13 +85,13 @@ func (data *Data) ReadSeries(id common.SeriesID, startTime int64, endTime int64)
 	case common.TypeDoubleSeries:
 		doubleStore, ok := store.(*DoubleSeriesStore)
 		if !ok {
-			return &common.MetaSeries{}, false, errors.Errorf("%s %v is marked as double but actually %s",
+			return &common.RawSeries{}, false, errors.Errorf("%s %v is marked as double but actually %s",
 				store.GetName(), store.GetTags(), reflect.TypeOf(store))
 		}
 		// TODO: this should also return error
 		return doubleStore.ReadByStartEndTime(startTime, endTime), true, nil
 	default:
-		return &common.MetaSeries{}, false, errors.Errorf("%s %v has unsupported type %s",
+		return &common.RawSeries{}, false, errors.Errorf("%s %v has unsupported type %s",
 			store.GetName(), store.GetTags(), common.SeriesTypeString(store.GetSeriesType()))
 	}
 }

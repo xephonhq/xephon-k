@@ -1,0 +1,5 @@
+scripts:
+  gen:
+    # FIXME: use GOPATH (which need sh -c)
+    - protoc --proto_path=/home/at15/workspace/src/:. --gogo_out=. common.proto
+    - go run gen/main.go
