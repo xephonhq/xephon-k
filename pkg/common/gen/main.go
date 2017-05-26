@@ -9,19 +9,21 @@ import (
 
 func assert(err error) {
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
 }
 
+// NOTE: it should be called from upper folder
+// Use `go run gen/main.go` instead of `go run main.go`
 func main() {
 	fmt.Println("generate other series based on int series")
 
 	// int series is used as template
-	tplBytes, err := ioutil.ReadFile("../series_int.go")
+	tplBytes, err := ioutil.ReadFile("series_int.go")
 	assert(err)
 	tpl := string(tplBytes)
-	otherSeriesTypes := map[string]string{"RawSeries": "../series_raw.go", "DoubleSeries": "../series_double.go"}
+	otherSeriesTypes := map[string]string{"RawSeries": "series_raw.go", "DoubleSeries": "series_double.go"}
 
 	for newType, newFile := range otherSeriesTypes {
 		content := strings.Replace(tpl, "IntSeries", newType, -1)

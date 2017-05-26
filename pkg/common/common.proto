@@ -25,7 +25,7 @@ message IntPoint {
 }
 
 message IntSeries {
-    SeriesMeta meta = 1 [(gogoproto.nullable) = false];
+    SeriesMeta meta = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
     repeated IntPoint points = 2 [(gogoproto.nullable) = false];
 }
 
@@ -35,6 +35,6 @@ message DoublePoint {
 }
 
 message DoubleSeries {
-    SeriesMeta meta = 1 [(gogoproto.nullable) = false];
+    SeriesMeta meta = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
     repeated DoublePoint points = 2 [(gogoproto.nullable) = false];
 }

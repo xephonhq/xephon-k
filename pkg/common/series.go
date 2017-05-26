@@ -31,10 +31,29 @@ type Series interface {
 //  IntSeries
 //  DoubleSeries
 
+func (m *SeriesMeta) GetName() string {
+	return m.Name
+}
+
+func (m *SeriesMeta) GetTags() map[string]string {
+	return m.Tags
+}
+
+func (m *SeriesMeta) GetSeriesType() int64 {
+	return m.Type
+}
+
+func (m *SeriesMeta) GetSeriesID() SeriesID {
+	if m.Id == 0 {
+		m.Id = uint64(Hash(m))
+	}
+	return SeriesID(m.Id)
+}
+
 // RawSeries is an intermediate struct for decoding json with mixed type of series in an array
 type RawSeries struct {
-	Meta   SeriesMeta      `json:"meta"`
-	Points json.RawMessage `json:"points"`
+	SeriesMeta `json:"meta"`
+	Points     json.RawMessage `json:"points"`
 }
 
 func SeriesTypeString(seriesType int) string {
