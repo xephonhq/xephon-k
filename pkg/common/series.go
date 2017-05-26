@@ -56,7 +56,7 @@ type RawSeries struct {
 	Points     json.RawMessage `json:"points"`
 }
 
-func SeriesTypeString(seriesType int) string {
+func SeriesTypeString(seriesType int64) string {
 	switch seriesType {
 	case TypeIntSeries:
 		return "int"

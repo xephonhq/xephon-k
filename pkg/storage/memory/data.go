@@ -13,6 +13,15 @@ type Data struct {
 	series map[common.SeriesID]SeriesStore
 }
 
+// check interface
+var _ SeriesStore = (*IntSeriesStore)(nil)
+var _ SeriesStore = (*DoubleSeriesStore)(nil)
+
+type SeriesStore interface {
+	common.Hashable
+	GetSeriesType() int64
+}
+
 func NewData(capacity int) *Data {
 	return &Data{
 		series: make(map[common.SeriesID]SeriesStore, capacity),
