@@ -1,0 +1,25 @@
+// go get github.com/gogo/protobuf/protoc-gen-gogo
+// protoc --proto_path=/home/at15/workspace/src/:. --gogo_out=. disk.proto
+syntax = "proto3";
+
+package disk;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/xephonhq/xephon-k/pkg/common/common.proto";
+
+option (gogoproto.sizer_all) = true;
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+
+message IndexEntries {
+    // TODO: index entries may have the overall aggregation of all the index entries, like min, max, time
+    common.SeriesMeta Meta = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
+    repeated IndexEntry Entries = 2 [(gogoproto.nullable) = false];
+}
+
+message IndexEntry {
+    // TODO: aggregated data
+    uint64 Offset = 1;
+    uint64 BlockSize = 2;
+}

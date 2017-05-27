@@ -29,9 +29,10 @@ import (
 
 	"reflect"
 
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
-	"os"
 )
 
 var _ DataFileWriter = (*LocalDataFileWriter)(nil)
@@ -68,9 +69,9 @@ type DataFileIndexWriter interface {
 	SortedID() []common.SeriesID
 	Len() int
 	// TODO: we need to record information like int/double, precision, min, max time etc.
-	// TODO: we don't need to duplicate series info like name tags for each entry, store in IndexEntries
 	// TODO: use must means we will panic if use non exist ID
 	MustEntries(id common.SeriesID) *IndexEntries
+	WriteTo(io.Writer) (int64, error)
 }
 
 type LocalDataFileWriter struct {
@@ -132,11 +133,13 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 	}
 
 	n := 0
-	var tenc TimeEncoder
-	var venc ValueEncoder
-	var tBytes, vBytes []byte
-	var tBytesCount, vBytesCount int
-	var err error
+	var (
+		tenc                     TimeEncoder
+		venc                     ValueEncoder
+		tBytes, vBytes           []byte
+		tBytesCount, vBytesCount int
+		err                      error
+	)
 
 	// encode time and value separately
 	// TODO: only use RawBigEndianTime/IntEncoder for now
@@ -199,6 +202,9 @@ func (writer *LocalDataFileWriter) WriteIndex() error {
 
 	// TODO: write index to underlying writer
 	indexPos := writer.n
+	if _, err := writer.index.WriteTo(writer.w); err != nil {
+		return errors.Wrap(err, "can't write index")
+	}
 
 	// write footer
 	// | index position (8) | version (1) | magic (8) |
@@ -249,13 +255,13 @@ func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, si
 	// create new IndexEntries if this series has not been added
 	if !ok {
 		entries = &IndexEntries{
-			meta: series.GetMetaCopy(),
+			SeriesMeta: series.GetMetaCopy(),
 		}
 		idx.series[id] = entries
 	}
-	entries.entries = append(entries.entries, IndexEntry{
-		Offset: offset,
-		Size:   size,
+	entries.Entries = append(entries.Entries, IndexEntry{
+		Offset:    offset,
+		BlockSize: size,
 	})
 	return nil
 }
@@ -281,4 +287,24 @@ func (idx *LocalDataFileIndexWriter) MustEntries(id common.SeriesID) *IndexEntri
 		log.Panicf("can't find entries for %d", id)
 	}
 	return entries
+}
+
+func (idx *LocalDataFileIndexWriter) WriteTo(w io.Writer) (int64, error) {
+	N := 0
+	ids := idx.SortedID()
+	// TODO: InfluxDB seems does not store the total number of entries len(ids)
+	for _, id := range ids {
+		// TODO: InfluxDB sort the index entry in entries by time before write, but it's likely the blocks of one series is written in time order
+		entries := idx.series[id]
+		b, err := entries.Marshal()
+		if err != nil {
+			return 0, errors.Wrap(err, "can't marshal IndexEntries using protobuf")
+		}
+		n, err := w.Write(b)
+		N += n
+		if err != nil {
+			return int64(N), errors.Wrap(err, "can't write marshaled IndexEntries to writer")
+		}
+	}
+	return int64(N), nil
 }

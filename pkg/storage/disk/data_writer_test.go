@@ -1,11 +1,12 @@
 package disk
 
 import (
+	"os"
+	"testing"
+
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/util"
-	"os"
-	"testing"
 )
 
 func TestNewLocalFileIndexWriter(t *testing.T) {
@@ -30,7 +31,8 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	assert.Nil(w.WriteSeries(s))
 	assert.Equal(uint64(9+2+16*2), w.n)
 	assert.Equal(ErrNotFinalized, w.Close())
+	assert.Nil(w.WriteIndex())
+	assert.Nil(w.Close())
 
-	w.Flush()
-	f.Close()
+	// TODO: need to read stuff back
 }
