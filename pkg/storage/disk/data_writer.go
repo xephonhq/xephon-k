@@ -9,12 +9,51 @@ On disk file has header, blocks, index, footer
 |  9 bytes  |	N bytes	 |	M bytes	  |   17 bytes  |
  ---------------------------------------------------
 
-- Header: Magic (xephon-k in bigendian) + Version
-- Footer: Index offset (bigendian uint64) + Version + Magic
-- Blocks
+- Data that is not serialized (compress, protobuf) all use BigEndian
+  - uint32, relative offset and length
+  - uint64, absolute offset and magic
 
+- Header:
+
+ -----------------------------------------
+| Magic (xephon-k in BigEndian) | Version |
+|            8 bytes            |  1 byte |
+ -----------------------------------------
+
+- Footer: Index offset  + Index length + Version + Magic
+  - [ ] TODO: we don't really need index length, because we can calculate it from offset, but it could be a double check
+    - index length = file length - index offset - footer length
+  - index length includes index of indexes
+
+ ------------------------------------------------------------------------------------------------
+| Index offset | Index of Index offset | Index length |  Version | Magic (xephon-k in BigEndian) |
+|   uint64     |        uint32         |    uint32    |          |             uint64            |
+|   8 bytes    |        4 byte         |    4 bytes   |  1 byte  |            8 bytes            |
+ ------------------------------------------------------------------------------------------------
+
+- Blocks
+- [ ] TODO: need offset of values, for Sum, I only need value, don't need time
+- [ ] TODO: I think it's better to store the encoding, offset of time and value into index
+  - and only let the block store timestamps and values
+  - [ ] TODO: or we can store series ID, so we can rebuild index, if file is closed before writing index
+
+ -----------------------------------------------------------------------
 | time encoding | value encoding |  encoded timestamps |  encoded values |
 |  1 byte       |  1 byte        |      A bytes        |     B bytes     |
+ ------------------------------------------------------------------------
+
+- Index
+  - Data: Entries, Index (of Index): series count, series ID, offset, length ...
+  - Entries is `IndexEntries` serialized in protobuf, including series meta and []IndexEntry
+  - offset is relative to index begin, not file begin (a.k.a not absolute offset)
+  - Footer is the footer of the file, index itself does not have separate footer
+
+
+ --------------------------------------------------------------------------------------------------------
+| Entries1 | Entries2 | ... | series count | series ID1 |  offset  | length  | series ID2 | ... | Footer |
+| protobuf | protobuf | ... |   uint32     |   uint64   |  unit32  | uint32  |   uint64   | ... |        |
+| A bytes  |  B bytes | ..  |   4 bytes    |  8 bytes   |  4 bytes | 4 bytes |  8 bytes   | ... |        |
+ --------------------------------------------------------------------------------------------------------
 
 The writer code is greatly inspired by InfluxDB https://github.com/influxdata/influxdb/blob/master/tsdb/engine/tsm1/writer.go
 
@@ -46,6 +85,7 @@ var (
 
 const (
 	DefaultBufferSize = 4 * 1024 // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
+	FooterLength      = 25
 )
 
 // DataFileWriter writes data to disk, index is at the end of the file for locating data blocks.
@@ -71,7 +111,7 @@ type DataFileIndexWriter interface {
 	// TODO: we need to record information like int/double, precision, min, max time etc.
 	// TODO: use must means we will panic if use non exist ID
 	MustEntries(id common.SeriesID) *IndexEntries
-	WriteTo(io.Writer) (int64, error)
+	WriteAll(io.Writer) (length uint32, indexOffset uint32, errs error)
 }
 
 type LocalDataFileWriter struct {
@@ -200,24 +240,28 @@ func (writer *LocalDataFileWriter) WriteIndex() error {
 		return ErrNoData
 	}
 
-	// TODO: write index to underlying writer
+	// write index
 	indexPos := writer.n
-	if _, err := writer.index.WriteTo(writer.w); err != nil {
+	indexLength, indexOfIndexOffset, err := writer.index.WriteAll(writer.w)
+	if err != nil {
 		return errors.Wrap(err, "can't write index")
 	}
 
 	// write footer
-	// | index position (8) | version (1) | magic (8) |
-	var buf [17]byte
+	// | index position (8) | index of index offset (4) | index length (4) | version (1) | magic (8) |
+	var buf [FooterLength]byte
 	binary.BigEndian.PutUint64(buf[:8], indexPos)
-	buf[8] = Version
-	binary.BigEndian.PutUint64(buf[9:], MagicNumber)
+	binary.BigEndian.PutUint32(buf[8:12], indexOfIndexOffset)
+	binary.BigEndian.PutUint32(buf[12:16], indexLength)
+
+	buf[16] = Version
+	binary.BigEndian.PutUint64(buf[17:], MagicNumber)
 	n, err := writer.w.Write(buf[:])
 	if err != nil {
 		return errors.Wrap(err, "can't write index position and magic number")
 	}
-	if n != 17 {
-		return errors.Errorf("footer should be 17 bytes, but %d is written", n)
+	if n != FooterLength {
+		return errors.Errorf("footer should be %d bytes, but %d is written", FooterLength, n)
 	}
 	writer.finalized = true
 	return nil
@@ -289,22 +333,47 @@ func (idx *LocalDataFileIndexWriter) MustEntries(id common.SeriesID) *IndexEntri
 	return entries
 }
 
-func (idx *LocalDataFileIndexWriter) WriteTo(w io.Writer) (int64, error) {
+func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, indexOffset uint32, errs error) {
 	N := 0
 	ids := idx.SortedID()
-	// TODO: InfluxDB seems does not store the total number of entries len(ids)
-	for _, id := range ids {
+	// index of indexes, written at the last of index
+	// | count (4) | series ID (8) | offset (4) | length (4) |
+	indexLength := 8 + 4 + 4
+	index := make([]byte, 4+indexLength*len(ids))
+	binary.BigEndian.PutUint32(index[:4], uint32(len(ids)))
+
+	for i, id := range ids {
 		// TODO: InfluxDB sort the index entry in entries by time before write, but it's likely the blocks of one series is written in time order
 		entries := idx.series[id]
 		b, err := entries.Marshal()
 		if err != nil {
-			return 0, errors.Wrap(err, "can't marshal IndexEntries using protobuf")
+			errs = errors.Wrap(err, "can't marshal IndexEntries using protobuf")
+			return
 		}
 		n, err := w.Write(b)
-		N += n
 		if err != nil {
-			return int64(N), errors.Wrap(err, "can't write marshaled IndexEntries to writer")
+			length = uint32(N + n)
+			errs = errors.Wrap(err, "can't write marshaled IndexEntries to writer")
+			return
 		}
+
+		start := 4 + i*indexLength
+		binary.BigEndian.PutUint64(b[start:start+8], uint64(id))
+		binary.BigEndian.PutUint32(b[start+8:start+12], uint32(N))
+		binary.BigEndian.PutUint32(b[start+12:start+16], uint32(n))
+
+		N += n
 	}
-	return int64(N), nil
+
+	// write index of indexes
+	if n, err := w.Write(index); err != nil {
+		length = uint32(N + n)
+		errs = errors.Wrap(err, "cant write index of indexes to writer")
+		return
+	}
+
+	length = uint32(N + indexLength)
+	indexOffset = uint32(N)
+	errs = nil
+	return
 }
