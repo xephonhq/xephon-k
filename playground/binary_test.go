@@ -13,3 +13,9 @@ func TestBinary_Int64(t *testing.T) {
 	t.Log(vd)
 	t.Log(int64(vd))
 }
+
+func TestBinary_Int64Uint64(t *testing.T) {
+	a := int64(1)
+	b := uint64(a)
+	t.Log(a, b)
+}

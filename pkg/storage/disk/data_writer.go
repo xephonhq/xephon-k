@@ -43,9 +43,10 @@ On disk file has header, blocks, index, footer
  ------------------------------------------------------------------------
 
 - Index
-  - Data: Entries, Index (of Index): series count, series ID, offset, length ...
-  - Entries is `IndexEntries` serialized in protobuf, including series meta and []IndexEntry
-  - offset is relative to index begin, not file begin (a.k.a not absolute offset)
+  - Data: Entries,
+  	- Entries is `IndexEntries` serialized in protobuf, including series meta and []IndexEntry
+  - Index (of Index): series count, series ID, offset, length ...
+  	- offset is relative to index begin, not file begin (a.k.a not absolute offset)
   - Footer is the footer of the file, index itself does not have separate footer
 
 
@@ -242,16 +243,16 @@ func (writer *LocalDataFileWriter) WriteIndex() error {
 	}
 
 	// write index
-	indexPos := writer.n
+	indexOffset := writer.n
 	indexLength, indexOfIndexOffset, err := writer.index.WriteAll(writer.w)
 	if err != nil {
 		return errors.Wrap(err, "can't write index")
 	}
 
 	// write footer
-	// | index position (8) | index of index offset (4) | index length (4) | version (1) | magic (8) |
+	// | index offset (8) | index of index offset (4) | index length (4) | version (1) | magic (8) |
 	var buf [FooterLength]byte
-	binary.BigEndian.PutUint64(buf[:8], indexPos)
+	binary.BigEndian.PutUint64(buf[:8], indexOffset)
 	binary.BigEndian.PutUint32(buf[8:12], indexOfIndexOffset)
 	binary.BigEndian.PutUint32(buf[12:16], indexLength)
 
@@ -339,8 +340,8 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 	ids := idx.SortedID()
 	// index of indexes, written at the last of index
 	// | count (4) | series ID (8) | offset (4) | length (4) |
-	indexLength := 8 + 4 + 4
-	index := make([]byte, 4+indexLength*len(ids))
+	singleIndexLength := 8 + 4 + 4
+	index := make([]byte, 4+singleIndexLength*len(ids))
 	binary.BigEndian.PutUint32(index[:4], uint32(len(ids)))
 
 	for i, id := range ids {
@@ -358,7 +359,7 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 			return
 		}
 
-		start := 4 + i*indexLength
+		start := 4 + i*singleIndexLength
 		binary.BigEndian.PutUint64(b[start:start+8], uint64(id))
 		binary.BigEndian.PutUint32(b[start+8:start+12], uint32(N))
 		binary.BigEndian.PutUint32(b[start+12:start+16], uint32(n))
@@ -367,13 +368,16 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 	}
 
 	// write index of indexes
-	if n, err := w.Write(index); err != nil {
-		length = uint32(N + n)
+	n, err := w.Write(index)
+	length = uint32(N + n)
+	if err != nil {
 		errs = errors.Wrap(err, "cant write index of indexes to writer")
 		return
 	}
+	if n != len(index) {
+		errs = errors.Errorf("index of indexes should be %d bytes, but %d written", len(index), n)
+	}
 
-	length = uint32(N + indexLength)
 	indexOffset = uint32(N)
 	errs = nil
 	return
