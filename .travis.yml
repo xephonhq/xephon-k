@@ -20,4 +20,4 @@ script:
   - overalls -project=github.com/xephonhq/xephon-k/pkg -debug
 
 after_success:
-  - $HOME/gopath/bin/goveralls -service=travis-ci -coverprofile=overalls.coverprofile
+  - $HOME/gopath/bin/goveralls -service=travis-ci -coverprofile=pkg/overalls.coverprofile
