@@ -115,29 +115,30 @@ type DataFileIndexWriter interface {
 }
 
 type LocalDataFileWriter struct {
-	originalWriter io.WriteCloser
-	w              *bufio.Writer
-	index          DataFileIndexWriter
-	n              uint64
-	finalized      bool
+	f         *os.File
+	w         *bufio.Writer
+	index     DataFileIndexWriter
+	n         uint64
+	finalized bool
 }
 
 type LocalDataFileIndexWriter struct {
 	series map[common.SeriesID]*IndexEntries
 }
 
-func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalDataFileWriter {
+//func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalDataFileWriter {
+func NewLocalFileWriter(f *os.File, bufferSize int) (*LocalDataFileWriter, error) {
 	if bufferSize <= 0 {
 		bufferSize = DefaultBufferSize
 	}
 
 	return &LocalDataFileWriter{
-		originalWriter: w,
-		w:              bufio.NewWriterSize(w, bufferSize),
-		index:          NewLocalFileIndexWriter(),
-		n:              0,
-		finalized:      false,
-	}
+		f:         f,
+		w:         bufio.NewWriterSize(f, bufferSize),
+		index:     NewLocalFileIndexWriter(),
+		n:         0,
+		finalized: false,
+	}, nil
 }
 
 func NewLocalFileIndexWriter() *LocalDataFileIndexWriter {
@@ -272,11 +273,11 @@ func (writer *LocalDataFileWriter) Flush() error {
 		return errors.Wrap(err, "can't flush bufio.Writer")
 	}
 
-	if f, ok := writer.originalWriter.(*os.File); ok {
-		if err := f.Sync(); err != nil {
-			return errors.Wrap(err, "can't flush underlying os.File")
-		}
+	//if f, ok := writer.f.(*os.File); ok {
+	if err := writer.f.Sync(); err != nil {
+		return errors.Wrap(err, "can't flush underlying os.File")
 	}
+	//}
 	return nil
 }
 
@@ -287,7 +288,7 @@ func (writer *LocalDataFileWriter) Close() error {
 	if err := writer.Flush(); err != nil {
 		return errors.Wrap(err, "can't flush before close")
 	}
-	if err := writer.originalWriter.Close(); err != nil {
+	if err := writer.f.Close(); err != nil {
 		return errors.Wrap(err, "flushed but can't close")
 	}
 	return nil

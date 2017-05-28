@@ -14,7 +14,8 @@ func TestNewLocalFileIndexWriter(t *testing.T) {
 	f := util.TempFile(t, "xephon")
 	defer os.Remove(f.Name())
 
-	w := NewLocalFileWriter(f, -1)
+	w, err := NewLocalFileWriter(f, -1)
+	assert.Nil(err)
 	assert.NotNil(w.Close())
 }
 
@@ -23,7 +24,10 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	f := util.TempFile(t, "xephon")
 	//defer os.Remove(f.Name())
 
-	w := NewLocalFileWriter(f, -1)
+	// f, err = os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
+	w, err := NewLocalFileWriter(f, -1)
+	assert.Nil(err)
+
 	s := common.NewIntSeries("s")
 	s.Tags = map[string]string{"os": "ubuntu", "machine": "machine-01"}
 	s.Points = []common.IntPoint{{T: 1359788400000, V: 1}, {T: 1359788500000, V: 2}}
@@ -34,5 +38,11 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	assert.Nil(w.WriteIndex())
 	assert.Nil(w.Close())
 
-	// TODO: need to read stuff back
+	// NOTE: need to re-open the file because the writer has already closed it
+	f, err = os.OpenFile(f.Name(), os.O_RDONLY, 0666)
+	assert.Nil(err)
+	r, err := NewLocalDataFileReader(f)
+	assert.Nil(err)
+	// TODO: read more
+	assert.Nil(r.Close())
 }
