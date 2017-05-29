@@ -43,6 +43,7 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	assert.Nil(err)
 	r, err := NewLocalDataFileReader(f)
 	assert.Nil(err)
-	// TODO: read more
+	assert.Nil(r.ReadIndexOfIndexes())
+	assert.Equal(1, r.SeriesCount())
 	assert.Nil(r.Close())
 }

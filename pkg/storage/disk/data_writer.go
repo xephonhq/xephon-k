@@ -85,8 +85,9 @@ var (
 )
 
 const (
-	DefaultBufferSize = 4 * 1024 // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
-	FooterLength      = 25
+	DefaultBufferSize      = 4 * 1024  // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
+	IndexOfIndexUnitLength = 8 + 4 + 4 // id + offset + length
+	FooterLength           = 25
 )
 
 // DataFileWriter writes data to disk, index is at the end of the file for locating data blocks.
@@ -340,8 +341,7 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 	ids := idx.SortedID()
 	// index of indexes, written at the last of index
 	// | count (4) | series ID (8) | offset (4) | length (4) |
-	singleIndexLength := 8 + 4 + 4
-	index := make([]byte, 4+singleIndexLength*len(ids))
+	index := make([]byte, 4+IndexOfIndexUnitLength*len(ids))
 	binary.BigEndian.PutUint32(index[:4], uint32(len(ids)))
 
 	for i, id := range ids {
@@ -359,7 +359,7 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 			return
 		}
 
-		start := 4 + i*singleIndexLength
+		start := 4 + i*IndexOfIndexUnitLength
 		binary.BigEndian.PutUint64(b[start:start+8], uint64(id))
 		binary.BigEndian.PutUint32(b[start+8:start+12], uint32(N))
 		binary.BigEndian.PutUint32(b[start+12:start+16], uint32(n))

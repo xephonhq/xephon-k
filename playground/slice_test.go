@@ -23,6 +23,13 @@ func TestSlice_Equal(t *testing.T) {
 	fmt.Println(s1 == s2)
 }
 
+func TestSlice_Sub(t *testing.T) {
+	s := make([]byte, 10)
+	s2 := s[1:10]
+	t.Log(s2)
+}
+
+
 // it's quite strange, I used to think range is slower, but the result is opposite
 func BenchmarkSlice_IteratePrimitive(b *testing.B) {
 	var t int

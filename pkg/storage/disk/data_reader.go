@@ -8,13 +8,20 @@ import (
 	"encoding/binary"
 
 	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
 var _ DataFileReader = (*LocalDataFileReader)(nil)
 
 type DataFileReader interface {
 	ReadIndexOfIndexes() error
+	SeriesCount() int
 	Close() error
+}
+
+type IndexOfIndex struct {
+	offset uint32
+	length uint32
 }
 
 type LocalDataFileReader struct {
@@ -25,6 +32,7 @@ type LocalDataFileReader struct {
 	indexOffset        uint64
 	indexOfIndexOffset uint32
 	indexLength        uint32
+	indexOfIndexes     map[common.SeriesID]IndexOfIndex
 }
 
 func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
@@ -99,8 +107,42 @@ func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
 }
 
 func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
-	log.Panic("ReadIndexOfIndexes not implemented")
+	if reader.indexOfIndexes != nil {
+		// TODO: return error if called multiple times? currently we just silently return
+		return nil
+	}
+
+	seriesCount := int((reader.indexLength - reader.indexOfIndexOffset) / (IndexOfIndexUnitLength))
+	reader.indexOfIndexes = make(map[common.SeriesID]IndexOfIndex, seriesCount)
+	log.Infof("size %d idx offset %d idx of idx offset %d length %d series count %d",
+		reader.size, reader.indexOffset, reader.indexOfIndexOffset, reader.size, seriesCount)
+	// load all the needed bytes
+	start := reader.indexOffset + uint64(reader.indexOfIndexOffset)
+	b := reader.b[start : start+uint64(seriesCount*IndexOfIndexUnitLength)]
+
+	var (
+		id     uint64
+		offset uint32
+		length uint32
+	)
+	for i := 0; i < seriesCount; i++ {
+		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength : i*IndexOfIndexUnitLength+8])
+		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8 : i*IndexOfIndexUnitLength+12])
+		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12 : i*IndexOfIndexUnitLength+16])
+		reader.indexOfIndexes[common.SeriesID(id)] = IndexOfIndex{
+			offset: offset,
+			length: length,
+		}
+	}
 	return nil
+}
+
+func (reader *LocalDataFileReader) SeriesCount() int {
+	if reader.indexOfIndexes == nil {
+		return 0
+	} else {
+		return len(reader.indexOfIndexes)
+	}
 }
 
 func (reader *LocalDataFileReader) Close() error {
