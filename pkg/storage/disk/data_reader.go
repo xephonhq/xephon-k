@@ -15,13 +15,18 @@ var _ DataFileReader = (*LocalDataFileReader)(nil)
 
 type DataFileReader interface {
 	ReadIndexOfIndexes() error
+	ReadAllIndexEntries() error
 	SeriesCount() int
 	Close() error
 }
 
-type IndexOfIndex struct {
-	offset uint32
-	length uint32
+type IndexEntriesWrapper struct {
+	// TODO: change offset and length to uint64, it is stored as uint32, but we have to covert them every time we use them
+	// NOTE: applies to indexOfIndexOffset and indexLength as well
+	offset  uint32
+	length  uint32
+	loaded  bool // TODO: use entries == nil ?
+	entries IndexEntries
 }
 
 type LocalDataFileReader struct {
@@ -32,7 +37,7 @@ type LocalDataFileReader struct {
 	indexOffset        uint64
 	indexOfIndexOffset uint32
 	indexLength        uint32
-	indexOfIndexes     map[common.SeriesID]IndexOfIndex
+	index              map[common.SeriesID]IndexEntriesWrapper
 }
 
 func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
@@ -107,14 +112,14 @@ func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
 }
 
 func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
-	if reader.indexOfIndexes != nil {
+	if reader.index != nil {
 		// TODO: return error if called multiple times? currently we just silently return
 		return nil
 	}
 
 	seriesCount := int((reader.indexLength - reader.indexOfIndexOffset) / (IndexOfIndexUnitLength))
-	reader.indexOfIndexes = make(map[common.SeriesID]IndexOfIndex, seriesCount)
-	log.Infof("size %d idx offset %d idx of idx offset %d length %d series count %d",
+	reader.index = make(map[common.SeriesID]IndexEntriesWrapper, seriesCount)
+	log.Tracef("size %d idx offset %d idx of idx offset %d length %d series count %d",
 		reader.size, reader.indexOffset, reader.indexOfIndexOffset, reader.size, seriesCount)
 	// load all the needed bytes
 	start := reader.indexOffset + uint64(reader.indexOfIndexOffset)
@@ -129,19 +134,38 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength : i*IndexOfIndexUnitLength+8])
 		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8 : i*IndexOfIndexUnitLength+12])
 		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12 : i*IndexOfIndexUnitLength+16])
-		reader.indexOfIndexes[common.SeriesID(id)] = IndexOfIndex{
+		reader.index[common.SeriesID(id)] = IndexEntriesWrapper{
 			offset: offset,
 			length: length,
+			loaded: false, // the index entries are still on disk
 		}
 	}
 	return nil
 }
 
+func (reader *LocalDataFileReader) ReadAllIndexEntries() error {
+	// first load index of index
+	if err := reader.ReadIndexOfIndexes(); err != nil {
+		return errors.Wrap(err, "failed to load index of index before read all index entries")
+	}
+	for id, wrapper := range reader.index {
+		if wrapper.loaded {
+			continue
+		}
+		start := reader.indexOffset + uint64(wrapper.offset)
+		if err := wrapper.entries.Unmarshal(reader.b[start : start+uint64(wrapper.length)]); err != nil {
+			return errors.Wrapf(err, "failed to unmarshal index entries of id: %d", id)
+		}
+		wrapper.loaded = true
+	}
+	return nil
+}
+
 func (reader *LocalDataFileReader) SeriesCount() int {
-	if reader.indexOfIndexes == nil {
+	if reader.index == nil {
 		return 0
 	} else {
-		return len(reader.indexOfIndexes)
+		return len(reader.index)
 	}
 }
 

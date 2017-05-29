@@ -22,7 +22,7 @@ func TestNewLocalFileIndexWriter(t *testing.T) {
 func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	assert := asst.New(t)
 	f := util.TempFile(t, "xephon")
-	//defer os.Remove(f.Name())
+	defer os.Remove(f.Name())
 
 	// f, err = os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
 	w, err := NewLocalFileWriter(f, -1)
@@ -45,5 +45,6 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	assert.Nil(err)
 	assert.Nil(r.ReadIndexOfIndexes())
 	assert.Equal(1, r.SeriesCount())
+	assert.Nil(r.ReadAllIndexEntries())
 	assert.Nil(r.Close())
 }
