@@ -28,7 +28,7 @@ type IndexEntriesWrapper struct {
 	// NOTE: applies to indexOfIndexOffset and indexLength as well
 	offset  uint32
 	length  uint32
-	loaded  bool // TODO: use entries == nil ?
+	loaded  bool
 	entries IndexEntries
 }
 
@@ -40,7 +40,7 @@ type LocalDataFileReader struct {
 	indexOffset        uint64
 	indexOfIndexOffset uint32
 	indexLength        uint32
-	index              map[common.SeriesID]IndexEntriesWrapper
+	index              map[common.SeriesID]*IndexEntriesWrapper // NOTE: we use pointer because when loop through map we get copy instead of reference
 }
 
 func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
@@ -121,7 +121,7 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 	}
 
 	seriesCount := int((reader.indexLength - reader.indexOfIndexOffset) / (IndexOfIndexUnitLength))
-	reader.index = make(map[common.SeriesID]IndexEntriesWrapper, seriesCount)
+	reader.index = make(map[common.SeriesID]*IndexEntriesWrapper, seriesCount)
 	log.Infof("read: size %d idx offset %d idx of idx offset %d series count %d",
 		reader.size, reader.indexOffset, reader.indexOfIndexOffset, seriesCount)
 	start := reader.indexOffset + uint64(reader.indexOfIndexOffset)
@@ -150,7 +150,7 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 		log.Infof("read: index offset %d", offset)
 		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12 : i*IndexOfIndexUnitLength+16])
 		log.Infof("read: index length %d", length)
-		reader.index[common.SeriesID(id)] = IndexEntriesWrapper{
+		reader.index[common.SeriesID(id)] = &IndexEntriesWrapper{
 			offset: offset,
 			length: length,
 			loaded: false, // the index entries are still on disk
@@ -215,7 +215,7 @@ func (reader *LocalDataFileReader) PrintAll() {
 	}
 	// TODO: print the entries one by one
 	for id, wrapper := range reader.index {
-		fmt.Printf("id: %d blocks: %d meta: %s\n",
+		fmt.Printf("id: %d blocks: %d meta: %v\n",
 			id, len(wrapper.entries.Entries), wrapper.entries.SeriesMeta)
 	}
 	fmt.Println("All data printed")
