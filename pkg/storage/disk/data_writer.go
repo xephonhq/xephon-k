@@ -347,8 +347,9 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 	for i, id := range ids {
 		// TODO: InfluxDB sort the index entry in entries by time before write, but it's likely the blocks of one series is written in time order
 		entries := idx.series[id]
-		log.Info(entries)
+		log.Infof("write: IndexEntries %s", entries)
 		b, err := entries.Marshal()
+		log.Info("write: full bytes of IndexEntries")
 		log.Info(b)
 		if err != nil {
 			errs = errors.Wrap(err, "can't marshal IndexEntries using protobuf")
@@ -363,20 +364,19 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 
 		start := 4 + i*IndexOfIndexUnitLength
 		// id
-		// FIXME: this should be index instead of b
-		binary.BigEndian.PutUint64(b[start:start+8], uint64(id))
+		binary.BigEndian.PutUint64(index[start:start+8], uint64(id))
 		log.Infof("write: id %d", id)
 		// offset
-		binary.BigEndian.PutUint32(b[start+8:start+12], uint32(N))
+		binary.BigEndian.PutUint32(index[start+8:start+12], uint32(N))
 		log.Infof("write: index offset %d", N)
 		// length
-		binary.BigEndian.PutUint32(b[start+12:start+16], uint32(n))
+		binary.BigEndian.PutUint32(index[start+12:start+16], uint32(n))
 		log.Infof("write: index length %d", n)
 
 		N += n
 	}
 
-	log.Info("write: full bits of index")
+	log.Info("write: full bytes of index")
 	log.Info(index)
 
 	// write index of indexes

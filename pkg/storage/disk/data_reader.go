@@ -124,10 +124,18 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 	reader.index = make(map[common.SeriesID]IndexEntriesWrapper, seriesCount)
 	log.Infof("read: size %d idx offset %d idx of idx offset %d series count %d",
 		reader.size, reader.indexOffset, reader.indexOfIndexOffset, seriesCount)
-	// load all the needed bytes
 	start := reader.indexOffset + uint64(reader.indexOfIndexOffset)
+	// check if the count we calculate and the count we stored matches
+	if uint32(seriesCount) != binary.BigEndian.Uint32(reader.b[start:start+4]) {
+		return errors.Errorf("calculated series count %d does not match stored count %d",
+			seriesCount, binary.BigEndian.Uint32(reader.b[start:start+4]))
+	}
+	// skip the 4 bytes for count
+	start += 4
+	// load all the needed bytes
 	b := reader.b[start : start+uint64(seriesCount*IndexOfIndexUnitLength)]
-	log.Info("read: full bits of index")
+	// NOTE: this print is 4 bytes shorter than correspond print in write because we skipped the 4 bytes for count
+	log.Info("read: full bytes of index")
 	log.Info(b)
 
 	var (
@@ -136,7 +144,6 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 		length uint32
 	)
 	for i := 0; i < seriesCount; i++ {
-		// FIXME: the id we read is wrong
 		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength : i*IndexOfIndexUnitLength+8])
 		log.Infof("read: id %d", id)
 		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8 : i*IndexOfIndexUnitLength+12])
@@ -159,10 +166,13 @@ func (reader *LocalDataFileReader) ReadAllIndexEntries() error {
 	}
 	for id, wrapper := range reader.index {
 		if wrapper.loaded {
+			log.Infof("read: %d index entries already loaded", id)
 			continue
 		}
 		start := reader.indexOffset + uint64(wrapper.offset)
 		// FIXME: it seems the unmarshal result is empty based on PrintAll
+		log.Info("read: full bytes of IndexEntries")
+		log.Info(reader.b[start : start+uint64(wrapper.length)])
 		if err := wrapper.entries.Unmarshal(reader.b[start : start+uint64(wrapper.length)]); err != nil {
 			return errors.Wrapf(err, "failed to unmarshal index entries of id: %d", id)
 		}
