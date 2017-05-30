@@ -7,6 +7,8 @@ import (
 
 	"encoding/binary"
 
+	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 )
@@ -18,6 +20,7 @@ type DataFileReader interface {
 	ReadAllIndexEntries() error
 	SeriesCount() int
 	Close() error
+	PrintAll()
 }
 
 type IndexEntriesWrapper struct {
@@ -153,6 +156,7 @@ func (reader *LocalDataFileReader) ReadAllIndexEntries() error {
 			continue
 		}
 		start := reader.indexOffset + uint64(wrapper.offset)
+		// FIXME: it seems the unmarshal result is empty based on PrintAll
 		if err := wrapper.entries.Unmarshal(reader.b[start : start+uint64(wrapper.length)]); err != nil {
 			return errors.Wrapf(err, "failed to unmarshal index entries of id: %d", id)
 		}
@@ -182,4 +186,21 @@ func (reader *LocalDataFileReader) Close() error {
 		return errors.Wrapf(err, "can't close file %s after unmap", reader.f.Name())
 	}
 	return nil
+}
+
+func (reader *LocalDataFileReader) PrintAll() {
+	fmt.Printf("Print all data in %s\n", reader.f.Name())
+	fmt.Printf("size: %d series count: %d\n", reader.size, reader.SeriesCount())
+	fmt.Printf("index size: %d\n", reader.indexLength)
+	if err := reader.ReadAllIndexEntries(); err != nil {
+		fmt.Println("failed to read index entries")
+		fmt.Print(err)
+		return
+	}
+	// TODO: print the entries one by one
+	for id, wrapper := range reader.index {
+		fmt.Printf("id: %d blocks: %d meta: %s\n",
+			id, len(wrapper.entries.Entries), wrapper.entries.SeriesMeta)
+	}
+	fmt.Println("All data printed")
 }

@@ -21,5 +21,6 @@ message IndexEntries {
 message IndexEntry {
     // TODO: aggregated data
     uint64 Offset = 1;
+    // TODO: block size can be uint32
     uint64 BlockSize = 2;
 }
