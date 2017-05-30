@@ -122,11 +122,13 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 
 	seriesCount := int((reader.indexLength - reader.indexOfIndexOffset) / (IndexOfIndexUnitLength))
 	reader.index = make(map[common.SeriesID]IndexEntriesWrapper, seriesCount)
-	log.Tracef("size %d idx offset %d idx of idx offset %d length %d series count %d",
-		reader.size, reader.indexOffset, reader.indexOfIndexOffset, reader.size, seriesCount)
+	log.Infof("read: size %d idx offset %d idx of idx offset %d series count %d",
+		reader.size, reader.indexOffset, reader.indexOfIndexOffset, seriesCount)
 	// load all the needed bytes
 	start := reader.indexOffset + uint64(reader.indexOfIndexOffset)
 	b := reader.b[start : start+uint64(seriesCount*IndexOfIndexUnitLength)]
+	log.Info("read: full bits of index")
+	log.Info(b)
 
 	var (
 		id     uint64
@@ -134,9 +136,13 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 		length uint32
 	)
 	for i := 0; i < seriesCount; i++ {
+		// FIXME: the id we read is wrong
 		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength : i*IndexOfIndexUnitLength+8])
+		log.Infof("read: id %d", id)
 		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8 : i*IndexOfIndexUnitLength+12])
+		log.Infof("read: index offset %d", offset)
 		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12 : i*IndexOfIndexUnitLength+16])
+		log.Infof("read: index length %d", length)
 		reader.index[common.SeriesID(id)] = IndexEntriesWrapper{
 			offset: offset,
 			length: length,
