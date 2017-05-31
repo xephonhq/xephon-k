@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] TODO: this doc is outdated
+
 ## Current
 
 - support query

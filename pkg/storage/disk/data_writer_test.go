@@ -46,7 +46,7 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	assert.Nil(r.ReadIndexOfIndexes())
 	assert.Equal(1, r.SeriesCount())
 	assert.Nil(r.ReadAllIndexEntries())
-	// FIXME: the meta data is empty
 	r.PrintAll()
+	// TODO: add more assert instead of just print
 	assert.Nil(r.Close())
 }

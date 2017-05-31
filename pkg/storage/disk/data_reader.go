@@ -122,7 +122,7 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 
 	seriesCount := int((reader.indexLength - reader.indexOfIndexOffset) / (IndexOfIndexUnitLength))
 	reader.index = make(map[common.SeriesID]*IndexEntriesWrapper, seriesCount)
-	log.Infof("read: size %d idx offset %d idx of idx offset %d series count %d",
+	log.Tracef("read: size %d idx offset %d idx of idx offset %d series count %d",
 		reader.size, reader.indexOffset, reader.indexOfIndexOffset, seriesCount)
 	start := reader.indexOffset + uint64(reader.indexOfIndexOffset)
 	// check if the count we calculate and the count we stored matches
@@ -135,8 +135,8 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 	// load all the needed bytes
 	b := reader.b[start : start+uint64(seriesCount*IndexOfIndexUnitLength)]
 	// NOTE: this print is 4 bytes shorter than correspond print in write because we skipped the 4 bytes for count
-	log.Info("read: full bytes of index")
-	log.Info(b)
+	log.Trace("read: full bytes for index of indexes exclude first 4 bytes (count)")
+	log.Trace(b)
 
 	var (
 		id     uint64
@@ -145,11 +145,11 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 	)
 	for i := 0; i < seriesCount; i++ {
 		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength : i*IndexOfIndexUnitLength+8])
-		log.Infof("read: id %d", id)
+		log.Tracef("read: id %d", id)
 		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8 : i*IndexOfIndexUnitLength+12])
-		log.Infof("read: index offset %d", offset)
+		log.Tracef("read: index offset %d", offset)
 		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12 : i*IndexOfIndexUnitLength+16])
-		log.Infof("read: index length %d", length)
+		log.Tracef("read: index length %d", length)
 		reader.index[common.SeriesID(id)] = &IndexEntriesWrapper{
 			offset: offset,
 			length: length,
@@ -166,13 +166,12 @@ func (reader *LocalDataFileReader) ReadAllIndexEntries() error {
 	}
 	for id, wrapper := range reader.index {
 		if wrapper.loaded {
-			log.Infof("read: %d index entries already loaded", id)
+			//log.Tracef("read: %d index entries already loaded", id)
 			continue
 		}
 		start := reader.indexOffset + uint64(wrapper.offset)
-		// FIXME: it seems the unmarshal result is empty based on PrintAll
-		log.Info("read: full bytes of IndexEntries")
-		log.Info(reader.b[start : start+uint64(wrapper.length)])
+		log.Trace("read: full bytes of IndexEntries")
+		log.Trace(reader.b[start : start+uint64(wrapper.length)])
 		if err := wrapper.entries.Unmarshal(reader.b[start : start+uint64(wrapper.length)]); err != nil {
 			return errors.Wrapf(err, "failed to unmarshal index entries of id: %d", id)
 		}
