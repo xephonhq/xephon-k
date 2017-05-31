@@ -73,6 +73,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/xephonhq/xephon-k/pkg/encoding"
 )
 
 var _ DataFileWriter = (*LocalDataFileWriter)(nil)
@@ -168,6 +169,7 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 	if writer.Finalized() {
 		return ErrFinalized
 	}
+
 	// write header if this is the first series
 	if writer.n == 0 {
 		if err := writer.WriteHeader(); err != nil {
@@ -176,17 +178,20 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 	}
 
 	n := 0
+	// TODO: use encoder as struct member or pool
 	var (
-		tenc                     TimeEncoder
-		venc                     ValueEncoder
+		tenc                     encoding.TimeEncoder
+		venc                     encoding.ValueEncoder
 		tBytes, vBytes           []byte
 		tBytesCount, vBytesCount int
 		err                      error
 	)
 
 	// encode time and value separately
-	// TODO: only use RawBigEndianTime/IntEncoder for now
-	tenc = &RawBigEndianTimeEncoder{}
+	// TODO: only use RawBigEndianTime/IntEncoder for now, should pass option or adaptive
+	tenc = encoding.NewBigEndianBinaryEncoder()
+	venc = encoding.NewBigEndianBinaryEncoder()
+
 	switch series.GetSeriesType() {
 	case common.TypeIntSeries:
 		intSeries, ok := series.(*common.IntSeries)
@@ -194,17 +199,15 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 			return errors.Errorf("%s %v is marked as int but actually %s",
 				series.GetName(), series.GetTags(), reflect.TypeOf(series))
 		}
-		intEnc := &RawBigEndianIntEncoder{}
 		for i := 0; i < len(intSeries.Points); i++ {
-			tenc.Write(intSeries.Points[i].T)
-			intEnc.Write(intSeries.Points[i].V)
+			tenc.WriteTime(intSeries.Points[i].T)
+			venc.WriteInt(intSeries.Points[i].V)
 		}
-		venc = intEnc
 	default:
 		return errors.Errorf("unsupported series type %d", series.GetSeriesType())
 	}
 	// write encoding information
-	writer.w.Write([]byte{tenc.Encoding(), venc.Encoding()})
+	writer.w.Write([]byte{tenc.Codec(), venc.Codec()})
 	n += 2
 	// write encoded time and values
 	if tBytes, err = tenc.Bytes(); err != nil {

@@ -10,6 +10,8 @@ import (
 var _ Series = (*RawSeries)(nil)
 var _ Series = (*IntSeries)(nil)
 var _ Series = (*DoubleSeries)(nil)
+var _ Series = (*IntSeriesColumnar)(nil)
+var _ Series = (*DoubleSeriesColumnar)(nil)
 
 const (
 	TypeRawSeries = iota
