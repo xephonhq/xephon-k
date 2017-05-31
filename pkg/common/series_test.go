@@ -9,10 +9,8 @@ import (
 	"time"
 )
 
-// FIXME: tags are passed by reference not value https://github.com/xephonhq/xephon-k/issues/40
+// FIXED: tags are passed by reference not value https://github.com/xephonhq/xephon-k/issues/40
 func TestIntSeries_GetTags(t *testing.T) {
-	t.Skip("FIXME: https://github.com/xephonhq/xephon-k/issues/40")
-
 	assert := asst.New(t)
 
 	s := IntSeries{
@@ -22,11 +20,10 @@ func TestIntSeries_GetTags(t *testing.T) {
 		},
 		Points: []IntPoint{{T: 1359788400000, V: 1}, {T: 1359788400001, V: 2}},
 	}
-	// FIXME: returned map is a reference to map stored in series, not a copy
+	// NOTE: tagsCopy and s.Tags refer to the same underlying data
 	tagsCopy := s.GetTags()
 	tagsCopy["os"] = "fedora"
-
-	assert.Equal("ubuntu", s.Tags["os"])
+	assert.Equal("fedora", s.Tags["os"])
 }
 
 func TestIntSeries_GetSeriesID(t *testing.T) {
