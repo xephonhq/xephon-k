@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"math"
+
+	"github.com/pkg/errors"
 )
 
 // Non compression binary encoding using little/big endian
@@ -12,27 +14,39 @@ type RawBinaryEncoder struct {
 	order binary.ByteOrder
 	b8    []byte
 	buf   bytes.Buffer
+	codec byte
+}
+
+type RawBinaryDecoder struct {
+	order binary.ByteOrder
+	codec byte
+	b     []byte
+	cur   int
+	v     uint64
 }
 
 func NewBigEndianBinaryEncoder() *RawBinaryEncoder {
-	return &RawBinaryEncoder{
+	e := &RawBinaryEncoder{
 		order: binary.BigEndian,
 		b8:    make([]byte, 8),
+		codec: CodecRawBigEndian,
 	}
+	e.Reset()
+	return e
 }
 
 func NewLittleEndianBinaryEncoder() *RawBinaryEncoder {
-	return &RawBinaryEncoder{
+	e := &RawBinaryEncoder{
 		order: binary.LittleEndian,
 		b8:    make([]byte, 8),
+		codec: CodecRawLittleEndian,
 	}
+	e.Reset()
+	return e
 }
 
 func (e *RawBinaryEncoder) Codec() byte {
-	if e.order.String() == "LittleEndian" {
-		return CodecRawLittleEndian
-	}
-	return CodecRawBigEndian
+	return e.codec
 }
 
 func (e *RawBinaryEncoder) Bytes() ([]byte, error) {
@@ -41,6 +55,7 @@ func (e *RawBinaryEncoder) Bytes() ([]byte, error) {
 
 func (e *RawBinaryEncoder) Reset() {
 	e.buf.Reset()
+	e.buf.WriteByte(e.codec)
 }
 
 func (e *RawBinaryEncoder) WriteTime(t int64) {
@@ -56,4 +71,35 @@ func (e *RawBinaryEncoder) WriteInt(v int64) {
 func (e *RawBinaryEncoder) WriteDouble(v float64) {
 	e.order.PutUint64(e.b8, math.Float64bits(v))
 	e.buf.Write(e.b8)
+}
+
+func (d *RawBinaryDecoder) Init(b []byte) error {
+	// TODO: if we use gzip, then this should be different, but the gzip wrapper should pass the data after unzip
+	if len(b) < 9 {
+		return errors.Wrap(ErrTooSmall, "at least 9 bytes is needed for codec and a single value")
+	}
+	if (len(b)-1)%8 != 0 {
+		return errors.Wrap(ErrCodecMismatch, "raw binary encoding would always haves bytes length multiply of 8 when codec is excluded")
+	}
+	switch b[0] {
+	case CodecRawBigEndian:
+		d.codec = CodecRawBigEndian
+		d.order = binary.BigEndian
+	case CodecRawLittleEndian:
+		d.codec = CodecRawLittleEndian
+		d.order = binary.LittleEndian
+	default:
+		return errors.Wrapf(ErrCodecMismatch, "RawBinaryDecoder only supports raw binary little/big endian but got %s", CodecString(b[0]))
+	}
+	// exclude the codec TODO: or we can make cur start from 1
+	d.b = b[1:]
+	return nil
+}
+
+func (d *RawBinaryDecoder) Next() bool {
+	if d.cur+8 > len(d.b) {
+		return false
+	}
+	// TODO: decode, need the byte order d.v = binary
+	return true
 }

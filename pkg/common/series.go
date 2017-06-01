@@ -32,6 +32,8 @@ type Series interface {
 //  SeriesMeta
 //  IntSeries
 //  DoubleSeries
+//  IntSeriesColumnar
+//	DoubleSeriesColumnar
 
 func (m *SeriesMeta) GetName() string {
 	return m.Name

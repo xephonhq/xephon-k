@@ -33,7 +33,8 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	s.Points = []common.IntPoint{{T: 1359788400000, V: 1}, {T: 1359788500000, V: 2}}
 
 	assert.Nil(w.WriteSeries(s))
-	assert.Equal(uint64(9+2+16*2), w.n)
+	// header + block header + time encoding + times (2) + values encoding + values(2)
+	assert.Equal(uint64(9+4+1+16+1+16), w.n)
 	assert.Equal(ErrNotFinalized, w.Close())
 	assert.Nil(w.WriteIndex())
 	assert.Nil(w.Close())

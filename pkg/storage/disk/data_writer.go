@@ -32,15 +32,15 @@ On disk file has header, blocks, index, footer
  ------------------------------------------------------------------------------------------------
 
 - Blocks
-- [ ] TODO: need offset of values, for Sum, I only need value, don't need time
 - [ ] TODO: I think it's better to store the encoding, offset of time and value into index
   - and only let the block store timestamps and values
-  - [ ] TODO: or we can store series ID, so we can rebuild index, if file is closed before writing index
+  - [ ] TODO: or we can store series ID, so we can rebuild index, if file is closed before writing index, and we have full meta data in other files
+- time length is the length of encoded timestamps, which is A
 
- -----------------------------------------------------------------------
-| time encoding | value encoding |  encoded timestamps |  encoded values |
-|  1 byte       |  1 byte        |      A bytes        |     B bytes     |
- ------------------------------------------------------------------------
+ -------------------------------------------------------------------------------------
+| time length | time encoding |  encoded timestamps | value encoding |  encoded values |
+|    4 bytes  |    1 byte     |     A bytes         |     1 byte     |     B bytes     |
+ --------------------------------------------------------------------------------------
 
 - Index
   - Data: Entries,
@@ -177,15 +177,19 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 		}
 	}
 
+	// total bytes written for this data block
+	N := 0
+	// temp var for Write(p []byte) (n, err)
 	n := 0
 	// TODO: use encoder as struct member or pool
 	var (
-		tenc                     encoding.TimeEncoder
-		venc                     encoding.ValueEncoder
-		tBytes, vBytes           []byte
-		tBytesCount, vBytesCount int
-		err                      error
+		tenc                         encoding.TimeEncoder
+		venc                         encoding.ValueEncoder
+		tBytes, vBytes               []byte
+		tBytesWritten, vBytesWritten int
+		err                          error
 	)
+	blockHeader := make([]byte, 4)
 
 	// encode time and value separately
 	// TODO: only use RawBigEndianTime/IntEncoder for now, should pass option or adaptive
@@ -206,30 +210,35 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 	default:
 		return errors.Errorf("unsupported series type %d", series.GetSeriesType())
 	}
-	// write encoding information
-	writer.w.Write([]byte{tenc.Codec(), venc.Codec()})
-	n += 2
-	// write encoded time and values
+	// NOTE: the encoder write encoding information at start of each block
 	if tBytes, err = tenc.Bytes(); err != nil {
 		return errors.Wrap(err, "can't get encoded time as bytes")
 	}
 	if vBytes, err = venc.Bytes(); err != nil {
 		return errors.Wrap(err, "can't get encoded value as bytes")
 	}
-	if tBytesCount, err = writer.w.Write(tBytes); err != nil {
+
+	// write block header
+	binary.BigEndian.PutUint32(blockHeader, uint32(len(tBytes)))
+	if n, err = writer.w.Write(blockHeader); err != nil {
+		return errors.Wrap(err, "can't write block header to buffer")
+	}
+	N += n
+	// write encoded time and values, the encoding is in the bytes already, we don't need to prefix them
+	if tBytesWritten, err = writer.w.Write(tBytes); err != nil {
 		return errors.Wrap(err, "cant write encoded time to buffer")
 	}
-	n += tBytesCount
-	if vBytesCount, err = writer.w.Write(vBytes); err != nil {
+	N += tBytesWritten
+	if vBytesWritten, err = writer.w.Write(vBytes); err != nil {
 		return errors.Wrap(err, "can't write encoded value to buffer")
 	}
-	n += vBytesCount
+	N += vBytesWritten
 
 	// record block position in index
 	// TODO: should store some aggregated information as well
-	writer.index.Add(series, writer.n, uint64(n))
+	writer.index.Add(series, writer.n, uint64(N))
 
-	writer.n += uint64(n)
+	writer.n += uint64(N)
 	return nil
 }
 
