@@ -45,6 +45,13 @@ func NewLittleEndianBinaryEncoder() *RawBinaryEncoder {
 	return e
 }
 
+// TODO: might split it into two functions, little and big endian
+// then the problem is do we still pass the codec byte to Init and set the endian
+func NewRawBinaryDecoder() *RawBinaryDecoder {
+	// it seems we don't have anything to initialize, the endian is set upon Init
+	return &RawBinaryDecoder{}
+}
+
 func (e *RawBinaryEncoder) Codec() byte {
 	return e.codec
 }
@@ -91,15 +98,29 @@ func (d *RawBinaryDecoder) Init(b []byte) error {
 	default:
 		return errors.Wrapf(ErrCodecMismatch, "RawBinaryDecoder only supports raw binary little/big endian but got %s", CodecString(b[0]))
 	}
-	// exclude the codec TODO: or we can make cur start from 1
+	// exclude the codec
 	d.b = b[1:]
 	return nil
 }
 
 func (d *RawBinaryDecoder) Next() bool {
-	if d.cur+8 > len(d.b) {
+	prev := d.cur
+	d.cur += 8
+	if d.cur > len(d.b) {
 		return false
 	}
-	// TODO: decode, need the byte order d.v = binary
+	d.v = d.order.Uint64(d.b[prev:d.cur])
 	return true
+}
+
+func (d *RawBinaryDecoder) ReadTime() int64 {
+	return int64(d.v)
+}
+
+func (d *RawBinaryDecoder) ReadInt() int64 {
+	return int64(d.v)
+}
+
+func (d *RawBinaryDecoder) ReadDouble() float64 {
+	return math.Float64frombits(d.v)
 }

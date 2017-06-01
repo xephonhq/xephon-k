@@ -54,8 +54,8 @@ type ValueDecoder interface {
 var _ TimeEncoder = (*RawBinaryEncoder)(nil)
 var _ ValueEncoder = (*RawBinaryEncoder)(nil)
 
-//var _ TimeDecoder = (*RawBinaryDecoder)(nil)
-//var _ ValueDecoder = (*RawBinaryDecoder)(nil)
+var _ TimeDecoder = (*RawBinaryDecoder)(nil)
+var _ ValueDecoder = (*RawBinaryDecoder)(nil)
 
 func CodecString(codec byte) string {
 	switch codec {
