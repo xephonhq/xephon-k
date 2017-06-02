@@ -25,7 +25,7 @@ type TimeEncoder interface {
 	Bytes() ([]byte, error)
 	Reset()
 	WriteTime(t int64)
-	// TODO Once or Batch?
+	// TODO: Once or Batch?
 	//WriteTimeOnce(t []int64)
 }
 
@@ -33,6 +33,8 @@ type TimeDecoder interface {
 	Init([]byte) error
 	Next() bool
 	ReadTime() int64
+	// TODO: ReadAll
+	// TODO: Reset
 }
 
 type ValueEncoder interface {

@@ -6,7 +6,7 @@ On disk file has header, blocks, index, footer
 
  ---------------------------------------------------
 |  Header   |   Blocks   |  Index     |    Footer   |
-|  9 bytes  |	N bytes	 |	M bytes	  |   17 bytes  |
+|  9 bytes  |	  N bytes	 |	M bytes	  |   17 bytes  |
  ---------------------------------------------------
 
 - Data that is not serialized (compress, protobuf) all use BigEndian
@@ -41,6 +41,13 @@ On disk file has header, blocks, index, footer
 | time length | time encoding |  encoded timestamps | value encoding |  encoded values |
 |    4 bytes  |    1 byte     |     A bytes         |     1 byte     |     B bytes     |
  --------------------------------------------------------------------------------------
+
+ And this format can be extended to support table (TODO: not implemented)
+
+ --------------------------------------------------------------------------------------------------------------
+| block header | ts encoding |  encoded ts | col 1 encoding |  encoded col 1  | col 2 encoding | encoded col 2 |
+|    A bytes   |  1 byte     |   B bytes   |      1 byte    |     C bytes     |     1 bytes    |     D bytes   |
+ --------------------------------------------------------------------------------------------------------------
 
 - Index
   - Data: Entries,

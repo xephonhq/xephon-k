@@ -30,6 +30,8 @@ type IndexEntriesWrapper struct {
 	length  uint32
 	loaded  bool
 	entries IndexEntries
+	// TODO: actually we can also keep the last visit time etc. for evict the block
+	loadedBlocks []bool
 }
 
 type LocalDataFileReader struct {

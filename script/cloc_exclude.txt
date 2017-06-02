@@ -1,0 +1,2 @@
+pkg/common/common.pb.go
+pkg/storage/disk/disk.pb.go
