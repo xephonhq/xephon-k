@@ -30,8 +30,6 @@ type IndexEntriesWrapper struct {
 	length  uint32
 	loaded  bool
 	entries IndexEntries
-	// TODO: actually we can also keep the last visit time etc. for evict the block
-	loadedBlocks []bool
 }
 
 type LocalDataFileReader struct {
@@ -214,10 +212,20 @@ func (reader *LocalDataFileReader) PrintAll() {
 		fmt.Print(err)
 		return
 	}
-	// TODO: print the entries one by one
 	for id, wrapper := range reader.index {
+		fmt.Println("------series-------")
 		fmt.Printf("id: %d blocks: %d meta: %v\n",
 			id, len(wrapper.entries.Entries), wrapper.entries.SeriesMeta)
+		// TODO: move this functionality of reading blocks out
+		// print decoded data of all the entries
+		for i, entry := range wrapper.entries.Entries {
+			// TODO: entry.BlockSize could be uint32
+			blockBytes := reader.b[entry.Offset : entry.Offset+entry.BlockSize]
+			timeLength := binary.BigEndian.Uint32(blockBytes[:4])
+			fmt.Printf("block: %d length: %d time length: %d \n", i, len(blockBytes), timeLength)
+			// TODO: time decoder, should be able to tell me the type or we can have a block decoder to decode that
+		}
+		fmt.Println("------series-------")
 	}
 	fmt.Println("All data printed")
 }

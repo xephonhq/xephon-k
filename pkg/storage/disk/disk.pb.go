@@ -33,7 +33,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type IndexEntries struct {
-	// TODO: index entries may have the overall aggregation of all the index entries, like min, max, time
+	// TODO: seriesBlocks entries may have the overall aggregation of all the seriesBlocks entries, like min, max, time
 	common.SeriesMeta `protobuf:"bytes,1,opt,name=Meta,embedded=Meta" json:"Meta"`
 	Entries           []IndexEntry `protobuf:"bytes,2,rep,name=Entries" json:"Entries"`
 }
@@ -490,7 +490,7 @@ func skipDisk(dAtA []byte) (n int, err error) {
 }
 
 var (
-	ErrInvalidLengthDisk = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrInvalidLengthDisk = fmt.Errorf("proto: negative indexLength found during unmarshaling")
 	ErrIntOverflowDisk   = fmt.Errorf("proto: integer overflow")
 )
 
