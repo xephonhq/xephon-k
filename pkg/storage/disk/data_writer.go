@@ -74,13 +74,10 @@ import (
 	"io"
 	"sort"
 
-	"reflect"
-
 	"os"
 
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
-	"github.com/xephonhq/xephon-k/pkg/encoding"
 )
 
 var _ DataFileWriter = (*LocalDataFileWriter)(nil)
@@ -115,11 +112,11 @@ type DataFileWriter interface {
 }
 
 type DataFileIndexWriter interface {
-	Add(series common.Series, offset uint64, size uint64) error
+	// TODO: we need to record information like int/double, precision, min, max time etc.
+	Add(series common.Series, offset uint64, size uint32, minTime int64, maxTime int64) error
 	SortedID() []common.SeriesID
 	Len() int
-	// TODO: we need to record information like int/double, precision, min, max time etc.
-	// TODO: use must means we will panic if use non exist ID
+	// NOTE: use must means we will panic if use non exist ID
 	MustEntries(id common.SeriesID) *IndexEntries
 	WriteAll(io.Writer) (length uint32, indexOffset uint32, errs error)
 }
@@ -184,68 +181,17 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 		}
 	}
 
-	// total bytes written for this data block
-	N := 0
-	// temp var for Write(p []byte) (n, err)
-	n := 0
-	// TODO: use encoder as struct member or pool
-	var (
-		tenc                         encoding.TimeEncoder
-		venc                         encoding.ValueEncoder
-		tBytes, vBytes               []byte
-		tBytesWritten, vBytesWritten int
-		err                          error
-	)
-	blockHeader := make([]byte, 4)
-
-	// encode time and value separately
-	// TODO: only use RawBigEndianTime/IntEncoder for now, should pass option or adaptive
-	tenc = encoding.NewBigEndianBinaryEncoder()
-	venc = encoding.NewBigEndianBinaryEncoder()
-
-	switch series.GetSeriesType() {
-	case common.TypeIntSeries:
-		intSeries, ok := series.(*common.IntSeries)
-		if !ok {
-			return errors.Errorf("%s %v is marked as int but actually %s",
-				series.GetName(), series.GetTags(), reflect.TypeOf(series))
-		}
-		for i := 0; i < len(intSeries.Points); i++ {
-			tenc.WriteTime(intSeries.Points[i].T)
-			venc.WriteInt(intSeries.Points[i].V)
-		}
-	default:
-		return errors.Errorf("unsupported series type %d", series.GetSeriesType())
+	n, err := EncodeBlockTo(series, writer.w)
+	if err != nil {
+		return errors.Wrap(err, "can't encode and write data block")
 	}
-	// NOTE: the encoder write encoding information at start of each block
-	if tBytes, err = tenc.Bytes(); err != nil {
-		return errors.Wrap(err, "can't get encoded time as bytes")
-	}
-	if vBytes, err = venc.Bytes(); err != nil {
-		return errors.Wrap(err, "can't get encoded value as bytes")
-	}
-
-	// write block header
-	binary.BigEndian.PutUint32(blockHeader, uint32(len(tBytes)))
-	if n, err = writer.w.Write(blockHeader); err != nil {
-		return errors.Wrap(err, "can't write block header to buffer")
-	}
-	N += n
-	// write encoded time and values, the encoding is in the bytes already, we don't need to prefix them
-	if tBytesWritten, err = writer.w.Write(tBytes); err != nil {
-		return errors.Wrap(err, "cant write encoded time to buffer")
-	}
-	N += tBytesWritten
-	if vBytesWritten, err = writer.w.Write(vBytes); err != nil {
-		return errors.Wrap(err, "can't write encoded value to buffer")
-	}
-	N += vBytesWritten
 
 	// record block position in seriesBlocks
 	// TODO: should store some aggregated information as well
-	writer.index.Add(series, writer.n, uint64(N))
+	// TODO: series should have max and min time, but what about value, if we support multiple columns
+	writer.index.Add(series, writer.n, uint32(n), series.GetMinTime(), series.GetMaxTime())
 
-	writer.n += uint64(N)
+	writer.n += uint64(n)
 	return nil
 }
 
@@ -315,7 +261,7 @@ func (writer *LocalDataFileWriter) Close() error {
 	return nil
 }
 
-func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, size uint64) error {
+func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, size uint32, minTime int64, maxTime int64) error {
 	id := series.GetSeriesID()
 	entries, ok := idx.series[id]
 	// create new IndexEntries if this series has not been added
@@ -328,6 +274,8 @@ func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, si
 	entries.Entries = append(entries.Entries, IndexEntry{
 		Offset:    offset,
 		BlockSize: size,
+		MinTime:   minTime,
+		MaxTime:   maxTime,
 	})
 	return nil
 }

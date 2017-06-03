@@ -23,7 +23,9 @@ func main() {
 	tplBytes, err := ioutil.ReadFile("series_int.go")
 	assert(err)
 	tpl := string(tplBytes)
-	otherSeriesTypes := map[string]string{"RawSeries": "series_raw.go", "DoubleSeries": "series_double.go"}
+	// FIXME: raw series can not have methods like GetMaxMinTime
+	// otherSeriesTypes := map[string]string{"RawSeries": "series_raw.go", "DoubleSeries": "series_double.go"}
+	otherSeriesTypes := map[string]string{"DoubleSeries": "series_double.go"}
 
 	for newType, newFile := range otherSeriesTypes {
 		content := strings.Replace(tpl, "IntSeries", newType, -1)

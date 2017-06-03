@@ -14,3 +14,31 @@ func NewDoubleSeries(name string) *DoubleSeries {
 		},
 	}
 }
+
+func (m *DoubleSeries) GetMinTime() int64 {
+	if len(m.Points) == 0 {
+		return 0
+	}
+	return m.Points[0].T
+}
+
+func (m *DoubleSeries) GetMaxTime() int64 {
+	if len(m.Points) == 0 {
+		return 0
+	}
+	return m.Points[len(m.Points)-1].T
+}
+
+func (m *DoubleSeriesColumnar) GetMinTime() int64 {
+	if len(m.T) == 0 {
+		return 0
+	}
+	return m.T[0]
+}
+
+func (m *DoubleSeriesColumnar) GetMaxTime() int64 {
+	if len(m.T) == 0 {
+		return 0
+	}
+	return m.T[len(m.T)-1]
+}

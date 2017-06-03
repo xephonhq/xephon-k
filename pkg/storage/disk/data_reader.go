@@ -220,9 +220,10 @@ func (reader *LocalDataFileReader) PrintAll() {
 		// print decoded data of all the entries
 		for i, entry := range wrapper.entries.Entries {
 			// TODO: entry.BlockSize could be uint32
-			blockBytes := reader.b[entry.Offset : entry.Offset+entry.BlockSize]
+			blockBytes := reader.b[entry.Offset : entry.Offset+uint64(entry.BlockSize)]
 			timeLength := binary.BigEndian.Uint32(blockBytes[:4])
-			fmt.Printf("block: %d length: %d time length: %d \n", i, len(blockBytes), timeLength)
+			fmt.Printf("block: %d length: %d time length: %d minTime: %d maxTime: %d \n",
+				i, len(blockBytes), timeLength, entry.MinTime, entry.MaxTime)
 			// TODO: time decoder, should be able to tell me the type or we can have a block decoder to decode that
 		}
 		fmt.Println("------series-------")
