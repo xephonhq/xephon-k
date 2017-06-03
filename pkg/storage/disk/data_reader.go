@@ -224,7 +224,12 @@ func (reader *LocalDataFileReader) PrintAll() {
 			timeLength := binary.BigEndian.Uint32(blockBytes[:4])
 			fmt.Printf("block: %d length: %d time length: %d minTime: %d maxTime: %d \n",
 				i, len(blockBytes), timeLength, entry.MinTime, entry.MaxTime)
-			// TODO: time decoder, should be able to tell me the type or we can have a block decoder to decode that
+			decoded, err := DecodeBlock(blockBytes, wrapper.entries.SeriesMeta)
+			if err != nil {
+				fmt.Print(err)
+				continue
+			}
+			decoded.PrintPoints()
 		}
 		fmt.Println("------series-------")
 	}

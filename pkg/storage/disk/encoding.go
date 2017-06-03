@@ -33,12 +33,22 @@ func EncodeBlockTo(series common.Series, w io.Writer) (int, error) {
 	case common.TypeIntSeries:
 		intSeries, ok := series.(*common.IntSeries)
 		if !ok {
-			return N, errors.Errorf("%s %v is marked as int but actually %s",
+			return N, errors.Errorf("%s %v is marked as IntSeries but actually %s",
 				series.GetName(), series.GetTags(), reflect.TypeOf(series))
 		}
 		for i := 0; i < len(intSeries.Points); i++ {
 			tenc.WriteTime(intSeries.Points[i].T)
 			venc.WriteInt(intSeries.Points[i].V)
+		}
+	case common.TypeDoubleSeries:
+		doubleSeries, ok := series.(*common.DoubleSeries)
+		if !ok {
+			return N, errors.Errorf("%s %v is marked as DoubleSeries but actually %s",
+				series.GetName(), series.GetTags(), reflect.TypeOf(series))
+		}
+		for i := 0; i < len(doubleSeries.Points); i++ {
+			tenc.WriteTime(doubleSeries.Points[i].T)
+			venc.WriteDouble(doubleSeries.Points[i].V)
 		}
 	default:
 		return N, errors.Errorf("unsupported series type %d", series.GetSeriesType())
@@ -68,3 +78,48 @@ func EncodeBlockTo(series common.Series, w io.Writer) (int, error) {
 	N += n
 	return N, nil
 }
+
+func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
+	// read header
+	// NOTE: currently we can only deal with time + value block, can't deal with time + value1 + value 2 ...
+	timeBlockLength := binary.BigEndian.Uint32(p[:4])
+	tBytes := p[4 : 4+timeBlockLength]
+	vBytes := p[4+timeBlockLength:]
+	// TODO: currently we only use raw binary decoder since it's our only encoding
+	tdec := encoding.NewRawBinaryDecoder()
+	vdec := encoding.NewRawBinaryDecoder()
+	if err := tdec.Init(tBytes); err != nil {
+		return nil, errors.Wrap(err, "can't initial time decoder")
+	}
+	if err := vdec.Init(vBytes); err != nil {
+		return nil, errors.Wrap(err, "can't initial value decoder")
+	}
+
+	var s common.Series
+	switch meta.GetSeriesType() {
+	case common.TypeIntSeries:
+		intSeries := common.NewIntSeries(meta.GetName())
+		intSeries.SeriesMeta = meta
+		// TODO: we can allocate the space directly if index entry record length
+		for tdec.Next() && vdec.Next() {
+			intSeries.Points = append(intSeries.Points,
+				common.IntPoint{T: tdec.ReadTime(), V: vdec.ReadInt()})
+		}
+		s = intSeries
+	case common.TypeDoubleSeries:
+		doubleSeries := common.NewDoubleSeries(meta.GetName())
+		doubleSeries.SeriesMeta = meta
+		for tdec.Next() && vdec.Next() {
+			doubleSeries.Points = append(doubleSeries.Points,
+				common.DoublePoint{T: tdec.ReadTime(), V: vdec.ReadDouble()})
+		}
+		s = doubleSeries
+	default:
+		return nil, errors.Errorf("unsupported series type %s", common.SeriesTypeString(meta.GetSeriesType()))
+	}
+	return s, nil
+}
+
+//func DecodeBlockAsColunmar(p []byte, meta common.SeriesMeta) (common.SeriesColumnar, error) {
+//
+//}
