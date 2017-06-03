@@ -10,7 +10,7 @@ import (
 var log = util.Logger.NewEntryWithPkg("k.encoding")
 
 const (
-	_                    byte = iota
+	_ byte = iota
 	CodecRawBigEndian
 	CodecRawLittleEndian
 	CodecVarInt
@@ -19,6 +19,12 @@ const (
 var (
 	ErrTooSmall      = errors.New("data for decoding is too small")
 	ErrCodecMismatch = errors.New("decoder got data encoded using other codec")
+)
+
+var (
+	registeredCodec        []byte
+	registeredValueEncoder []ValueEncoder
+	registeredValueDecoder []ValueDecoder
 )
 
 type TimeEncoder interface {
@@ -38,6 +44,7 @@ type TimeDecoder interface {
 	// TODO: Reset
 }
 
+// TODO: add SupportInt/Double/String, so we can skip some of them in test, and check if it match series type when we enforce encoding in config
 type ValueEncoder interface {
 	Codec() byte
 	Bytes() ([]byte, error)

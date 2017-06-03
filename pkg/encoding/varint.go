@@ -1,10 +1,10 @@
 package encoding
 
 import (
-	"encoding/binary"
 	"bytes"
-	"math"
+	"encoding/binary"
 	"github.com/pkg/errors"
+	"math"
 )
 
 // NOTE: it is compatible with leb128
@@ -20,6 +20,12 @@ type VarIntDecoder struct {
 	b     []byte
 	cur   int
 	v     uint64
+}
+
+func init() {
+	registeredCodec = append(registeredCodec, CodecVarInt)
+	registeredValueEncoder = append(registeredValueEncoder, NewVarIntEncoder())
+	registeredValueDecoder = append(registeredValueDecoder, NewVarIntDecoder())
 }
 
 func NewVarIntEncoder() *VarIntEncoder {
@@ -72,6 +78,7 @@ func (d *VarIntDecoder) Init(b []byte) error {
 	}
 	// exclude codec
 	d.b = b[1:]
+	d.cur = 0
 	return nil
 }
 

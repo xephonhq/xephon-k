@@ -1,6 +1,7 @@
 package encoding
 
 import (
+	asst "github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -41,4 +42,42 @@ func encodeSeconds(t *testing.T, n int, enc TimeEncoder) []byte {
 		t.Fatalf("cant encode time %v using %s", err, CodecString(enc.Codec()))
 	}
 	return b
+}
+
+// TODO: maybe we should do the same for time
+func TestRegisteredValueEncoderDecoder(t *testing.T) {
+	assert := asst.New(t)
+	ivals := []int64{-1, 1}
+	dvals := []float64{-1.1, 1.1}
+
+	for i, codec := range registeredCodec {
+		assert.NotContains(CodecString(codec), "unkown")
+		t.Logf("test %s", CodecString(codec))
+		encoder := registeredValueEncoder[i]
+		decoder := registeredValueDecoder[i]
+
+		for _, iv := range ivals {
+			encoder.WriteInt(iv)
+		}
+		b, err := encoder.Bytes()
+		assert.Nil(err)
+		assert.Nil(decoder.Init(b))
+		for _, iv := range ivals {
+			decoder.Next()
+			assert.Equal(iv, decoder.ReadInt())
+		}
+
+		encoder.Reset()
+
+		for _, dv := range dvals {
+			encoder.WriteDouble(dv)
+		}
+		b, err = encoder.Bytes()
+		assert.Nil(err)
+		assert.Nil(decoder.Init(b))
+		for _, dv := range dvals {
+			decoder.Next()
+			assert.Equal(dv, decoder.ReadDouble())
+		}
+	}
 }

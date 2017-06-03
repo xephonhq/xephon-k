@@ -25,6 +25,12 @@ type RawBinaryDecoder struct {
 	v     uint64
 }
 
+func init() {
+	registeredCodec = append(registeredCodec, CodecRawBigEndian, CodecRawLittleEndian)
+	registeredValueEncoder = append(registeredValueEncoder, NewBigEndianBinaryEncoder(), NewLittleEndianBinaryEncoder())
+	registeredValueDecoder = append(registeredValueDecoder, NewRawBinaryDecoder(), NewRawBinaryDecoder())
+}
+
 func NewBigEndianBinaryEncoder() *RawBinaryEncoder {
 	e := &RawBinaryEncoder{
 		order: binary.BigEndian,
@@ -100,6 +106,7 @@ func (d *RawBinaryDecoder) Init(b []byte) error {
 	}
 	// exclude the codec
 	d.b = b[1:]
+	d.cur = 0
 	return nil
 }
 

@@ -37,37 +37,3 @@ func TestRawBinaryDecoder_ReadTime(t *testing.T) {
 	}
 	assert.Equal(i, num)
 }
-
-// TODO: use table test and merge with other decoder
-func TestRawBinaryDecoder_ReadInt(t *testing.T) {
-	assert := asst.New(t)
-	encoder := NewBigEndianBinaryEncoder()
-	encoder.WriteInt(-1)
-	encoder.WriteInt(1)
-	decoder := NewRawBinaryDecoder()
-	p, err := encoder.Bytes()
-	//t.Log(p)
-	assert.Nil(err)
-	assert.Nil(decoder.Init(p))
-	decoder.Next()
-	assert.Equal(int64(-1), decoder.ReadInt())
-	decoder.Next()
-	assert.Equal(int64(1), decoder.ReadInt())
-}
-
-// TODO: use table test and merge with other decoder
-func TestRawBinaryDecoder_ReadDouble(t *testing.T) {
-	assert := asst.New(t)
-	encoder := NewBigEndianBinaryEncoder()
-	encoder.WriteDouble(-1.1)
-	encoder.WriteDouble(1.1)
-	decoder := NewRawBinaryDecoder()
-	p, err := encoder.Bytes()
-	//t.Log(p)
-	assert.Nil(err)
-	assert.Nil(decoder.Init(p))
-	decoder.Next()
-	assert.Equal(-1.1, decoder.ReadDouble())
-	decoder.Next()
-	assert.Equal(1.1, decoder.ReadDouble())
-}
