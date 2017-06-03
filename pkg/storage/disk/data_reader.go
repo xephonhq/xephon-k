@@ -133,7 +133,7 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 	// skip the 4 bytes for count
 	start += 4
 	// load all the needed bytes
-	b := reader.b[start : start+uint64(seriesCount*IndexOfIndexUnitLength)]
+	b := reader.b[start: start+uint64(seriesCount*IndexOfIndexUnitLength)]
 	// NOTE: this print is 4 bytes shorter than correspond print in write because we skipped the 4 bytes for count
 	log.Trace("read: full bytes for index of indexes exclude first 4 bytes (count)")
 	log.Trace(b)
@@ -144,11 +144,11 @@ func (reader *LocalDataFileReader) ReadIndexOfIndexes() error {
 		length uint32
 	)
 	for i := 0; i < seriesCount; i++ {
-		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength : i*IndexOfIndexUnitLength+8])
+		id = binary.BigEndian.Uint64(b[i*IndexOfIndexUnitLength: i*IndexOfIndexUnitLength+8])
 		log.Tracef("read: id %d", id)
-		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8 : i*IndexOfIndexUnitLength+12])
+		offset = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+8: i*IndexOfIndexUnitLength+12])
 		log.Tracef("read: index offset %d", offset)
-		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12 : i*IndexOfIndexUnitLength+16])
+		length = binary.BigEndian.Uint32(b[i*IndexOfIndexUnitLength+12: i*IndexOfIndexUnitLength+16])
 		log.Tracef("read: index length %d", length)
 		reader.index[common.SeriesID(id)] = &IndexEntriesWrapper{
 			offset: offset,
@@ -171,8 +171,8 @@ func (reader *LocalDataFileReader) ReadAllIndexEntries() error {
 		}
 		start := reader.indexOffset + uint64(wrapper.offset)
 		log.Trace("read: full bytes of IndexEntries")
-		log.Trace(reader.b[start : start+uint64(wrapper.length)])
-		if err := wrapper.entries.Unmarshal(reader.b[start : start+uint64(wrapper.length)]); err != nil {
+		log.Trace(reader.b[start: start+uint64(wrapper.length)])
+		if err := wrapper.entries.Unmarshal(reader.b[start: start+uint64(wrapper.length)]); err != nil {
 			return errors.Wrapf(err, "failed to unmarshal index entries of id: %d", id)
 		}
 		wrapper.loaded = true
@@ -212,15 +212,17 @@ func (reader *LocalDataFileReader) PrintAll() {
 		fmt.Print(err)
 		return
 	}
+	// TODO: we should have persistent output, which means we need an extra array for everything we store in map
+	// maybe we should add a debug flag in the reader, so it can keep extra information
 	for id, wrapper := range reader.index {
-		fmt.Println("------series-------")
+		fmt.Printf("------start series %s ------- \n", wrapper.entries.SeriesMeta.GetName())
 		fmt.Printf("id: %d blocks: %d meta: %v\n",
 			id, len(wrapper.entries.Entries), wrapper.entries.SeriesMeta)
 		// TODO: move this functionality of reading blocks out
 		// print decoded data of all the entries
 		for i, entry := range wrapper.entries.Entries {
 			// TODO: entry.BlockSize could be uint32
-			blockBytes := reader.b[entry.Offset : entry.Offset+uint64(entry.BlockSize)]
+			blockBytes := reader.b[entry.Offset: entry.Offset+uint64(entry.BlockSize)]
 			timeLength := binary.BigEndian.Uint32(blockBytes[:4])
 			fmt.Printf("block: %d length: %d time length: %d minTime: %d maxTime: %d \n",
 				i, len(blockBytes), timeLength, entry.MinTime, entry.MaxTime)
@@ -231,7 +233,7 @@ func (reader *LocalDataFileReader) PrintAll() {
 			}
 			decoded.PrintPoints()
 		}
-		fmt.Println("------series-------")
+		fmt.Printf("------end series %s ------- \n", wrapper.entries.SeriesMeta.GetName())
 	}
 	fmt.Println("All data printed")
 }
