@@ -2,33 +2,30 @@ package encoding
 
 import (
 	"testing"
-
 	asst "github.com/stretchr/testify/assert"
 )
 
-func TestRawBinaryEncoder_WriteTime(t *testing.T) {
+func TestVarIntEncoder_WriteTime(t *testing.T) {
 	assert := asst.New(t)
-
 	var (
 		encoder TimeEncoder
 		b       []byte
 	)
-	encoder = NewBigEndianBinaryEncoder()
+	encoder = NewVarIntEncoder()
 	num := 100
 	b = encodeNanoseconds(t, num, encoder)
-	// codec + value
-	assert.Equal(8*num+1, len(b))
-
-	encoder = NewLittleEndianBinaryEncoder()
-	b = encodeNanoseconds(t, num, encoder)
-	assert.Equal(8*num+1, len(b))
+	// NOTE: when use nanosecond, it takes 9 bytes to encode what is actually 8 bytes, so it becomes larger
+	assert.Equal(9*num+1, len(b))
+	// when using second, it is much smaller than max of int64, so it use 5 bytes (<8)
+	b = encodeSeconds(t, num, encoder)
+	assert.True(len(b) < 9*num+1) // 501
 }
 
-func TestRawBinaryDecoder_ReadTime(t *testing.T) {
+func TestVarIntDecoder_ReadTime(t *testing.T) {
 	assert := asst.New(t)
 	num := 100
-	encoded := encodeNanoseconds(t, num, NewBigEndianBinaryEncoder())
-	decoder := NewRawBinaryDecoder()
+	encoded := encodeNanoseconds(t, num, NewVarIntEncoder())
+	decoder := NewVarIntDecoder()
 	assert.Nil(decoder.Init(encoded))
 	i := 0
 	for decoder.Next() {
@@ -39,12 +36,12 @@ func TestRawBinaryDecoder_ReadTime(t *testing.T) {
 }
 
 // TODO: use table test and merge with other decoder
-func TestRawBinaryDecoder_ReadInt(t *testing.T) {
+func TestVarIntDecoder_ReadInt(t *testing.T) {
 	assert := asst.New(t)
-	encoder := NewBigEndianBinaryEncoder()
+	encoder := NewVarIntEncoder()
 	encoder.WriteInt(-1)
 	encoder.WriteInt(1)
-	decoder := NewRawBinaryDecoder()
+	decoder := NewVarIntDecoder()
 	p, err := encoder.Bytes()
 	//t.Log(p)
 	assert.Nil(err)
@@ -56,12 +53,12 @@ func TestRawBinaryDecoder_ReadInt(t *testing.T) {
 }
 
 // TODO: use table test and merge with other decoder
-func TestRawBinaryDecoder_ReadDouble(t *testing.T) {
+func TestVarIntDecoder_ReadDouble(t *testing.T) {
 	assert := asst.New(t)
-	encoder := NewBigEndianBinaryEncoder()
+	encoder := NewVarIntEncoder()
 	encoder.WriteDouble(-1.1)
 	encoder.WriteDouble(1.1)
-	decoder := NewRawBinaryDecoder()
+	decoder := NewVarIntDecoder()
 	p, err := encoder.Bytes()
 	//t.Log(p)
 	assert.Nil(err)

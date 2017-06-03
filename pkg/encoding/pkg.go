@@ -10,9 +10,10 @@ import (
 var log = util.Logger.NewEntryWithPkg("k.encoding")
 
 const (
-	_ byte = iota
+	_                    byte = iota
 	CodecRawBigEndian
 	CodecRawLittleEndian
+	CodecVarInt
 )
 
 var (
@@ -52,19 +53,15 @@ type ValueDecoder interface {
 	ReadDouble() float64
 }
 
-// check interface
-var _ TimeEncoder = (*RawBinaryEncoder)(nil)
-var _ ValueEncoder = (*RawBinaryEncoder)(nil)
-
-var _ TimeDecoder = (*RawBinaryDecoder)(nil)
-var _ ValueDecoder = (*RawBinaryDecoder)(nil)
-
+// TODO: test we support all the codec's, maybe have a registered codec
 func CodecString(codec byte) string {
 	switch codec {
 	case CodecRawBigEndian:
 		return "codec: raw bigendian"
 	case CodecRawLittleEndian:
 		return "codec: raw littleendian"
+	case CodecVarInt:
+		return "codec: variable length integer"
 	default:
 		return fmt.Sprintf("codec: unknown %d", codec)
 	}

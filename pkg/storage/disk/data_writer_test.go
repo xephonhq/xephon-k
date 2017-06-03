@@ -30,7 +30,7 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 
 	si := common.NewIntSeries("si")
 	si.Tags = map[string]string{"os": "ubuntu", "machine": "machine-01"}
-	si.Points = []common.IntPoint{{T: 1359788400000, V: 1}, {T: 1359788500000, V: 2}}
+	si.Points = []common.IntPoint{{T: 1359788400000, V: -1}, {T: 1359788500000, V: 2}}
 	assert.Nil(w.WriteSeries(si))
 	// header + block header + time encoding + times (2) + values encoding + values(2)
 	assert.Equal(uint64(9+4+1+16+1+16), w.n)
@@ -41,7 +41,7 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 
 	sd := common.NewDoubleSeries("sd")
 	sd.Tags = map[string]string{"os": "ubuntu", "machine": "machine-01"}
-	sd.Points = []common.DoublePoint{{T: 1359788400000, V: 1.2}, {T: 1359788500000, V: 2.33}}
+	sd.Points = []common.DoublePoint{{T: 1359788400000, V: 1.2}, {T: 1359788500000, V: -2.33}}
 	assert.Nil(w.WriteSeries(sd))
 
 	assert.Nil(w.WriteIndex())
