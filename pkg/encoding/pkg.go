@@ -17,8 +17,9 @@ const (
 )
 
 var (
-	ErrTooSmall      = errors.New("data for decoding is too small")
-	ErrCodecMismatch = errors.New("decoder got data encoded using other codec")
+	ErrTooSmall          = errors.New("data for decoding is too small")
+	ErrCodecMismatch     = errors.New("decoder got data encoded using other codec")
+	ErrCodecNotSupported = errors.New("codec is not supported")
 )
 
 var (

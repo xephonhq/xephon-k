@@ -147,9 +147,29 @@ func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
 	timeBlockLength := binary.BigEndian.Uint32(p[:4])
 	tBytes := p[4 : 4+timeBlockLength]
 	vBytes := p[4+timeBlockLength:]
-	// TODO: currently we only use raw binary decoder since it's our only encoding
-	tdec := encoding.NewRawBinaryDecoder()
-	vdec := encoding.NewRawBinaryDecoder()
+
+	var (
+		s    common.Series
+		tdec encoding.TimeDecoder
+		vdec encoding.ValueDecoder
+	)
+	switch tBytes[0] {
+	case encoding.CodecRawBigEndian, encoding.CodecRawLittleEndian:
+		tdec = encoding.NewRawBinaryDecoder()
+	case encoding.CodecVarInt:
+		tdec = encoding.NewVarIntDecoder()
+	default:
+		return nil, errors.Wrapf(encoding.ErrCodecNotSupported, "unknown codec %s", encoding.CodecString(tBytes[0]))
+	}
+	switch vBytes[0] {
+	case encoding.CodecRawBigEndian, encoding.CodecRawLittleEndian:
+		vdec = encoding.NewRawBinaryDecoder()
+	case encoding.CodecVarInt:
+		vdec = encoding.NewVarIntDecoder()
+	default:
+		return nil, errors.Wrapf(encoding.ErrCodecNotSupported, "unknown codec %s", encoding.CodecString(vBytes[0]))
+	}
+
 	if err := tdec.Init(tBytes); err != nil {
 		return nil, errors.Wrap(err, "can't initial time decoder")
 	}
@@ -157,7 +177,6 @@ func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
 		return nil, errors.Wrap(err, "can't initial value decoder")
 	}
 
-	var s common.Series
 	switch meta.GetSeriesType() {
 	case common.TypeIntSeries:
 		intSeries := common.NewIntSeries(meta.GetName())
