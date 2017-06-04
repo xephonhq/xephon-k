@@ -14,6 +14,7 @@ const (
 	CodecRawBigEndian
 	CodecRawLittleEndian
 	CodecVarInt
+	CodecRLE
 )
 
 var (
@@ -95,6 +96,8 @@ func CodecString(codec byte) string {
 		return "codec: raw littleendian"
 	case CodecVarInt:
 		return "codec: variable length integer"
+	case CodecRLE:
+		return "codec: run length with variable length integer"
 	default:
 		return fmt.Sprintf("codec: unknown %d", codec)
 	}

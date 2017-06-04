@@ -139,7 +139,7 @@ func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
 	// read header
 	// NOTE: currently we can only deal with time + value block, can't deal with time + value1 + value 2 ...
 	timeBlockLength := binary.BigEndian.Uint32(p[:4])
-	tBytes := p[4: 4+timeBlockLength]
+	tBytes := p[4 : 4+timeBlockLength]
 	vBytes := p[4+timeBlockLength:]
 
 	var (
