@@ -117,6 +117,7 @@ func (store *IntSeriesStore) ReadByStartEndTime(startTime int64, endTime int64) 
 
 	// TODO: may use pool for points
 	// TODO: copy other fields, precision, type etc.
+	// TODO: we can simply pass the series meta since the data never change
 	returnSeries := common.IntSeries{
 		SeriesMeta: common.SeriesMeta{
 			Name: store.series.Name,

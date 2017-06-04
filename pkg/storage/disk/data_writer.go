@@ -2,16 +2,16 @@ package disk
 
 /*
 
-On disk file has header, blocks, index, footer
+On disk file has header, seriesBlocks, seriesBlocks, footer
 
  ---------------------------------------------------
 |  Header   |   Blocks   |  Index     |    Footer   |
-|  9 bytes  |	N bytes	 |	M bytes	  |   17 bytes  |
+|  9 bytes  |	  N bytes	 |	M bytes	  |   17 bytes  |
  ---------------------------------------------------
 
 - Data that is not serialized (compress, protobuf) all use BigEndian
-  - uint32, relative offset and length
-  - uint64, absolute offset and magic
+  - uint32, relative indexOffset and indexLength
+  - uint64, absolute indexOffset and magic
 
 - Header:
 
@@ -20,38 +20,45 @@ On disk file has header, blocks, index, footer
 |            8 bytes            |  1 byte |
  -----------------------------------------
 
-- Footer: Index offset  + Index length + Version + Magic
-  - [ ] TODO: we don't really need index length, because we can calculate it from offset, but it could be a double check
-    - index length = file length - index offset - footer length
-  - index length includes index of indexes
+- Footer: Index indexOffset  + Index indexLength + Version + Magic
+  - [ ] TODO: we don't really need seriesBlocks indexLength, because we can calculate it from indexOffset, but it could be a double check
+    - seriesBlocks indexLength = file indexLength - seriesBlocks indexOffset - footer indexLength
+  - seriesBlocks indexLength includes seriesBlocks of indexes
 
  ------------------------------------------------------------------------------------------------
-| Index offset | Index of Index offset | Index length |  Version | Magic (xephon-k in BigEndian) |
+| Index indexOffset | Index of Index indexOffset | Index indexLength |  Version | Magic (xephon-k in BigEndian) |
 |   uint64     |        uint32         |    uint32    |          |             uint64            |
 |   8 bytes    |        4 byte         |    4 bytes   |  1 byte  |            8 bytes            |
  ------------------------------------------------------------------------------------------------
 
 - Blocks
-- [ ] TODO: need offset of values, for Sum, I only need value, don't need time
-- [ ] TODO: I think it's better to store the encoding, offset of time and value into index
+- [ ] TODO: I think it's better to store the encoding, indexOffset of time and value into seriesBlocks
   - and only let the block store timestamps and values
-  - [ ] TODO: or we can store series ID, so we can rebuild index, if file is closed before writing index
+  - [ ] TODO: or we can store series ID, so we can rebuild seriesBlocks, if file is closed before writing seriesBlocks, and we have full meta data in other files
+- time indexLength is the indexLength of encoded timestamps, which is A
 
- -----------------------------------------------------------------------
-| time encoding | value encoding |  encoded timestamps |  encoded values |
-|  1 byte       |  1 byte        |      A bytes        |     B bytes     |
- ------------------------------------------------------------------------
+ -------------------------------------------------------------------------------------
+| time indexLength | time encoding |  encoded timestamps | value encoding |  encoded values |
+|    4 bytes  |    1 byte     |     A bytes         |     1 byte     |     B bytes     |
+ --------------------------------------------------------------------------------------
+
+ And this format can be extended to support table (TODO: not implemented)
+
+ --------------------------------------------------------------------------------------------------------------
+| block header | ts encoding |  encoded ts | col 1 encoding |  encoded col 1  | col 2 encoding | encoded col 2 |
+|    A bytes   |  1 byte     |   B bytes   |      1 byte    |     C bytes     |     1 bytes    |     D bytes   |
+ --------------------------------------------------------------------------------------------------------------
 
 - Index
   - Data: Entries,
   	- Entries is `IndexEntries` serialized in protobuf, including series meta and []IndexEntry
-  - Index (of Index): series count, series ID, offset, length ...
-  	- offset is relative to index begin, not file begin (a.k.a not absolute offset)
-  - Footer is the footer of the file, index itself does not have separate footer
+  - Index (of Index): series count, series ID, indexOffset, indexLength ...
+  	- indexOffset is relative to seriesBlocks begin, not file begin (a.k.a not absolute indexOffset)
+  - Footer is the footer of the file, seriesBlocks itself does not have separate footer
 
 
  --------------------------------------------------------------------------------------------------------
-| Entries1 | Entries2 | ... | series count | series ID1 |  offset  | length  | series ID2 | ... | Footer |
+| Entries1 | Entries2 | ... | series count | series ID1 |  indexOffset  | indexLength  | series ID2 | ... | Footer |
 | protobuf | protobuf | ... |   uint32     |   uint64   |  unit32  | uint32  |   uint64   | ... |        |
 | A bytes  |  B bytes | ..  |   4 bytes    |  8 bytes   |  4 bytes | 4 bytes |  8 bytes   | ... |        |
  --------------------------------------------------------------------------------------------------------
@@ -67,8 +74,6 @@ import (
 	"io"
 	"sort"
 
-	"reflect"
-
 	"os"
 
 	"github.com/pkg/errors"
@@ -79,26 +84,26 @@ var _ DataFileWriter = (*LocalDataFileWriter)(nil)
 var _ DataFileIndexWriter = (*LocalDataFileIndexWriter)(nil)
 
 var (
-	ErrNoData       = fmt.Errorf("no data written, can't write index")
-	ErrNotFinalized = fmt.Errorf("index is not written, the file is unreadable")
-	ErrFinalized    = fmt.Errorf("index is already written, this file can no longer be updated")
+	ErrNoData       = fmt.Errorf("no data written, can't write seriesBlocks")
+	ErrNotFinalized = fmt.Errorf("seriesBlocks is not written, the file is unreadable")
+	ErrFinalized    = fmt.Errorf("seriesBlocks is already written, this file can no longer be updated")
 )
 
 const (
 	DefaultBufferSize      = 4 * 1024  // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
-	IndexOfIndexUnitLength = 8 + 4 + 4 // id + offset + length
+	IndexOfIndexUnitLength = 8 + 4 + 4 // id + indexOffset + indexLength
 	FooterLength           = 25
 )
 
-// DataFileWriter writes data to disk, index is at the end of the file for locating data blocks.
+// DataFileWriter writes data to disk, seriesBlocks is at the end of the file for locating data seriesBlocks.
 // It is NOT thread safe
 type DataFileWriter interface {
 	// WriteHeader writes the magic number and version, it will be called by WriteSeries automatically for once
 	WriteHeader() error
 	WriteSeries(series common.Series) error
-	// Finalized returns if the index is written and the file can be closed
+	// Finalized returns if the seriesBlocks is written and the file can be closed
 	Finalized() bool
-	// WriteIndex writes index data and trailing magic number into the end of the file (buffer). You can only call it once
+	// WriteIndex writes seriesBlocks data and trailing magic number into the end of the file (buffer). You can only call it once
 	WriteIndex() error
 	// Flush flushes data in the buffer to disk
 	Flush() error
@@ -107,21 +112,22 @@ type DataFileWriter interface {
 }
 
 type DataFileIndexWriter interface {
-	Add(series common.Series, offset uint64, size uint64) error
+	// TODO: we need to record information like int/double, precision, min, max time etc.
+	Add(series common.Series, offset uint64, size uint32, minTime int64, maxTime int64) error
 	SortedID() []common.SeriesID
 	Len() int
-	// TODO: we need to record information like int/double, precision, min, max time etc.
-	// TODO: use must means we will panic if use non exist ID
+	// NOTE: use must means we will panic if use non exist ID
 	MustEntries(id common.SeriesID) *IndexEntries
 	WriteAll(io.Writer) (length uint32, indexOffset uint32, errs error)
 }
 
 type LocalDataFileWriter struct {
-	f         *os.File
-	w         *bufio.Writer
-	index     DataFileIndexWriter
-	n         uint64
-	finalized bool
+	f           *os.File
+	w           *bufio.Writer
+	index       DataFileIndexWriter
+	n           uint64
+	finalized   bool
+	encodingOpt EncodingOption
 }
 
 type LocalDataFileIndexWriter struct {
@@ -129,17 +135,18 @@ type LocalDataFileIndexWriter struct {
 }
 
 //func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalDataFileWriter {
-func NewLocalFileWriter(f *os.File, bufferSize int) (*LocalDataFileWriter, error) {
+func NewLocalFileWriter(f *os.File, bufferSize int, encodingOpt EncodingOption) (*LocalDataFileWriter, error) {
 	if bufferSize <= 0 {
 		bufferSize = DefaultBufferSize
 	}
 
 	return &LocalDataFileWriter{
-		f:         f,
-		w:         bufio.NewWriterSize(f, bufferSize),
-		index:     NewLocalFileIndexWriter(),
-		n:         0,
-		finalized: false,
+		f:           f,
+		w:           bufio.NewWriterSize(f, bufferSize),
+		index:       NewLocalFileIndexWriter(),
+		n:           0,
+		finalized:   false,
+		encodingOpt: encodingOpt,
 	}, nil
 }
 
@@ -168,6 +175,7 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 	if writer.Finalized() {
 		return ErrFinalized
 	}
+
 	// write header if this is the first series
 	if writer.n == 0 {
 		if err := writer.WriteHeader(); err != nil {
@@ -175,56 +183,15 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 		}
 	}
 
-	n := 0
-	var (
-		tenc                     TimeEncoder
-		venc                     ValueEncoder
-		tBytes, vBytes           []byte
-		tBytesCount, vBytesCount int
-		err                      error
-	)
+	n, err := EncodeBlockTo(series, writer.encodingOpt, writer.w)
+	if err != nil {
+		return errors.Wrap(err, "can't encode and write data block")
+	}
 
-	// encode time and value separately
-	// TODO: only use RawBigEndianTime/IntEncoder for now
-	tenc = &RawBigEndianTimeEncoder{}
-	switch series.GetSeriesType() {
-	case common.TypeIntSeries:
-		intSeries, ok := series.(*common.IntSeries)
-		if !ok {
-			return errors.Errorf("%s %v is marked as int but actually %s",
-				series.GetName(), series.GetTags(), reflect.TypeOf(series))
-		}
-		intEnc := &RawBigEndianIntEncoder{}
-		for i := 0; i < len(intSeries.Points); i++ {
-			tenc.Write(intSeries.Points[i].T)
-			intEnc.Write(intSeries.Points[i].V)
-		}
-		venc = intEnc
-	default:
-		return errors.Errorf("unsupported series type %d", series.GetSeriesType())
-	}
-	// write encoding information
-	writer.w.Write([]byte{tenc.Encoding(), venc.Encoding()})
-	n += 2
-	// write encoded time and values
-	if tBytes, err = tenc.Bytes(); err != nil {
-		return errors.Wrap(err, "can't get encoded time as bytes")
-	}
-	if vBytes, err = venc.Bytes(); err != nil {
-		return errors.Wrap(err, "can't get encoded value as bytes")
-	}
-	if tBytesCount, err = writer.w.Write(tBytes); err != nil {
-		return errors.Wrap(err, "cant write encoded time to buffer")
-	}
-	n += tBytesCount
-	if vBytesCount, err = writer.w.Write(vBytes); err != nil {
-		return errors.Wrap(err, "can't write encoded value to buffer")
-	}
-	n += vBytesCount
-
-	// record block position in index
+	// record block position in seriesBlocks
 	// TODO: should store some aggregated information as well
-	writer.index.Add(series, writer.n, uint64(n))
+	// TODO: series should have max and min time, but what about value, if we support multiple columns
+	writer.index.Add(series, writer.n, uint32(n), series.GetMinTime(), series.GetMaxTime())
 
 	writer.n += uint64(n)
 	return nil
@@ -243,15 +210,15 @@ func (writer *LocalDataFileWriter) WriteIndex() error {
 		return ErrNoData
 	}
 
-	// write index
+	// write seriesBlocks
 	indexOffset := writer.n
 	indexLength, indexOfIndexOffset, err := writer.index.WriteAll(writer.w)
 	if err != nil {
-		return errors.Wrap(err, "can't write index")
+		return errors.Wrap(err, "can't write seriesBlocks")
 	}
 
 	// write footer
-	// | index offset (8) | index of index offset (4) | index length (4) | version (1) | magic (8) |
+	// | seriesBlocks indexOffset (8) | seriesBlocks of seriesBlocks indexOffset (4) | seriesBlocks indexLength (4) | version (1) | magic (8) |
 	var buf [FooterLength]byte
 	binary.BigEndian.PutUint64(buf[:8], indexOffset)
 	binary.BigEndian.PutUint32(buf[8:12], indexOfIndexOffset)
@@ -261,7 +228,7 @@ func (writer *LocalDataFileWriter) WriteIndex() error {
 	binary.BigEndian.PutUint64(buf[17:], MagicNumber)
 	n, err := writer.w.Write(buf[:])
 	if err != nil {
-		return errors.Wrap(err, "can't write index position and magic number")
+		return errors.Wrap(err, "can't write seriesBlocks position and magic number")
 	}
 	if n != FooterLength {
 		return errors.Errorf("footer should be %d bytes, but %d is written", FooterLength, n)
@@ -296,7 +263,7 @@ func (writer *LocalDataFileWriter) Close() error {
 	return nil
 }
 
-func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, size uint64) error {
+func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, size uint32, minTime int64, maxTime int64) error {
 	id := series.GetSeriesID()
 	entries, ok := idx.series[id]
 	// create new IndexEntries if this series has not been added
@@ -309,6 +276,8 @@ func (idx *LocalDataFileIndexWriter) Add(series common.Series, offset uint64, si
 	entries.Entries = append(entries.Entries, IndexEntry{
 		Offset:    offset,
 		BlockSize: size,
+		MinTime:   minTime,
+		MaxTime:   maxTime,
 	})
 	return nil
 }
@@ -339,13 +308,13 @@ func (idx *LocalDataFileIndexWriter) MustEntries(id common.SeriesID) *IndexEntri
 func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, indexOffset uint32, errs error) {
 	N := 0
 	ids := idx.SortedID()
-	// index of indexes, written at the last of index
-	// | count (4) | series ID (8) | offset (4) | length (4) |
+	// seriesBlocks of indexes, written at the last of seriesBlocks
+	// | count (4) | series ID (8) | indexOffset (4) | indexLength (4) |
 	index := make([]byte, 4+IndexOfIndexUnitLength*len(ids))
 	binary.BigEndian.PutUint32(index[:4], uint32(len(ids)))
 
 	for i, id := range ids {
-		// TODO: InfluxDB sort the index entry in entries by time before write, but it's likely the blocks of one series is written in time order
+		// TODO: InfluxDB sort the seriesBlocks entry in entries by time before write, but it's likely the seriesBlocks of one series is written in time order
 		entries := idx.series[id]
 		log.Tracef("write: IndexEntries %s", entries)
 		b, err := entries.Marshal()
@@ -366,28 +335,28 @@ func (idx *LocalDataFileIndexWriter) WriteAll(w io.Writer) (length uint32, index
 		// id
 		binary.BigEndian.PutUint64(index[start:start+8], uint64(id))
 		log.Tracef("write: id %d", id)
-		// offset
+		// indexOffset
 		binary.BigEndian.PutUint32(index[start+8:start+12], uint32(N))
-		log.Tracef("write: index offset %d", N)
-		// length
+		log.Tracef("write: seriesBlocks indexOffset %d", N)
+		// indexLength
 		binary.BigEndian.PutUint32(index[start+12:start+16], uint32(n))
-		log.Tracef("write: index length %d", n)
+		log.Tracef("write: seriesBlocks indexLength %d", n)
 
 		N += n
 	}
 
-	log.Trace("write: full bytes for index of indexes")
+	log.Trace("write: full bytes for seriesBlocks of indexes")
 	log.Trace(index)
 
-	// write index of indexes
+	// write seriesBlocks of indexes
 	n, err := w.Write(index)
 	length = uint32(N + n)
 	if err != nil {
-		errs = errors.Wrap(err, "cant write index of indexes to writer")
+		errs = errors.Wrap(err, "cant write seriesBlocks of indexes to writer")
 		return
 	}
 	if n != len(index) {
-		errs = errors.Errorf("index of indexes should be %d bytes, but %d written", len(index), n)
+		errs = errors.Errorf("seriesBlocks of indexes should be %d bytes, but %d written", len(index), n)
 	}
 
 	indexOffset = uint32(N)

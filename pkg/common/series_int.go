@@ -1,6 +1,9 @@
 package common
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // TODO: int series of other precision, maybe we should add millisecond to the default function as well
 func NewIntSeries(name string) *IntSeries {
@@ -14,21 +17,46 @@ func NewIntSeries(name string) *IntSeries {
 	}
 }
 
-//func (series *IntSeries) GetName() string {
-//	return series.Meta.Name
-//}
-//
-//func (series *IntSeries) GetTags() map[string]string {
-//	return series.Meta.Tags
-//}
-//
-//func (series *IntSeries) GetSeriesType() int64 {
-//	return series.Meta.Type
-//}
-//
-//func (series *IntSeries) GetSeriesID() SeriesID {
-//	if series.Meta.Id == 0 {
-//		series.Meta.Id = uint64(Hash(series))
-//	}
-//	return SeriesID(series.Meta.Id)
-//}
+func (m *IntSeries) GetMinTime() int64 {
+	if len(m.Points) == 0 {
+		return 0
+	}
+	return m.Points[0].T
+}
+
+func (m *IntSeries) GetMaxTime() int64 {
+	if len(m.Points) == 0 {
+		return 0
+	}
+	return m.Points[len(m.Points)-1].T
+}
+
+func (m *IntSeries) PrintPoints() {
+	for i, p := range m.Points {
+		fmt.Printf("%d, %d, %v\n", i, p.T, p.V)
+	}
+}
+
+func (m *IntSeriesColumnar) GetMinTime() int64 {
+	if len(m.T) == 0 {
+		return 0
+	}
+	return m.T[0]
+}
+
+func (m *IntSeriesColumnar) GetMaxTime() int64 {
+	if len(m.T) == 0 {
+		return 0
+	}
+	return m.T[len(m.T)-1]
+}
+
+func (m *IntSeriesColumnar) IsColumnar() bool {
+	return true
+}
+
+func (m *IntSeriesColumnar) PrintPoints() {
+	for i := 0; i < len(m.T); i++ {
+		fmt.Printf("%d, %d, %v\n", i, m.T[i], m.V[i])
+	}
+}

@@ -29,6 +29,12 @@ message IntSeries {
     repeated IntPoint points = 2 [(gogoproto.nullable) = false];
 }
 
+message IntSeriesColumnar {
+    SeriesMeta meta = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
+    repeated int64 T = 2;
+    repeated int64 V = 3;
+}
+
 message DoublePoint {
     int64 T = 1;
     double V = 2;
@@ -37,4 +43,10 @@ message DoublePoint {
 message DoubleSeries {
     SeriesMeta meta = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
     repeated DoublePoint points = 2 [(gogoproto.nullable) = false];
+}
+
+message DoubleSeriesColumnar {
+    SeriesMeta meta = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
+    repeated int64 T = 2;
+    repeated double V = 3;
 }

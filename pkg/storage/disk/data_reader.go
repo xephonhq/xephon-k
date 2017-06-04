@@ -212,10 +212,28 @@ func (reader *LocalDataFileReader) PrintAll() {
 		fmt.Print(err)
 		return
 	}
-	// TODO: print the entries one by one
+	// TODO: we should have persistent output, which means we need an extra array for everything we store in map
+	// maybe we should add a debug flag in the reader, so it can keep extra information
 	for id, wrapper := range reader.index {
+		fmt.Printf("------start series %s ------- \n", wrapper.entries.SeriesMeta.GetName())
 		fmt.Printf("id: %d blocks: %d meta: %v\n",
 			id, len(wrapper.entries.Entries), wrapper.entries.SeriesMeta)
+		// TODO: move this functionality of reading blocks out
+		// print decoded data of all the entries
+		for i, entry := range wrapper.entries.Entries {
+			blockBytes := reader.b[entry.Offset : entry.Offset+uint64(entry.BlockSize)]
+			timeLength := binary.BigEndian.Uint32(blockBytes[:4])
+			fmt.Printf("block: %d length: %d time length: %d minTime: %d maxTime: %d \n",
+				i, len(blockBytes), timeLength, entry.MinTime, entry.MaxTime)
+			decoded, err := DecodeBlock(blockBytes, wrapper.entries.SeriesMeta)
+			if err != nil {
+				fmt.Print(err)
+				continue
+			}
+			// TODO: use https://golang.org/pkg/text/tabwriter/
+			decoded.PrintPoints()
+		}
+		fmt.Printf("------end series %s ------- \n", wrapper.entries.SeriesMeta.GetName())
 	}
 	fmt.Println("All data printed")
 }

@@ -24,7 +24,7 @@ func MagicBytes() []byte {
 }
 
 func IsMagic(buf []byte) bool {
-	// binary.BigEndian.Uint64 don't check the length of the slice
+	// binary.BigEndian.Uint64 don't check the indexLength of the slice
 	if len(buf) < 8 {
 		return false
 	}

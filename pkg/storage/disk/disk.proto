@@ -19,8 +19,9 @@ message IndexEntries {
 }
 
 message IndexEntry {
-    // TODO: aggregated data
     uint64 Offset = 1;
-    // TODO: block size can be uint32
-    uint64 BlockSize = 2;
+    uint32 BlockSize = 2;
+    int64 minTime = 3;
+    int64 maxTime = 4;
+    // TODO: aggregated data
 }
