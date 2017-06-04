@@ -201,6 +201,7 @@ func (d *RLEDecoder) Next() bool {
 		// TODO: maybe move the cur to the end to avoid calling next again?
 		return false
 	}
+	d.rLen--
 	return true
 }
 
