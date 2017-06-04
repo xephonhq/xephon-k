@@ -1,7 +1,7 @@
 package encoding
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	"fmt"
 
 	"github.com/xephonhq/xephon-k/pkg/util"
@@ -10,15 +10,17 @@ import (
 var log = util.Logger.NewEntryWithPkg("k.encoding")
 
 const (
-	_ byte = iota
+	_                    byte = iota
 	CodecRawBigEndian
 	CodecRawLittleEndian
 	CodecVarInt
 )
 
 var (
-	ErrTooSmall          = errors.New("data for decoding is too small")
-	ErrCodecMismatch     = errors.New("decoder got data encoded using other codec")
+	ErrTooSmall      = errors.New("data for decoding is too small")
+	ErrCodecMismatch = errors.New("decoder got data encoded using other codec")
+	// TODO: rename to codec not registered? we have some codec that does not support certain type, maybe
+	// ErrValueTypeNotSupported, or make it an struct
 	ErrCodecNotSupported = errors.New("codec is not supported")
 )
 
@@ -26,7 +28,17 @@ var (
 	registeredCodec        []byte
 	registeredValueEncoder []ValueEncoder
 	registeredValueDecoder []ValueDecoder
+	registeredFactory      map[byte]CodecFactory = make(map[byte]CodecFactory, 4)
 )
+
+type CodecFactory interface {
+	NewTimeEncoder() (TimeEncoder, error)
+	NewTimeDecoder() (TimeDecoder, error)
+	NewIntValueEncoder() (ValueEncoder, error)
+	NewIntValueDecoder() (ValueDecoder, error)
+	NewDoubleValueEncoder() (ValueEncoder, error)
+	NewDoubleValueDecoder() (ValueDecoder, error)
+}
 
 type TimeEncoder interface {
 	Codec() byte
@@ -68,6 +80,14 @@ func IsRegisteredCodec(codec byte) bool {
 		}
 	}
 	return false
+}
+
+func GetFactory(codec byte) (CodecFactory, error) {
+	factory, ok := registeredFactory[codec]
+	if !ok {
+		return nil, errors.Errorf("codec %s does not have registered factory", CodecString(codec))
+	}
+	return factory, nil
 }
 
 func CodecString(codec byte) string {

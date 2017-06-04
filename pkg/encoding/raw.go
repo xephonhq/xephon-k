@@ -9,6 +9,9 @@ import (
 )
 
 // Non compression binary encoding using little/big endian
+type RawBinaryCodecFactory struct {
+	codec byte
+}
 
 type RawBinaryEncoder struct {
 	order binary.ByteOrder
@@ -29,6 +32,8 @@ func init() {
 	registeredCodec = append(registeredCodec, CodecRawBigEndian, CodecRawLittleEndian)
 	registeredValueEncoder = append(registeredValueEncoder, NewBigEndianBinaryEncoder(), NewLittleEndianBinaryEncoder())
 	registeredValueDecoder = append(registeredValueDecoder, NewRawBinaryDecoder(), NewRawBinaryDecoder())
+	registeredFactory[CodecRawBigEndian] = &RawBinaryCodecFactory{codec: CodecRawBigEndian}
+	registeredFactory[CodecRawLittleEndian] = &RawBinaryCodecFactory{codec: CodecRawLittleEndian}
 }
 
 func NewBigEndianBinaryEncoder() *RawBinaryEncoder {
@@ -56,6 +61,39 @@ func NewLittleEndianBinaryEncoder() *RawBinaryEncoder {
 func NewRawBinaryDecoder() *RawBinaryDecoder {
 	// it seems we don't have anything to initialize, the endian is set upon Init
 	return &RawBinaryDecoder{}
+}
+
+func (f *RawBinaryCodecFactory) NewTimeEncoder() (TimeEncoder, error) {
+	if f.codec == CodecRawBigEndian {
+		return NewBigEndianBinaryEncoder(), nil
+	}
+	return NewLittleEndianBinaryEncoder(), nil
+}
+
+func (f *RawBinaryCodecFactory) NewTimeDecoder() (TimeDecoder, error) {
+	return NewRawBinaryDecoder(), nil
+}
+
+func (f *RawBinaryCodecFactory) NewIntValueEncoder() (ValueEncoder, error) {
+	if f.codec == CodecRawBigEndian {
+		return NewBigEndianBinaryEncoder(), nil
+	}
+	return NewLittleEndianBinaryEncoder(), nil
+}
+
+func (f *RawBinaryCodecFactory) NewIntValueDecoder() (ValueDecoder, error) {
+	return NewRawBinaryDecoder(), nil
+}
+
+func (f *RawBinaryCodecFactory) NewDoubleValueEncoder() (ValueEncoder, error) {
+	if f.codec == CodecRawBigEndian {
+		return NewBigEndianBinaryEncoder(), nil
+	}
+	return NewLittleEndianBinaryEncoder(), nil
+}
+
+func (f *RawBinaryCodecFactory) NewDoubleValueDecoder() (ValueDecoder, error) {
+	return NewRawBinaryDecoder(), nil
 }
 
 func (e *RawBinaryEncoder) Codec() byte {

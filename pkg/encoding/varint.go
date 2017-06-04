@@ -8,6 +8,9 @@ import (
 )
 
 // NOTE: it is compatible with leb128
+type VarIntCodecFactory struct {
+}
+
 type VarIntEncoder struct {
 	// From encoding/binary At most 10 bytes are needed for 64-bit values
 	b10   []byte
@@ -26,6 +29,7 @@ func init() {
 	registeredCodec = append(registeredCodec, CodecVarInt)
 	registeredValueEncoder = append(registeredValueEncoder, NewVarIntEncoder())
 	registeredValueDecoder = append(registeredValueDecoder, NewVarIntDecoder())
+	registeredFactory[CodecVarInt] = &VarIntCodecFactory{}
 }
 
 func NewVarIntEncoder() *VarIntEncoder {
@@ -39,6 +43,30 @@ func NewVarIntEncoder() *VarIntEncoder {
 
 func NewVarIntDecoder() *VarIntDecoder {
 	return &VarIntDecoder{}
+}
+
+func (f *VarIntCodecFactory) NewTimeEncoder() (TimeEncoder, error) {
+	return NewVarIntEncoder(), nil
+}
+
+func (f *VarIntCodecFactory) NewTimeDecoder() (TimeDecoder, error) {
+	return NewVarIntDecoder(), nil
+}
+
+func (f *VarIntCodecFactory) NewIntValueEncoder() (ValueEncoder, error) {
+	return NewVarIntEncoder(), nil
+}
+
+func (f *VarIntCodecFactory) NewIntValueDecoder() (ValueDecoder, error) {
+	return NewVarIntDecoder(), nil
+}
+
+func (f *VarIntCodecFactory) NewDoubleValueEncoder() (ValueEncoder, error ){
+	return NewVarIntEncoder(), nil
+}
+
+func (f *VarIntCodecFactory) NewDoubleValueDecoder() (ValueDecoder, error) {
+	return NewVarIntDecoder(), nil
 }
 
 func (e *VarIntEncoder) Codec() byte {
