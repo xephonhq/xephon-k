@@ -59,7 +59,7 @@ func (f *VarIntCodecFactory) NewIntValueDecoder() (ValueDecoder, error) {
 	return NewVarIntDecoder(), nil
 }
 
-func (f *VarIntCodecFactory) NewDoubleValueEncoder() (ValueEncoder, error ){
+func (f *VarIntCodecFactory) NewDoubleValueEncoder() (ValueEncoder, error) {
 	return NewVarIntEncoder(), nil
 }
 

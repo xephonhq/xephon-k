@@ -47,7 +47,7 @@ func EncodeBlockTo(series common.Series, opt EncodingOption, w io.Writer) (int, 
 	N := 0
 	n := 0
 	var (
-		vCodec         byte
+		factory        encoding.CodecFactory
 		tenc           encoding.TimeEncoder
 		venc           encoding.ValueEncoder
 		tBytes, vBytes []byte
@@ -56,38 +56,32 @@ func EncodeBlockTo(series common.Series, opt EncodingOption, w io.Writer) (int, 
 	blockHeader := make([]byte, 4)
 
 	// encode time and value separately
-	// TODO: should put this logic in the encoding package, like have a object called codec
-	switch opt.TimeCodec {
-	case encoding.CodecRawBigEndian:
-		tenc = encoding.NewBigEndianBinaryEncoder()
-	case encoding.CodecRawLittleEndian:
-		tenc = encoding.NewLittleEndianBinaryEncoder()
-	case encoding.CodecVarInt:
-		tenc = encoding.NewVarIntEncoder()
-	default:
-		return 0, errors.Errorf("unsupported codec %s for time encoder", encoding.CodecString(opt.TimeCodec))
+	if factory, err = encoding.GetFactory(opt.TimeCodec); err != nil {
+		return 0, errors.Wrapf(err, "unsupported codec %s for time encoder", encoding.CodecString(opt.TimeCodec))
+	}
+	if tenc, err = factory.NewTimeEncoder(); err != nil {
+		return 0, errors.Wrapf(err, "codec %s does not have time encoder", encoding.CodecString(opt.TimeCodec))
 	}
 
 	// determine which kind of value are we encoding and read the correspond config
 	switch series.GetSeriesType() {
 	case common.TypeIntSeries:
-		vCodec = opt.IntValueCodec
+		if factory, err = encoding.GetFactory(opt.IntValueCodec); err != nil {
+			return 0, errors.Wrapf(err, "unsupported codec %s for int value encoder", encoding.CodecString(opt.IntValueCodec))
+		}
+		if venc, err = factory.NewIntValueEncoder(); err != nil {
+			return 0, errors.Wrapf(err, "codec %s does not have int value encoder", encoding.CodecString(opt.IntValueCodec))
+		}
 	case common.TypeDoubleSeries:
-		vCodec = opt.DoubleValueCodec
+		if factory, err = encoding.GetFactory(opt.DoubleValueCodec); err != nil {
+			return 0, errors.Wrapf(err, "unsupported codec %s for double value encoder", encoding.CodecString(opt.DoubleValueCodec))
+		}
+		if venc, err = factory.NewDoubleValueEncoder(); err != nil {
+			return 0, errors.Wrapf(err, "codec %s does not have double value encoder", encoding.CodecString(opt.DoubleValueCodec))
+		}
 	default:
 		return 0, errors.Errorf("unsupported series type %s, no available codec in option",
 			common.SeriesTypeString(series.GetSeriesType()))
-	}
-
-	switch vCodec {
-	case encoding.CodecRawBigEndian:
-		venc = encoding.NewBigEndianBinaryEncoder()
-	case encoding.CodecRawLittleEndian:
-		venc = encoding.NewLittleEndianBinaryEncoder()
-	case encoding.CodecVarInt:
-		venc = encoding.NewVarIntEncoder()
-	default:
-		return 0, errors.Errorf("unsupported codec %s for value encoder", encoding.CodecString(opt.TimeCodec))
 	}
 
 	// TODO: deal with columnar format
@@ -145,29 +139,37 @@ func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
 	// read header
 	// NOTE: currently we can only deal with time + value block, can't deal with time + value1 + value 2 ...
 	timeBlockLength := binary.BigEndian.Uint32(p[:4])
-	tBytes := p[4 : 4+timeBlockLength]
+	tBytes := p[4: 4+timeBlockLength]
 	vBytes := p[4+timeBlockLength:]
 
 	var (
-		s    common.Series
-		tdec encoding.TimeDecoder
-		vdec encoding.ValueDecoder
+		s       common.Series
+		factory encoding.CodecFactory
+		tdec    encoding.TimeDecoder
+		vdec    encoding.ValueDecoder
+		err     error
 	)
-	switch tBytes[0] {
-	case encoding.CodecRawBigEndian, encoding.CodecRawLittleEndian:
-		tdec = encoding.NewRawBinaryDecoder()
-	case encoding.CodecVarInt:
-		tdec = encoding.NewVarIntDecoder()
-	default:
-		return nil, errors.Wrapf(encoding.ErrCodecNotFound, "unknown codec %s", encoding.CodecString(tBytes[0]))
+	if factory, err = encoding.GetFactory(tBytes[0]); err != nil {
+		return nil, errors.Wrapf(err, "unknown codec %s", encoding.CodecString(tBytes[0]))
 	}
-	switch vBytes[0] {
-	case encoding.CodecRawBigEndian, encoding.CodecRawLittleEndian:
-		vdec = encoding.NewRawBinaryDecoder()
-	case encoding.CodecVarInt:
-		vdec = encoding.NewVarIntDecoder()
+	if tdec, err = factory.NewTimeDecoder(); err != nil {
+		return nil, errors.Wrapf(err, "codec %s does not have time decoder", encoding.CodecString(tBytes[0]))
+	}
+
+	if factory, err = encoding.GetFactory(vBytes[0]); err != nil {
+		return nil, errors.Wrapf(err, "unknown codec %s", encoding.CodecString(vBytes[0]))
+	}
+	switch meta.GetSeriesType() {
+	case common.TypeIntSeries:
+		if vdec, err = factory.NewIntValueDecoder(); err != nil {
+			return nil, errors.Wrapf(err, "codec %s does not have int value decoder", encoding.CodecString(vBytes[0]))
+		}
+	case common.TypeDoubleSeries:
+		if vdec, err = factory.NewDoubleValueDecoder(); err != nil {
+			return nil, errors.Wrapf(err, "codec %s does not have double value decoder", encoding.CodecString(vBytes[0]))
+		}
 	default:
-		return nil, errors.Wrapf(encoding.ErrCodecNotFound, "unknown codec %s", encoding.CodecString(vBytes[0]))
+		return nil, errors.Errorf("unsupported series type %s", common.SeriesTypeString(meta.GetSeriesType()))
 	}
 
 	if err := tdec.Init(tBytes); err != nil {

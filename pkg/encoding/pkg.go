@@ -1,8 +1,8 @@
 package encoding
 
 import (
-	"github.com/pkg/errors"
 	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
@@ -10,7 +10,7 @@ import (
 var log = util.Logger.NewEntryWithPkg("k.encoding")
 
 const (
-	_                    byte = iota
+	_ byte = iota
 	CodecRawBigEndian
 	CodecRawLittleEndian
 	CodecVarInt
@@ -24,8 +24,8 @@ var (
 )
 
 var (
-	registeredCodec        []byte
-	registeredFactory      map[byte]CodecFactory = make(map[byte]CodecFactory, 4)
+	registeredCodec   []byte
+	registeredFactory map[byte]CodecFactory = make(map[byte]CodecFactory, 4)
 )
 
 type CodecFactory interface {
