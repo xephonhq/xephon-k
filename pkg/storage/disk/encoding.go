@@ -159,7 +159,7 @@ func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
 	case encoding.CodecVarInt:
 		tdec = encoding.NewVarIntDecoder()
 	default:
-		return nil, errors.Wrapf(encoding.ErrCodecNotSupported, "unknown codec %s", encoding.CodecString(tBytes[0]))
+		return nil, errors.Wrapf(encoding.ErrCodecNotFound, "unknown codec %s", encoding.CodecString(tBytes[0]))
 	}
 	switch vBytes[0] {
 	case encoding.CodecRawBigEndian, encoding.CodecRawLittleEndian:
@@ -167,7 +167,7 @@ func DecodeBlock(p []byte, meta common.SeriesMeta) (common.Series, error) {
 	case encoding.CodecVarInt:
 		vdec = encoding.NewVarIntDecoder()
 	default:
-		return nil, errors.Wrapf(encoding.ErrCodecNotSupported, "unknown codec %s", encoding.CodecString(vBytes[0]))
+		return nil, errors.Wrapf(encoding.ErrCodecNotFound, "unknown codec %s", encoding.CodecString(vBytes[0]))
 	}
 
 	if err := tdec.Init(tBytes); err != nil {

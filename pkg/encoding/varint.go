@@ -27,8 +27,6 @@ type VarIntDecoder struct {
 
 func init() {
 	registeredCodec = append(registeredCodec, CodecVarInt)
-	registeredValueEncoder = append(registeredValueEncoder, NewVarIntEncoder())
-	registeredValueDecoder = append(registeredValueDecoder, NewVarIntDecoder())
 	registeredFactory[CodecVarInt] = &VarIntCodecFactory{}
 }
 

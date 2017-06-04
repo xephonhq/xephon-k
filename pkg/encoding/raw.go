@@ -30,8 +30,6 @@ type RawBinaryDecoder struct {
 
 func init() {
 	registeredCodec = append(registeredCodec, CodecRawBigEndian, CodecRawLittleEndian)
-	registeredValueEncoder = append(registeredValueEncoder, NewBigEndianBinaryEncoder(), NewLittleEndianBinaryEncoder())
-	registeredValueDecoder = append(registeredValueDecoder, NewRawBinaryDecoder(), NewRawBinaryDecoder())
 	registeredFactory[CodecRawBigEndian] = &RawBinaryCodecFactory{codec: CodecRawBigEndian}
 	registeredFactory[CodecRawLittleEndian] = &RawBinaryCodecFactory{codec: CodecRawLittleEndian}
 }

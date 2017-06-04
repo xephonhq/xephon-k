@@ -50,25 +50,47 @@ func TestRegisteredValueEncoderDecoder(t *testing.T) {
 	ivals := []int64{-1, 1}
 	dvals := []float64{-1.1, 1.1}
 
-	for i, codec := range registeredCodec {
+	var (
+		f       CodecFactory
+		b       []byte
+		err     error
+		encoder ValueEncoder
+		decoder ValueDecoder
+	)
+
+	for _, codec := range registeredCodec {
 		assert.NotContains(CodecString(codec), "unkown")
 		t.Logf("test %s", CodecString(codec))
-		encoder := registeredValueEncoder[i]
-		decoder := registeredValueDecoder[i]
+		f, err = GetFactory(codec)
+		assert.Nil(err)
 
+		encoder, err = f.NewIntValueEncoder()
+		if err == ErrValueTypeNotSupported {
+			t.Logf("%s does not support int value", CodecString(codec))
+			goto DOUBLE
+		}
+		decoder, err = f.NewIntValueDecoder()
+		assert.Nil(err)
 		for _, iv := range ivals {
 			encoder.WriteInt(iv)
 		}
-		b, err := encoder.Bytes()
+		b, err = encoder.Bytes()
 		assert.Nil(err)
 		assert.Nil(decoder.Init(b))
 		for _, iv := range ivals {
 			decoder.Next()
 			assert.Equal(iv, decoder.ReadInt())
 		}
-
 		encoder.Reset()
 
+	DOUBLE:
+		encoder, err = f.NewDoubleValueEncoder()
+		if err == ErrValueTypeNotSupported {
+			t.Logf("%s does not support double value", CodecString(codec))
+			continue
+		}
+		decoder, err = f.NewDoubleValueDecoder()
+		assert.Nil(err)
 		for _, dv := range dvals {
 			encoder.WriteDouble(dv)
 		}

@@ -17,17 +17,14 @@ const (
 )
 
 var (
-	ErrTooSmall      = errors.New("data for decoding is too small")
-	ErrCodecMismatch = errors.New("decoder got data encoded using other codec")
-	// TODO: rename to codec not registered? we have some codec that does not support certain type, maybe
-	// ErrValueTypeNotSupported, or make it an struct
-	ErrCodecNotSupported = errors.New("codec is not supported")
+	ErrTooSmall              = errors.New("data for decoding is too small")
+	ErrCodecMismatch         = errors.New("decoder got data encoded using other codec")
+	ErrValueTypeNotSupported = errors.New("codec does not support this type of value")
+	ErrCodecNotFound         = errors.New("codec not found, did you forget to register it?")
 )
 
 var (
 	registeredCodec        []byte
-	registeredValueEncoder []ValueEncoder
-	registeredValueDecoder []ValueDecoder
 	registeredFactory      map[byte]CodecFactory = make(map[byte]CodecFactory, 4)
 )
 
