@@ -75,6 +75,9 @@ func (e *RLEEncoder) Codec() byte {
 }
 
 func (e *RLEEncoder) Bytes() ([]byte, error) {
+	if e.rLen == 0 {
+		return nil, errors.New("run length is 0")
+	}
 	// write the last run length
 	n := binary.PutUvarint(e.b10, e.rLen)
 	e.buf.Write(e.b10[:n])
@@ -96,17 +99,17 @@ func (e *RLEEncoder) WriteTime(t int64) {
 		return
 	}
 	// deal with the special value we write at start
-	if e.rLen == 0 {
-		return
+	if e.rLen != 0 {
+		// write the run length only
+		n := binary.PutUvarint(e.b10, e.rLen)
+		e.buf.Write(e.b10[:n])
 	}
-	// write the run length only
-	n := binary.PutUvarint(e.b10, e.rLen)
-	e.buf.Write(e.b10[:n])
+
 	// the new value
 	e.vI = t
 	e.rLen = 1
 	// write the new value
-	n = binary.PutVarint(e.b10, e.vI)
+	n := binary.PutVarint(e.b10, e.vI)
 	e.buf.Write(e.b10[:n])
 }
 
@@ -116,17 +119,17 @@ func (e *RLEEncoder) WriteInt(v int64) {
 		return
 	}
 	// deal with the special value we write at start
-	if e.rLen == 0 {
-		return
+	if e.rLen != 0 {
+		// write the run length only
+		n := binary.PutUvarint(e.b10, e.rLen)
+		e.buf.Write(e.b10[:n])
 	}
-	// write the run length only
-	n := binary.PutUvarint(e.b10, e.rLen)
-	e.buf.Write(e.b10[:n])
+
 	// the new value
 	e.vI = v
 	e.rLen = 1
 	// write the new value
-	n = binary.PutVarint(e.b10, e.vI)
+	n := binary.PutVarint(e.b10, e.vI)
 	e.buf.Write(e.b10[:n])
 }
 
@@ -135,14 +138,14 @@ func (e *RLEEncoder) WriteDouble(v float64) {
 		e.rLen++
 		return
 	}
-	if e.rLen == 0 {
-		return
+	if e.rLen != 0 {
+		n := binary.PutUvarint(e.b10, e.rLen)
+		e.buf.Write(e.b10[:n])
 	}
-	n := binary.PutUvarint(e.b10, e.rLen)
-	e.buf.Write(e.b10[:n])
+
 	e.vD = v
 	e.rLen = 1
-	n = binary.PutUvarint(e.b10, math.Float64bits(v))
+	n := binary.PutUvarint(e.b10, math.Float64bits(v))
 	e.buf.Write(e.b10[:n])
 }
 

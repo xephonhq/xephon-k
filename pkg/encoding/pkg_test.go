@@ -47,7 +47,7 @@ func encodeSeconds(t *testing.T, n int, enc TimeEncoder) []byte {
 // TODO: maybe we should do the same for time
 func TestRegisteredValueEncoderDecoder(t *testing.T) {
 	assert := asst.New(t)
-	ivals := []int64{-1, 1}
+	ivals := []int64{-1, 1, 1, 2, 3, 1}
 	dvals := []float64{-1.1, 1.1}
 
 	var (
