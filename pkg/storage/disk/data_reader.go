@@ -221,7 +221,6 @@ func (reader *LocalDataFileReader) PrintAll() {
 		// TODO: move this functionality of reading blocks out
 		// print decoded data of all the entries
 		for i, entry := range wrapper.entries.Entries {
-			// TODO: entry.BlockSize could be uint32
 			blockBytes := reader.b[entry.Offset : entry.Offset+uint64(entry.BlockSize)]
 			timeLength := binary.BigEndian.Uint32(blockBytes[:4])
 			fmt.Printf("block: %d length: %d time length: %d minTime: %d maxTime: %d \n",
@@ -231,6 +230,7 @@ func (reader *LocalDataFileReader) PrintAll() {
 				fmt.Print(err)
 				continue
 			}
+			// TODO: use https://golang.org/pkg/text/tabwriter/
 			decoded.PrintPoints()
 		}
 		fmt.Printf("------end series %s ------- \n", wrapper.entries.SeriesMeta.GetName())

@@ -122,11 +122,12 @@ type DataFileIndexWriter interface {
 }
 
 type LocalDataFileWriter struct {
-	f         *os.File
-	w         *bufio.Writer
-	index     DataFileIndexWriter
-	n         uint64
-	finalized bool
+	f           *os.File
+	w           *bufio.Writer
+	index       DataFileIndexWriter
+	n           uint64
+	finalized   bool
+	encodingOpt EncodingOption
 }
 
 type LocalDataFileIndexWriter struct {
@@ -134,17 +135,18 @@ type LocalDataFileIndexWriter struct {
 }
 
 //func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalDataFileWriter {
-func NewLocalFileWriter(f *os.File, bufferSize int) (*LocalDataFileWriter, error) {
+func NewLocalFileWriter(f *os.File, bufferSize int, encodingOpt EncodingOption) (*LocalDataFileWriter, error) {
 	if bufferSize <= 0 {
 		bufferSize = DefaultBufferSize
 	}
 
 	return &LocalDataFileWriter{
-		f:         f,
-		w:         bufio.NewWriterSize(f, bufferSize),
-		index:     NewLocalFileIndexWriter(),
-		n:         0,
-		finalized: false,
+		f:           f,
+		w:           bufio.NewWriterSize(f, bufferSize),
+		index:       NewLocalFileIndexWriter(),
+		n:           0,
+		finalized:   false,
+		encodingOpt: encodingOpt,
 	}, nil
 }
 
@@ -181,7 +183,7 @@ func (writer *LocalDataFileWriter) WriteSeries(series common.Series) error {
 		}
 	}
 
-	n, err := EncodeBlockTo(series, writer.w)
+	n, err := EncodeBlockTo(series, writer.encodingOpt, writer.w)
 	if err != nil {
 		return errors.Wrap(err, "can't encode and write data block")
 	}

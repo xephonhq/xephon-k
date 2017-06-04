@@ -6,6 +6,7 @@ import (
 
 	asst "github.com/stretchr/testify/assert"
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"github.com/xephonhq/xephon-k/pkg/encoding"
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
@@ -14,7 +15,9 @@ func TestNewLocalFileIndexWriter(t *testing.T) {
 	f := util.TempFile(t, "xephon")
 	defer os.Remove(f.Name())
 
-	w, err := NewLocalFileWriter(f, -1)
+	opt, err := NewEncodingOption()
+	assert.Nil(err)
+	w, err := NewLocalFileWriter(f, -1, opt)
 	assert.Nil(err)
 	assert.NotNil(w.Close())
 }
@@ -24,8 +27,14 @@ func TestLocalFileWriter_WriteSeries(t *testing.T) {
 	f := util.TempFile(t, "xephon")
 	defer os.Remove(f.Name())
 
+	opt, err := NewEncodingOption(func(o *EncodingOption) {
+		o.TimeCodec = encoding.CodecRawBigEndian
+		o.IntValueCodec = encoding.CodecRawBigEndian
+		o.DoubleValueCodec = encoding.CodecRawBigEndian
+	})
+	assert.Nil(err)
 	// f, err = os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
-	w, err := NewLocalFileWriter(f, -1)
+	w, err := NewLocalFileWriter(f, -1, opt)
 	assert.Nil(err)
 
 	si := common.NewIntSeries("si")

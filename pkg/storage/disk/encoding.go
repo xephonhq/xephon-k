@@ -10,12 +10,44 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/encoding"
 )
 
+// TODO: allow adaptive encoding
+type EncodingOption struct {
+	TimeCodec        byte
+	IntValueCodec    byte
+	DoubleValueCodec byte
+}
+
+// https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
+func NewEncodingOption(options ...func(*EncodingOption)) (EncodingOption, error) {
+	opt := EncodingOption{
+		TimeCodec:        encoding.CodecRawBigEndian,
+		IntValueCodec:    encoding.CodecVarInt,
+		DoubleValueCodec: encoding.CodecVarInt,
+	}
+	for _, option := range options {
+		option(&opt)
+	}
+	// valid if all the codec we use are already registered
+	// TODO: also check if this codec supports encoding time, int, double value etc.
+	if !encoding.IsRegisteredCodec(opt.TimeCodec) {
+		return opt, errors.Errorf("codec %v is not registered, can't use it for time", opt.TimeCodec)
+	}
+	if !encoding.IsRegisteredCodec(opt.IntValueCodec) {
+		return opt, errors.Errorf("codec %v is not registered, can't use it for int value", opt.IntValueCodec)
+	}
+	if !encoding.IsRegisteredCodec(opt.DoubleValueCodec) {
+		return opt, errors.Errorf("codec %v is not registered, can't use it for double value", opt.DoubleValueCodec)
+	}
+	return opt, nil
+}
+
 // EncodeBlockTo encode the series data points and write to underlying writer
 // It does not return bytes to avoid need less copying when concat encoded time and values
-func EncodeBlockTo(series common.Series, w io.Writer) (int, error) {
+func EncodeBlockTo(series common.Series, opt EncodingOption, w io.Writer) (int, error) {
 	N := 0
 	n := 0
 	var (
+		vCodec         byte
 		tenc           encoding.TimeEncoder
 		venc           encoding.ValueEncoder
 		tBytes, vBytes []byte
@@ -24,9 +56,39 @@ func EncodeBlockTo(series common.Series, w io.Writer) (int, error) {
 	blockHeader := make([]byte, 4)
 
 	// encode time and value separately
-	// TODO: only use RawBigEndianTime/IntEncoder for now, should allow option or adaptive
-	tenc = encoding.NewBigEndianBinaryEncoder()
-	venc = encoding.NewBigEndianBinaryEncoder()
+	// TODO: should put this logic in the encoding package, like have a object called codec
+	switch opt.TimeCodec {
+	case encoding.CodecRawBigEndian:
+		tenc = encoding.NewBigEndianBinaryEncoder()
+	case encoding.CodecRawLittleEndian:
+		tenc = encoding.NewLittleEndianBinaryEncoder()
+	case encoding.CodecVarInt:
+		tenc = encoding.NewVarIntEncoder()
+	default:
+		return 0, errors.Errorf("unsupported codec %s for time encoder", encoding.CodecString(opt.TimeCodec))
+	}
+
+	// determine which kind of value are we encoding and read the correspond config
+	switch series.GetSeriesType() {
+	case common.TypeIntSeries:
+		vCodec = opt.IntValueCodec
+	case common.TypeDoubleSeries:
+		vCodec = opt.DoubleValueCodec
+	default:
+		return 0, errors.Errorf("unsupported series type %s, no available codec in option",
+			common.SeriesTypeString(series.GetSeriesType()))
+	}
+
+	switch vCodec {
+	case encoding.CodecRawBigEndian:
+		venc = encoding.NewBigEndianBinaryEncoder()
+	case encoding.CodecRawLittleEndian:
+		venc = encoding.NewLittleEndianBinaryEncoder()
+	case encoding.CodecVarInt:
+		venc = encoding.NewVarIntEncoder()
+	default:
+		return 0, errors.Errorf("unsupported codec %s for value encoder", encoding.CodecString(opt.TimeCodec))
+	}
 
 	// TODO: deal with columnar format
 	switch series.GetSeriesType() {

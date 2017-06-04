@@ -60,7 +60,15 @@ type ValueDecoder interface {
 	ReadDouble() float64
 }
 
-// TODO: test we support all the codec's, maybe have a registered codec
+func IsRegisteredCodec(codec byte) bool {
+	for _, c := range registeredCodec {
+		if c == codec {
+			return true
+		}
+	}
+	return false
+}
+
 func CodecString(codec byte) string {
 	switch codec {
 	case CodecRawBigEndian:
