@@ -4,10 +4,12 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
+	"github.com/xephonhq/xephon-k/pkg/storage/disk"
 )
 
 // check interface
 var _ Store = (*memory.Store)(nil)
+var _ Store = (*disk.Store)(nil)
 var _ Store = (*cassandra.Store)(nil)
 
 // Store is the base interface for all type of storages

@@ -13,6 +13,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/storage"
 	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
+	"github.com/xephonhq/xephon-k/pkg/storage/disk"
 )
 
 type ReadService interface {
@@ -105,6 +106,11 @@ func (ReadServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 
 func NewReadServiceMem() *ReadServiceServerImpl {
 	store := memory.GetDefaultMemStore()
+	return &ReadServiceServerImpl{store: store}
+}
+
+func NewReadServiceDisk(dir string) *ReadServiceServerImpl {
+	store := disk.GetDefaultDiskStore(dir)
 	return &ReadServiceServerImpl{store: store}
 }
 

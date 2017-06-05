@@ -12,6 +12,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/storage"
 	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
+	"github.com/xephonhq/xephon-k/pkg/storage/disk"
 )
 
 type WriteService interface {
@@ -131,6 +132,11 @@ func (WriteServiceHTTPFactory) MakeEncode() httptransport.EncodeResponseFunc {
 func NewWriteServiceMem() *WriteServiceServerImpl {
 	// FIXME: it should be a singleton
 	store := memory.GetDefaultMemStore()
+	return &WriteServiceServerImpl{store: store}
+}
+
+func NewWriteServiceDisk(dir string) *WriteServiceServerImpl {
+	store := disk.GetDefaultDiskStore(dir)
 	return &WriteServiceServerImpl{store: store}
 }
 

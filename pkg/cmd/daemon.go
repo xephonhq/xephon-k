@@ -15,15 +15,17 @@ var (
 	port              = server.DefaultPort
 	backend           = "memory"
 	cassandraHost     = "localhost"
+	diskFolder        = ""
 )
 
+// xkd -b disk --folder /home/at15/workspace/tmp
 var DaemonCmd = &cobra.Command{
 	Use:   "xkd",
 	Short: "Xephon K Daemon",
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print(banner)
-		srv := server.HTTPServer{Port: port, Backend: backend, CassandraHost: cassandraHost}
+		srv := server.HTTPServer{Port: port, Backend: backend, CassandraHost: cassandraHost, DiskFolder: diskFolder}
 		srv.Start()
 		// TODO: capture ctrl + c and call shutdown of store
 	},
@@ -43,5 +45,6 @@ func init() {
 	DaemonCmd.PersistentFlags().StringVar(&cassandraHost, "cassandra-host", "localhost", "cassandra host address")
 	// local flags
 	DaemonCmd.Flags().IntVarP(&port, "port", "p", server.DefaultPort, "port to listen on")
-	DaemonCmd.Flags().StringVarP(&backend, "backend", "b", "memory", "memory|cassandra")
+	DaemonCmd.Flags().StringVarP(&backend, "backend", "b", "memory", "memory|cassandra|disk")
+	DaemonCmd.Flags().StringVar(&diskFolder, "folder", "", "root folder of disk ")
 }

@@ -16,6 +16,7 @@ type HTTPServer struct {
 	Port          int
 	Backend       string
 	CassandraHost string
+	DiskFolder    string
 }
 
 func errorEncoder(_ context.Context, err error, w http.ResponseWriter) {
@@ -58,6 +59,10 @@ func (srv HTTPServer) Mux() *http.ServeMux {
 		log.Info("use cassandra backend")
 		writeSvc = service.NewWriteServiceCassandra(srv.CassandraHost)
 		readSvc = service.NewReadServiceCassandra(srv.CassandraHost)
+	} else if strings.HasPrefix(srv.Backend, "d") {
+		log.Info("use disk backend")
+		writeSvc = service.NewWriteServiceDisk(srv.DiskFolder)
+		readSvc = service.NewReadServiceDisk(srv.DiskFolder)
 	} else {
 		log.Fatalf("unknown backend %s", srv.Backend)
 	}
