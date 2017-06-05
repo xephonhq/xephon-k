@@ -6,7 +6,6 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	//"time"
-	"github.com/pkg/errors"
 )
 
 var storeMap StoreMap
@@ -133,9 +132,23 @@ func (store Store) WriteIntSeries(series []common.IntSeries) error {
 	return nil
 }
 
+// WriteDoubleSeries implements Store interface
 func (store Store) WriteDoubleSeries(series []common.DoubleSeries) error {
-	log.Panic("write double series is not implemented for Cassandra")
-	return errors.New("write double series is not implemented for Cassandra")
+	// TODO: copied from write int series
+	session := store.session
+	for _, oneSeries := range series {
+		batch := session.NewBatch(gocql.UnloggedBatch)
+		for _, p := range oneSeries.Points {
+			// http://stackoverflow.com/questions/35401344/passing-a-map-as-a-value-to-insert-into-cassandra
+			batch.Query(insertDoubleStmt, oneSeries.Name, p.T, oneSeries.Tags, p.V)
+		}
+		err := session.ExecuteBatch(batch)
+		if err != nil {
+			// TODO: better error handling, we should have an error aggregator
+			log.Warn(err)
+		}
+	}
+	return nil
 }
 
 func (store Store) Shutdown() {

@@ -1,5 +1,6 @@
 language: go
 sudo: false
+# TODO: use docker and run test for cassandra backend https://docs.travis-ci.com/user/docker/
 
 go:
   - 1.8

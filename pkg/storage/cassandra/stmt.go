@@ -15,3 +15,7 @@ var selectIntByStartEndTimeStmt = `
 var insertIntStmt = `
 	INSERT INTO metrics_int (metric_name, metric_timestamp, tags, value) VALUES (?, ?, ?, ?)
 	`
+
+var insertDoubleStmt = `
+	INSERT INTO metrics_double (metric_name, metric_timestamp, tags, value) VALUES (?, ?, ?, ?)
+	`
