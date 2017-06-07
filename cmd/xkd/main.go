@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/cmd"
+	"github.com/xephonhq/xephon-k/pkg/server/http"
 )
 
 // The daemon
 func main() {
-	cmd.ExecuteDaemon()
+	// temporal workaround for try out new server
+	srv := http.NewServer()
+	srv.Start()
 }

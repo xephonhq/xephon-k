@@ -1,0 +1,27 @@
+// go get github.com/gogo/protobuf/protoc-gen-gogo
+// protoc --proto_path=/home/at15/workspace/src/:. --gogo_out=plugins=grpc:. payload.proto
+syntax = "proto3";
+
+package payload;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/xephonhq/xephon-k/pkg/common/common.proto";
+
+option (gogoproto.sizer_all) = true;
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+
+service Write {
+    rpc Write (WriteRequest) returns (WriteResponse) {}
+}
+
+message WriteRequest {
+    repeated common.IntSeries intSeries = 1 [(gogoproto.nullable) = false];
+    repeated common.DoubleSeries doubleSeries = 2 [(gogoproto.nullable) = false];
+}
+
+message WriteResponse {
+    bool error = 1;
+    string errorMsg = 2;
+}
