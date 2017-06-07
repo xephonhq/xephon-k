@@ -1,6 +1,6 @@
 # Xephon-K Daemon config example
 # NOTE: logging block is small in both daemon and bench
-logging:
+log:
   level: info
   color: true
   source: false
@@ -8,18 +8,21 @@ logging:
   # filter: k.server.xxx
   # TODO: wait until human package is added to gommon
   # human: true
-backend:
+storage:
   memory:
     # row/column
     layout: row
     # TODO: custom type with custom marshaler and unmarshaler
-    # 100KB / 100MB
-    chunkSize: 100MB
+    # 1 KB 1024 1 MB 1048576
+    # 100 MB
+    chunkSize: 104857600
     enableIndex: true
   disk:
     folder: /tmp
-    concurrentWriteFile: 1
-    singleFileSize: 512MB
+    concurrentWriteFiles: 1
+    # 1 KB 1024 1 MB 1048576
+    # 512 MB
+    singleFileSize: 536870912
   cassandra:
     host: localhost
     port: 9042

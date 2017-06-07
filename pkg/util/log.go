@@ -14,14 +14,13 @@ var Logger = dlog.NewLogger()
 var log = Logger.NewEntryWithPkg("k.util")
 
 type LogConfig struct {
-	Level    string                 `yaml:"level" json:"level"`
-	Color    bool                   `yaml:"color" json:"color"`
-	Source   bool                   `yaml:"source" json:"source"`
-	XXX      map[string]interface{} `yaml:",inline"`
-	original string
+	Level  string                 `yaml:"level" json:"level"`
+	Color  bool                   `yaml:"color" json:"color"`
+	Source bool                   `yaml:"source" json:"source"`
+	XXX    map[string]interface{} `yaml:",inline"`
 }
 
-// for avoid recursion in UnmarshalYAML
+// avoid recursion in UnmarshalYAML
 type logConfigAlias LogConfig
 
 func NewLogConfig() LogConfig {
@@ -70,8 +69,6 @@ func (c *LogConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err := unmarshal(a); err != nil {
 		return err
 	}
-	// TODO: check if the level string is valid
-	// FIXME: we can't have original because YAML does not have []byte like in JSON for Unmarshaler
 	if len(c.XXX) != 0 {
 		return errors.Errorf("undefined fields %v", c.XXX)
 	}
@@ -79,6 +76,9 @@ func (c *LogConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func (c *LogConfig) Apply() error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
 	if Logger.Level.String() != c.Level {
 		newLevel, err := dlog.ParseLevel(c.Level, false)
 		if err != nil {
@@ -95,14 +95,9 @@ func (c *LogConfig) Apply() error {
 	return nil
 }
 
-func (c *LogConfig) IsValid() bool {
+func (c *LogConfig) Validate() error {
 	if _, err := dlog.ParseLevel(c.Level, false); err != nil {
-		return false
+		return errors.Wrap(err, "invalid log config")
 	}
-	return true
-}
-
-func (c *LogConfig) Original() string {
-	// FIXME: we can't have original because YAML does not have []byte like in JSON for Unmarshaler
-	return c.original
+	return nil
 }

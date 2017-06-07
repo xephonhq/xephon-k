@@ -1,4 +1,4 @@
-package util
+package memory
 
 import (
 	asst "github.com/stretchr/testify/assert"
@@ -6,27 +6,24 @@ import (
 	"testing"
 )
 
-func TestLogConfig_UnmarshalYAML(t *testing.T) {
+func TestConfig_UnmarshalYAML(t *testing.T) {
 	assert := asst.New(t)
 	valid := `
-level: info
-source: false
-color: false
+layout: row
+chunkSize: 104857600
+enableIndex: true
 `
-	c := NewLogConfig()
-	// FIXED: fatal error: stack overflow, use alias, like filter and read service
+	c := NewConfig()
 	err := yaml.Unmarshal([]byte(valid), &c)
 	assert.Nil(err)
 	undefinedFields := `
 haha: 123
 `
 	err = yaml.Unmarshal([]byte(undefinedFields), &c)
-	//t.Log(err)
 	assert.NotNil(err)
-	wrongLevel := `
-level: haha
-`
-	err = yaml.Unmarshal([]byte(wrongLevel), &c)
+	wrongLayout := `
+layout: hybrid`
+	err = yaml.Unmarshal([]byte(wrongLayout), &c)
 	assert.Nil(err)
 	assert.NotNil(c.Validate())
 	assert.NotNil(c.Apply())
