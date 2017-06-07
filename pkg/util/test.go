@@ -42,6 +42,18 @@ func TempFile(t *testing.T, prefix string) *os.File {
 	return f
 }
 
+func ReadAsBytes(t *testing.T, p string) []byte {
+	f, err := os.OpenFile(p, os.O_RDONLY, 0666)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
+}
+
 func init() {
 	mockedVars = make(map[int32]interface{}, 5)
 	mockedVarsValue = make(map[int32]interface{}, 5)

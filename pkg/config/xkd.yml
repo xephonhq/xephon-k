@@ -1,5 +1,5 @@
 # Xephon-K Daemon config example
-# NOTE: logging block is small in both daemon and bench
+# NOTE: logging block is same in both daemon and bench
 log:
   level: info
   color: true

@@ -40,11 +40,27 @@ func (c *Config) Apply() error {
 	if err := c.Validate(); err != nil {
 		return err
 	}
-	// TODO: call apply of all the child
+	if err := c.Memory.Apply(); err != nil {
+		return err
+	}
+	if err := c.Disk.Apply(); err != nil {
+		return err
+	}
+	if err := c.Cassandra.Apply(); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (c *Config) Validate() error {
-	// TODO: call valid of all the child
+	if err := c.Memory.Validate(); err != nil {
+		return err
+	}
+	if err := c.Disk.Validate(); err != nil {
+		return err
+	}
+	if err := c.Cassandra.Validate(); err != nil {
+		return err
+	}
 	return nil
 }

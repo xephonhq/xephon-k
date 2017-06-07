@@ -1,6 +1,8 @@
 # Xephon-K benchmark config example
 log:
   level: info
+  color: true
+  source: false
 # local/remote
 # TODO: remote is not supported, but we should, and it should also be able to spawn the needed resources
 mode: local
