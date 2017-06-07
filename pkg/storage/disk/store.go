@@ -1,10 +1,10 @@
 package disk
 
 import (
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/encoding"
 	"io/ioutil"
-	"github.com/pkg/errors"
 	"sync"
 )
 

@@ -1,5 +1,5 @@
-hash: c9aa126ebacf8b3ab11675c05c6cb317dfcd7f7429968b07ab2352c988c5aca0
-updated: 2017-05-24T19:42:48.603722006-07:00
+hash: c0e732d761b39bf1e2c5f302763150d16f58b669f1a7d433ccb0fd120d62344a
+updated: 2017-06-06T17:25:02.489998868-07:00
 imports:
 - name: github.com/dyweb/gommon
   version: 8ca50631c052f4dd995c69ee35bda0fb79a1e0bf
@@ -33,6 +33,12 @@ imports:
   - gogoproto
   - proto
   - protoc-gen-gogo/descriptor
+- name: github.com/golang/protobuf
+  version: 5a0f697c9ed9d68fef0116532c6e05cfeae00e55
+  subpackages:
+  - proto
+  - protoc-gen-go/descriptor
+  - ptypes/any
 - name: github.com/golang/snappy
   version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
 - name: github.com/hailocab/go-hostpool
@@ -54,6 +60,41 @@ imports:
   subpackages:
   - context
   - context/ctxhttp
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/text
+  version: ab6d1c143672de99b9dfde433b7f6affb278cc74
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: aa2eb687b4d3e17154372564ad8d6bf11c3cf21f
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: d2a85bf7ad299df70daee28117f707025bddac22
+  subpackages:
+  - codes
+  - credentials
+  - grpclb/grpc_lb_v1
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - reflection
+  - reflection/grpc_reflection_v1alpha
+  - stats
+  - status
+  - tap
+  - transport
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 testImports:

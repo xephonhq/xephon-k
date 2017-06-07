@@ -55,7 +55,7 @@ func (store *Store) QuerySeries(queries []common.Query) ([]common.QueryResult, [
 			// need to make a shallow copy, otherwise it will refer to itself and cause stackoverflow
 			originalFilter := query.Filter
 			query.Filter = common.Filter{Type: "and", LeftOperand: &common.Filter{Type: "tag_match", Key: nameTagKey, Value: query.Name},
-				RightOperand:                  &originalFilter}
+				RightOperand: &originalFilter}
 			seriesIDs := store.index.Filter(&query.Filter)
 			queryResult.Matched = len(seriesIDs)
 			for j := 0; j < len(seriesIDs); j++ {

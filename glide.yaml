@@ -18,6 +18,7 @@ import:
 - package: github.com/gogo/protobuf
   vcs: git
   version: 9df9efe4c742f1a2bfdedf1c3b6902fc6e814c6b
+- package: google.golang.org/grpc 
 testImport:
 - package: github.com/stretchr/testify
   vcs: git

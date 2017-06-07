@@ -3,8 +3,8 @@ package storage
 import (
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/storage/cassandra"
-	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 	"github.com/xephonhq/xephon-k/pkg/storage/disk"
+	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 )
 
 // check interface
