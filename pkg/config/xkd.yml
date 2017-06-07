@@ -1,0 +1,36 @@
+# Xephon-K Daemon config example
+# NOTE: logging block is small in both daemon and bench
+logging:
+  level: info
+  color: true
+  source: false
+  # TODO: wait until filter in gommon is usable
+  # filter: k.server.xxx
+  # TODO: wait until human package is added to gommon
+  # human: true
+backend:
+  memory:
+    # row/column
+    layout: row
+    # TODO: custom type with custom marshaler and unmarshaler
+    # 100KB / 100MB
+    chunkSize: 100MB
+    enableIndex: true
+  disk:
+    folder: /tmp
+    concurrentWriteFile: 1
+    singleFileSize: 512MB
+  cassandra:
+    host: localhost
+    port: 9042
+    # TODO: cache, concurrent write etc.
+server:
+  http:
+    host: localhost
+    port: 2333
+    enabled: true
+  grpc:
+    host: localhost
+    port: 2334
+    enabled: false
+

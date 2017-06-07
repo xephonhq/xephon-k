@@ -1,0 +1,40 @@
+# Xephon-K benchmark config example
+logging:
+  level: info
+# local/remote
+# TODO: remote is not supported, but we should, and it should also be able to spawn the needed resources
+mode: local
+payload:
+# fixed number of points
+# TODO: pointsPerSeries
+  totalPoints: -1
+  totalSeries: 100
+  duration: 10s
+  int: 10%
+  double: 80%
+generator:
+  timeInterval: 1s
+  timeNoise: false
+  int:
+    max: 10
+    min: 1
+  double:
+    max: 1.0
+    min: 2.2
+worker:
+  num: 100
+  batchSize: 100
+  series: 10
+  qps: -1
+reporter:
+  # report to tsdb
+  # aggregation interval etc.
+target:
+  influxdb:
+    host: localhost
+    port: -1
+  xephonk:
+    host:
+    port:
+  kairosdb:
+currentTarget: xephonk

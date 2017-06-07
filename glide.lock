@@ -1,8 +1,8 @@
-hash: c0e732d761b39bf1e2c5f302763150d16f58b669f1a7d433ccb0fd120d62344a
-updated: 2017-06-06T17:25:02.489998868-07:00
+hash: ae2f6fcc093805fb8e930b19d0ed1d35602e917982807e1e0857596be92fc8c1
+updated: 2017-06-06T23:55:09.489891648-07:00
 imports:
 - name: github.com/dyweb/gommon
-  version: 8ca50631c052f4dd995c69ee35bda0fb79a1e0bf
+  version: a6bef353d682f8a21d0ba4131f1388f13a64a88b
   vcs: git
   subpackages:
   - log
@@ -97,6 +97,8 @@ imports:
   - transport
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+- name: gopkg.in/yaml.v2
+  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
