@@ -10,11 +10,13 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/storage"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 
-	//"github.com/xephonhq/xephon-k/pkg/server/grpc"
+	"github.com/xephonhq/xephon-k/pkg/server/grpc"
 	"github.com/xephonhq/xephon-k/pkg/server/http"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/util"
 	"gopkg.in/yaml.v2"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -38,7 +40,6 @@ var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Print(c.Banner)
 		// start http/grpc server
-		// trap ctrl + c for shutdown
 
 		// TODO: actually this logic should be handled in the storage package
 		log.Debugf("use %s storage", cfgStorage)
@@ -46,7 +47,7 @@ var RootCmd = &cobra.Command{
 			store      storage.Store
 			err        error
 			httpServer *http.Server
-			// grpcServer *grpc.Server
+			grpcServer *grpc.Server
 		)
 		if cfgStorage == "memory" {
 			if err = memory.CreateStore(config.Storage.Memory); err != nil {
@@ -61,15 +62,52 @@ var RootCmd = &cobra.Command{
 		// TODO: disk and cassandra
 		// TODO: do we still need service? yes
 		writeService := service.NewWriteService(store)
+
+		// trap sigterm
+		sigInt := make(chan os.Signal)
+		sigTerm := make(chan os.Signal)
+		signal.Notify(sigInt, os.Interrupt)
+		signal.Notify(sigTerm, syscall.SIGTERM)
+		serverErr := make(chan error)
+
 		if config.Server.Http.Enabled {
 			httpServer = http.NewServer(config.Server.Http, writeService)
+			go func() {
+				if err := httpServer.Start(); err != nil {
+					serverErr <- err
+				}
+			}()
 		}
 		if config.Server.Grpc.Enabled {
-			// grpcServer = grpc.NewServer(config.Server.Grpc, writeService)
+			grpcServer = grpc.NewServer(config.Server.Grpc, writeService)
+			go func() {
+				if err := grpcServer.Start(); err != nil {
+					serverErr <- err
+				}
+			}()
 		}
-		// TODO: start another go routine, graceful shutdown etc.
-		// TODO: start will block all the other things
-		httpServer.Start()
+
+		select {
+		case <-sigInt:
+			log.Info("received SIGINT, exiting gracefully")
+		case <-sigTerm:
+			log.Info("received SIGTERM, exiting gracefully")
+		case err := <-serverErr:
+			log.Errorf("server error %v", err)
+		}
+
+		if config.Server.Http.Enabled {
+			httpServer.Stop()
+		}
+		// FIXME: panic: runtime error: invalid memory address or nil pointer dereference
+		// first start xkd with only http enabled
+		// then start xkd with both http and grpc enabled, it will exit because http can't start
+		// however, it cause panic when try to stop the grpc server
+		if config.Server.Grpc.Enabled {
+			grpcServer.Stop()
+		}
+
+		log.Info("See you!")
 	},
 }
 

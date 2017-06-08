@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"context"
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/util"
+	"time"
 )
 
 var log = util.Logger.NewEntryWithPkg("k.server.http")
@@ -35,7 +37,7 @@ func (s *Server) Start() error {
 
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 	s.h = &http.Server{Addr: addr, Handler: mux}
-	log.Infof("start serving on %s", addr)
+	log.Infof("serve http on %s", addr)
 	if err := s.h.ListenAndServe(); err != nil {
 		return errors.Wrapf(err, "can't start http server on %s", addr)
 	}
@@ -44,3 +46,11 @@ func (s *Server) Start() error {
 
 // TODO: graceful shutdown, need to store server
 // https://gist.github.com/peterhellberg/38117e546c217960747aacf689af3dc2
+func (s *Server) Stop() {
+	log.Info("stopping http server")
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := s.h.Shutdown(ctx); err != nil {
+		log.Warnf("didn't stop gracefully %v", err)
+	}
+	log.Info("http server stopped")
+}

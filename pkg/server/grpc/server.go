@@ -45,8 +45,17 @@ func (s *Server) Start() error {
 	s.g = grpc.NewServer()
 	pb.RegisterWriteServer(s.g, s)
 	reflection.Register(s.g)
+	log.Infof("serve grpc on %s", addr)
 	if err := s.g.Serve(t); err != nil {
 		return errors.Wrapf(err, "can't start grpc server on %s", addr)
 	}
 	return nil
+}
+
+func (s *Server) Stop() {
+	// TODO: add a timeout
+	log.Info("stopping grpc server")
+	log.Info(s.g)
+	s.g.GracefulStop()
+	log.Info("grpc server stopped")
 }
