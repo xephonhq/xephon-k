@@ -65,5 +65,7 @@ func (s *Server) write(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
+	// FIXME: the empty error response does not match our json format, because it has omit empty, so error: false is omitted
+	// by pojo generated using protobuf
 	writeJSON(w, res)
 }

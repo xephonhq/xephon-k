@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/util"
 	"time"
@@ -32,6 +33,10 @@ func NewServer(config Config, write *service.WriteService2, read *service.ReadSe
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "pong")
+}
+
+func info(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, map[string]string{"version": pkg.Version})
 }
 
 func writeErr(w http.ResponseWriter, err error, code int) {
@@ -60,7 +65,9 @@ func internalError(w http.ResponseWriter, err error) {
 func (s *Server) Mux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ping", ping)
+	mux.HandleFunc("/info", info)
 	mux.HandleFunc("/write", s.write)
+	mux.HandleFunc("/read", s.read)
 	return mux
 }
 
