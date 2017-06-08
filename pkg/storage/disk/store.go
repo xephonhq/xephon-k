@@ -109,8 +109,10 @@ func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
 }
 
 func (store *Store) Shutdown() {
+	log.Info("shutting down on disk store")
 	if err := store.writer.Close(); err != nil {
 		log.Warn("can't close writer")
 		log.Warn(err)
 	}
+	log.Info("shutdown complete")
 }

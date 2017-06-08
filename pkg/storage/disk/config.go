@@ -10,6 +10,7 @@ const (
 	MinimalSingleFileSize = 64 * 1024 * 1024
 )
 
+// TODO: encoding
 type Config struct {
 	Folder               string                 `yaml:"folder" json:"folder"`
 	ConcurrentWriteFiles int                    `yaml:"concurrentWriteFiles" json:"concurrentWriteFiles"`

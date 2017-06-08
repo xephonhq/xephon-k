@@ -131,7 +131,8 @@ func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
 	return nil
 }
 
-// Shutdown TODO: gracefully flush in memory data to disk
+// Shutdown
 func (store *Store) Shutdown() {
+	// TODO: ask user if they want to flush in memory data to disk
 	log.Info("shutting down memory store, nothing to do, have a nice weekend~")
 }

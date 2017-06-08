@@ -9,7 +9,6 @@ import (
 	cf "github.com/xephonhq/xephon-k/pkg/config"
 	"github.com/xephonhq/xephon-k/pkg/storage"
 	"github.com/xephonhq/xephon-k/pkg/storage/memory"
-
 	"github.com/xephonhq/xephon-k/pkg/server/grpc"
 	"github.com/xephonhq/xephon-k/pkg/server/http"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
@@ -40,15 +39,18 @@ var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Print(c.Banner)
 
-		// TODO: actually this logic should be handled in the storage package
-		log.Debugf("use %s storage", cfgStorage)
+
 		var (
 			store      storage.Store
 			err        error
 			httpServer *http.Server
 			grpcServer *grpc.Server
 		)
-		if cfgStorage == "memory" {
+
+		// TODO: actually this logic should be handled in the storage package
+		log.Infof("use %s storage", cfgStorage)
+		switch cfgStorage {
+		case "memory":
 			if err = memory.CreateStore(config.Storage.Memory); err != nil {
 				log.Fatalf("can't create mem store %v", err)
 				return
@@ -57,6 +59,13 @@ var RootCmd = &cobra.Command{
 				log.Fatalf("can't get mem store %v", err)
 				return
 			}
+		case "disk":
+			log.Fatal("TODO: disk")
+		case "cassandra":
+			log.Fatal("TODO: cassandra")
+		default:
+			log.Fatalf("unknown storage %s", cfgStorage)
+			return
 		}
 		// TODO: disk and cassandra
 		writeService := service.NewWriteService(store)
@@ -102,6 +111,8 @@ var RootCmd = &cobra.Command{
 		if config.Server.Grpc.Enabled {
 			grpcServer.Stop()
 		}
+
+		store.Shutdown()
 
 		log.Info("See you!")
 	},
