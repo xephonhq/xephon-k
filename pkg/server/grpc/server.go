@@ -3,8 +3,10 @@ package grpc
 import (
 	"net"
 
+	"fmt"
+	"github.com/pkg/errors"
 	pb "github.com/xephonhq/xephon-k/pkg/server/payload"
-	"github.com/xephonhq/xephon-k/pkg/storage"
+	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/util"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -14,25 +16,37 @@ import (
 var log = util.Logger.NewEntryWithPkg("k.server.grpc")
 
 type Server struct {
-	store storage.Store
+	g      *grpc.Server
+	config Config
+	write  *service.WriteService2
+}
+
+func NewServer(config Config, write *service.WriteService2) *Server {
+	return &Server{
+		config: config,
+		write:  write,
+	}
 }
 
 // FIXME: the new context in go 1.7?
 // https://github.com/grpc/grpc-go/issues/711
 func (s *Server) Write(ctx context.Context, req *pb.WriteRequest) (*pb.WriteResponse, error) {
-	return &pb.WriteResponse{Error: false, ErrorMsg: ""}, nil
+	// TODO: is there any information I can log from its context?
+	return s.write.Write(req)
 }
 
-func (s *Server) Start() {
-	// TODO: config, kip the reference and shutdown the server?
-	t, err := net.Listen("tcp", "localhost:2444")
+func (s *Server) Start() error {
+	// TODO: shutdown the server?
+	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
+	t, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return errors.Wrapf(err, "can't start tcp server on %s", addr)
 	}
-	gs := grpc.NewServer()
-	pb.RegisterWriteServer(gs, s)
-	reflection.Register(gs)
-	if err := gs.Serve(t); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	s.g = grpc.NewServer()
+	pb.RegisterWriteServer(s.g, s)
+	reflection.Register(s.g)
+	if err := s.g.Serve(t); err != nil {
+		return errors.Wrapf(err, "can't start grpc server on %s", addr)
 	}
+	return nil
 }

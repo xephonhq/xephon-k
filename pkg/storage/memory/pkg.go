@@ -3,6 +3,7 @@ package memory
 import (
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
@@ -32,4 +33,26 @@ func GetDefaultMemStore() *Store {
 	storeMap.mu.RLock()
 	defer storeMap.mu.RUnlock()
 	return storeMap.stores["default"]
+}
+
+func CreateStore(config Config) error {
+	storeMap.mu.Lock()
+	defer storeMap.mu.Unlock()
+
+	if err := config.Validate(); err != nil {
+		return err
+	}
+	// TODO: rename to NewMemStore2 after old one is removed
+	storeMap.stores["default"] = NewMemStore2(config)
+	return nil
+}
+
+func GetStore() (*Store, error) {
+	storeMap.mu.RLock()
+	defer storeMap.mu.RUnlock()
+	s, ok := storeMap.stores["default"]
+	if !ok {
+		return nil, errors.New("default store is not created! call CreateStore first")
+	}
+	return s, nil
 }

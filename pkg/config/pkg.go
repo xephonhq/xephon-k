@@ -45,13 +45,12 @@ type DaemonConfig struct {
 // avoid recursion in UnmarshalYAML
 type daemonConfigAlias DaemonConfig
 
-func NewDaemon() *DaemonConfig {
-	c := &DaemonConfig{
+func NewDaemon() DaemonConfig {
+	return DaemonConfig{
 		Log:     util.NewLogConfig(),
 		Storage: storage.NewConfig(),
 		Server:  server.NewConfig(),
 	}
-	return c
 }
 
 func (c *DaemonConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {

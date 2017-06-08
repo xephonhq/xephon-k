@@ -7,16 +7,26 @@ import (
 
 // Store is the in memory storage with data and index
 type Store struct {
-	data  *Data
-	index *Index // TODO: might change to value instead of pointer (why I said that?)
+	config Config
+	data   *Data
+	index  *Index // TODO: might change to value instead of pointer (why I said that?)
 }
 
 // NewMemStore creates an in memory storage with small allocated space
+// Deprecated
 func NewMemStore() *Store {
 	store := &Store{}
 	store.data = NewData(initSeriesCount)
 	store.index = NewIndex(initSeriesCount)
 	return store
+}
+
+func NewMemStore2(config Config) *Store {
+	return &Store{
+		config: config,
+		data:   NewData(initSeriesCount),
+		index:  NewIndex(initSeriesCount),
+	}
 }
 
 // StoreType implements Store interface

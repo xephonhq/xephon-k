@@ -24,7 +24,7 @@ var DaemonCmd = &cobra.Command{
 	Short: "Xephon K Daemon",
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print(banner)
+		fmt.Print(Banner)
 		srv := server.HTTPServer{Port: port, Backend: backend, CassandraHost: cassandraHost, DiskFolder: diskFolder}
 		srv.Start()
 		// TODO: capture ctrl + c and call shutdown of store
