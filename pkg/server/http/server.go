@@ -3,14 +3,16 @@ package http
 import (
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/util"
-	"time"
 )
 
 var log = util.Logger.NewEntryWithPkg("k.server.http")
@@ -22,7 +24,6 @@ type Server struct {
 	readSvc  *service.ReadService
 }
 
-// TODO: functional style config and config storage
 func NewServer(config Config, write *service.WriteService, read *service.ReadService) *Server {
 	return &Server{
 		config:   config,
@@ -36,6 +37,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func info(w http.ResponseWriter, r *http.Request) {
+	// TODO: information from the store
 	writeJSON(w, map[string]string{"version": pkg.Version})
 }
 
@@ -68,6 +70,17 @@ func (s *Server) Mux() *http.ServeMux {
 	mux.HandleFunc("/info", info)
 	mux.HandleFunc("/write", s.write)
 	mux.HandleFunc("/read", s.read)
+
+	if s.config.EnablePProf {
+		log.Info("pprof is enabled")
+		// TODO: it seems it prevent the http server from being stopped gracefully
+		mux.HandleFunc("/debug/pprof/", pprof.Index)
+		mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	}
+
 	return mux
 }
 
@@ -83,7 +96,8 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// TODO: graceful shutdown, need to store server
+// Stop tries to shutdown the HTTP server gracefully
+// TODO: it seems after pprof is enabled, it can't stop gracefully
 // https://gist.github.com/peterhellberg/38117e546c217960747aacf689af3dc2
 func (s *Server) Stop() {
 	log.Info("stopping http server")

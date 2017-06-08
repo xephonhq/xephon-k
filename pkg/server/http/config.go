@@ -8,10 +8,11 @@ const (
 )
 
 type Config struct {
-	Host    string                 `yaml:"host" json:"host"`
-	Port    int                    `yaml:"port" json:"port"`
-	Enabled bool                   `yaml:"enabled" json:"enabled"`
-	XXX     map[string]interface{} `yaml:",inline"`
+	Host        string                 `yaml:"host" json:"host"`
+	Port        int                    `yaml:"port" json:"port"`
+	Enabled     bool                   `yaml:"enabled" json:"enabled"`
+	EnablePProf bool                   `yaml:"enablePprof" json:"enablePprof"`
+	XXX         map[string]interface{} `yaml:",inline"`
 }
 
 // avoid recursion in UnmarshalYAML
@@ -19,9 +20,10 @@ type configAlias Config
 
 func NewConfig() Config {
 	return Config{
-		Host:    "localhost",
-		Port:    DefaultPort,
-		Enabled: true,
+		Host:        "localhost",
+		Port:        DefaultPort,
+		Enabled:     true,
+		EnablePProf: false,
 	}
 }
 

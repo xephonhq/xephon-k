@@ -33,6 +33,7 @@ server:
     host: localhost
     port: 2333
     enabled: true
+    enablePprof: true
   grpc:
     host: localhost
     port: 2334

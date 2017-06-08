@@ -1,4 +1,5 @@
 package server_test
+
 // NOTE: use server_test because we have cyclic import due to config
 
 import (
