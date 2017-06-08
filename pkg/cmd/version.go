@@ -16,7 +16,6 @@ var VersionCmd = &cobra.Command{
 }
 
 func init() {
-	DaemonCmd.AddCommand(VersionCmd)
 	BenchCmd.AddCommand(VersionCmd)
 	CollectorCmd.AddCommand(VersionCmd)
 }

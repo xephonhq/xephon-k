@@ -128,6 +128,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.AddCommand(common.VersionCmd)
+	RootCmd.AddCommand(SchemaCmd)
 
 	RootCmd.PersistentFlags().StringVar(&configFile, "config", defaultConfigFile, "specify config file location")
 	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
