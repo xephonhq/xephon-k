@@ -5,18 +5,18 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/storage"
 )
 
-type WriteService2 struct {
+type WriteService struct {
 	store storage.Store
 }
 
-func NewWriteService(store storage.Store) *WriteService2 {
-	return &WriteService2{
+func NewWriteService(store storage.Store) *WriteService {
+	return &WriteService{
 		store: store,
 	}
 }
 
 // TODO: support context, but protobuf is using x/net/context
-func (w *WriteService2) Write(req *pb.WriteRequest) (*pb.WriteResponse, error) {
+func (w *WriteService) Write(req *pb.WriteRequest) (*pb.WriteResponse, error) {
 	res := &pb.WriteResponse{Error: false, ErrorMsg: ""}
 
 	if len(req.IntSeries) > 0 {

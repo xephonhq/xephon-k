@@ -18,10 +18,10 @@ var log = util.Logger.NewEntryWithPkg("k.server.grpc")
 type Server struct {
 	g      *grpc.Server
 	config Config
-	write  *service.WriteService2
+	write  *service.WriteService
 }
 
-func NewServer(config Config, write *service.WriteService2) *Server {
+func NewServer(config Config, write *service.WriteService) *Server {
 	return &Server{
 		config: config,
 		write:  write,

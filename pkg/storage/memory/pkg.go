@@ -25,14 +25,6 @@ type StoreMap struct {
 
 func init() {
 	storeMap.stores = make(map[string]*Store, 1)
-	storeMap.stores["default"] = NewMemStore()
-}
-
-// GetDefaultMemStore returns the default mem store initialized when package starts
-func GetDefaultMemStore() *Store {
-	storeMap.mu.RLock()
-	defer storeMap.mu.RUnlock()
-	return storeMap.stores["default"]
 }
 
 func CreateStore(config Config) error {
@@ -42,8 +34,7 @@ func CreateStore(config Config) error {
 	if err := config.Validate(); err != nil {
 		return err
 	}
-	// TODO: rename to NewMemStore2 after old one is removed
-	storeMap.stores["default"] = NewMemStore2(config)
+	storeMap.stores["default"] = NewMemStore(config)
 	return nil
 }
 

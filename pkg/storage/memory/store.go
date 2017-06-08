@@ -12,16 +12,7 @@ type Store struct {
 	index  *Index // TODO: might change to value instead of pointer (why I said that?)
 }
 
-// NewMemStore creates an in memory storage with small allocated space
-// Deprecated
-func NewMemStore() *Store {
-	store := &Store{}
-	store.data = NewData(initSeriesCount)
-	store.index = NewIndex(initSeriesCount)
-	return store
-}
-
-func NewMemStore2(config Config) *Store {
+func NewMemStore(config Config) *Store {
 	return &Store{
 		config: config,
 		data:   NewData(initSeriesCount),

@@ -16,4 +16,3 @@ var SchemaCmd = &cobra.Command{
 		log.Info("schema created!")
 	},
 }
-

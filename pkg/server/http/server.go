@@ -18,12 +18,12 @@ var log = util.Logger.NewEntryWithPkg("k.server.http")
 type Server struct {
 	h        *http.Server
 	config   Config
-	writeSvc *service.WriteService2
-	readSvc  *service.ReadService2
+	writeSvc *service.WriteService
+	readSvc  *service.ReadService
 }
 
 // TODO: functional style config and config storage
-func NewServer(config Config, write *service.WriteService2, read *service.ReadService2) *Server {
+func NewServer(config Config, write *service.WriteService, read *service.ReadService) *Server {
 	return &Server{
 		config:   config,
 		writeSvc: write,
