@@ -40,7 +40,7 @@ func (s *Server) Start() error {
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 	t, err := net.Listen("tcp", addr)
 	if err != nil {
-		return errors.Wrapf(err, "can't start tcp server on %s", addr)
+		return errors.Wrapf(err, "can't start tcp server for grpc on %s", addr)
 	}
 	s.g = grpc.NewServer()
 	pb.RegisterWriteServer(s.g, s)
@@ -55,7 +55,12 @@ func (s *Server) Start() error {
 func (s *Server) Stop() {
 	// TODO: add a timeout
 	log.Info("stopping grpc server")
-	log.Info(s.g)
+	// FIXME: #56 this is nil because the net.Listen has not finished, when other error, like http server failed already happened
+	// a problem is the tcp server and the grpc server may still try to create go routine leak? ... we can have a mutex
+	if s.g == nil {
+		log.Warn("grpc server is not even started, but asked to stop")
+		return
+	}
 	s.g.GracefulStop()
 	log.Info("grpc server stopped")
 }

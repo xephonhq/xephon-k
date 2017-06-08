@@ -35,5 +35,5 @@ server:
   grpc:
     host: localhost
     port: 2334
-    enabled: false
+    enabled: true
 

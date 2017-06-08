@@ -48,9 +48,13 @@ func (s *Server) Start() error {
 // https://gist.github.com/peterhellberg/38117e546c217960747aacf689af3dc2
 func (s *Server) Stop() {
 	log.Info("stopping http server")
+	if s.h == nil {
+		log.Warn("http server is not even started, but asked to stop")
+		return
+	}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	if err := s.h.Shutdown(ctx); err != nil {
-		log.Warnf("didn't stop gracefully %v", err)
+		log.Warnf("didn't stop gracefully in 5s %v", err)
 	}
 	log.Info("http server stopped")
 }

@@ -39,7 +39,6 @@ var RootCmd = &cobra.Command{
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Print(c.Banner)
-		// start http/grpc server
 
 		// TODO: actually this logic should be handled in the storage package
 		log.Debugf("use %s storage", cfgStorage)
@@ -60,14 +59,15 @@ var RootCmd = &cobra.Command{
 			}
 		}
 		// TODO: disk and cassandra
-		// TODO: do we still need service? yes
 		writeService := service.NewWriteService(store)
 
-		// trap sigterm
 		sigInt := make(chan os.Signal)
 		sigTerm := make(chan os.Signal)
 		signal.Notify(sigInt, os.Interrupt)
 		signal.Notify(sigTerm, syscall.SIGTERM)
+		// TODO: #56 when one server has error, another server will still try to start, but the process (main goroutine) exit
+		// so it does not cause much trouble, but we should be able control that. this also why there is nil check in
+		// http and grpc's stop function
 		serverErr := make(chan error)
 
 		if config.Server.Http.Enabled {
@@ -99,10 +99,6 @@ var RootCmd = &cobra.Command{
 		if config.Server.Http.Enabled {
 			httpServer.Stop()
 		}
-		// FIXME: panic: runtime error: invalid memory address or nil pointer dereference
-		// first start xkd with only http enabled
-		// then start xkd with both http and grpc enabled, it will exit because http can't start
-		// however, it cause panic when try to stop the grpc server
 		if config.Server.Grpc.Enabled {
 			grpcServer.Stop()
 		}
