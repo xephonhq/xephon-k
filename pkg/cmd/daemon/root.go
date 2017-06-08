@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 	common "github.com/xephonhq/xephon-k/pkg/cmd"
 	cf "github.com/xephonhq/xephon-k/pkg/config"
-	"github.com/xephonhq/xephon-k/pkg/storage"
-	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 	"github.com/xephonhq/xephon-k/pkg/server/grpc"
 	"github.com/xephonhq/xephon-k/pkg/server/http"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
+	"github.com/xephonhq/xephon-k/pkg/storage"
+	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 	"github.com/xephonhq/xephon-k/pkg/util"
 	"gopkg.in/yaml.v2"
 	"os/signal"
@@ -38,7 +38,6 @@ var RootCmd = &cobra.Command{
 	Long:  "xkd is the server daemon for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Print(c.Banner)
-
 
 		var (
 			store      storage.Store
@@ -69,6 +68,7 @@ var RootCmd = &cobra.Command{
 		}
 		// TODO: disk and cassandra
 		writeService := service.NewWriteService(store)
+		readService := service.NewReadService(store)
 
 		sigInt := make(chan os.Signal)
 		sigTerm := make(chan os.Signal)
@@ -80,7 +80,7 @@ var RootCmd = &cobra.Command{
 		serverErr := make(chan error)
 
 		if config.Server.Http.Enabled {
-			httpServer = http.NewServer(config.Server.Http, writeService)
+			httpServer = http.NewServer(config.Server.Http, writeService, readService)
 			go func() {
 				if err := httpServer.Start(); err != nil {
 					serverErr <- err
