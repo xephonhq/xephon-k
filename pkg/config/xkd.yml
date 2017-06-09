@@ -23,10 +23,12 @@ storage:
     # 1 KB 1024 1 MB 1048576
     # 512 MB
     singleFileSize: 536870912
+    fileBufferSize: 1048576
     # TODO: encoding, buffer size
   cassandra:
     host: localhost
     port: 9042
+    keyspace: xephonk
     # TODO: cache, concurrent write etc.
 server:
   http:

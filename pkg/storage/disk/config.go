@@ -15,6 +15,7 @@ type Config struct {
 	Folder               string                 `yaml:"folder" json:"folder"`
 	ConcurrentWriteFiles int                    `yaml:"concurrentWriteFiles" json:"concurrentWriteFiles"`
 	SingleFileSize       int                    `yaml:"singleFileSize" json:"singleFileSize"`
+	FileBufferSize       int                    `yaml:"fileBufferSize" json:"file_buffer_size"`
 	XXX                  map[string]interface{} `yaml:",inline"`
 }
 
@@ -26,6 +27,7 @@ func NewConfig() Config {
 		Folder:               "/tmp",
 		ConcurrentWriteFiles: 1,
 		SingleFileSize:       MinimalSingleFileSize,
+		FileBufferSize:       DefaultFileBufferSize,
 	}
 }
 
@@ -62,6 +64,9 @@ func (c *Config) Validate() error {
 	}
 	if c.SingleFileSize < MinimalSingleFileSize {
 		return errors.Errorf("single file size must be larger than 64MB, got %d bytes", c.SingleFileSize)
+	}
+	if c.FileBufferSize < DefaultFileBufferSize {
+		return errors.Errorf("file buffer size must be larger than 1KB, got %d bytes", c.FileBufferSize)
 	}
 	return nil
 }

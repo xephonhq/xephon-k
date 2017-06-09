@@ -31,8 +31,7 @@ func CreateStore(engine string, config Config) (Store, error) {
 	case "memory":
 		return memory.CreateStore(config.Memory)
 	case "disk":
-		log.Fatal("TODO: disk")
-		return nil, nil
+		return disk.CreateStore(config.Disk)
 	case "cassandra":
 		return cassandra.CreateStore(config.Cassandra)
 	default:
