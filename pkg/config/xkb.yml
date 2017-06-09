@@ -13,23 +13,24 @@ loader:
   points: -1
   series: 100
   time: 10
-  worker: 100
+  workerNum: 10
   workerTimeout: 30
 #  TODO: qps is not supported
 #  qps: -1
-#generator:
-#  timeInterval: 1s
-#  timeNoise: false
+generator:
+  # TODO: minimal uint is 1s
+  timeInterval: 1
+  timeNoise: false
 #  int:
 #    max: 10
 #    min: 1
 #  double:
 #    max: 1.0
 #    min: 2.2
-#  batchSize: 100
-#  series: 10
-#  #  int: 0.1
-#  #  double: 0.9
+  pointsPerSeries: 100
+  numSeries: 10
+  #  int: 0.1
+  #  double: 0.9
 #reporter:
   # report to tsdb
   # aggregation interval etc.

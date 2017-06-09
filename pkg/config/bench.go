@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg/bench2/generator"
 	"github.com/xephonhq/xephon-k/pkg/bench2/loader"
 	"github.com/xephonhq/xephon-k/pkg/client"
 	"github.com/xephonhq/xephon-k/pkg/util"
@@ -11,11 +12,12 @@ import (
 var _ Config = (*BenchConfig)(nil)
 
 type BenchConfig struct {
-	Log     util.LogConfig         `yaml:"log" json:"log"`
-	Mode    string                 `yaml:"mode" json:"mode"`
-	Loader  loader.Config          `yaml:"loader" json:"loader"`
-	Targets Targets                `yaml:"targets"`
-	XXX     map[string]interface{} `yaml:",inline"`
+	Log       util.LogConfig         `yaml:"log" json:"log"`
+	Mode      string                 `yaml:"mode" json:"mode"`
+	Loader    loader.Config          `yaml:"loader" json:"loader"`
+	Generator generator.Config       `yaml:"generator"`
+	Targets   Targets                `yaml:"targets"`
+	XXX       map[string]interface{} `yaml:",inline"`
 }
 
 type Targets struct {

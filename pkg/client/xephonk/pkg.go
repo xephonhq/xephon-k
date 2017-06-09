@@ -12,3 +12,11 @@ var log = util.Logger.NewEntryWithPkg("k.client.xephonk")
 func New(config client.Config, transport *http.Transport) (client.TSDBClient, error) {
 	return client.New(config, transport, NewSeializer())
 }
+
+func MustNew(config client.Config, transport *http.Transport) client.TSDBClient {
+	c, err := New(config, transport)
+	if err != nil {
+		log.Panic(err)
+	}
+	return c
+}

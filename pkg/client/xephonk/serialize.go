@@ -15,7 +15,7 @@ type Serializer struct {
 	firstSeries bool
 }
 
-func NewSeializer() *Serializer{
+func NewSeializer() *Serializer {
 	s := &Serializer{}
 	s.Reset()
 	return s

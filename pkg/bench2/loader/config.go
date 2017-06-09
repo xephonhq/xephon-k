@@ -10,7 +10,7 @@ type Config struct {
 	Points        int                    `yaml:"points" json:"points"`
 	Series        int                    `yaml:"series" json:"series"`
 	Time          int                    `yaml:"time" json:"time"`
-	Worker        int                    `yaml:"worker" json:"worker"`
+	WorkerNum     int                    `yaml:"workerNum" json:"workerNum"`
 	WorkerTimeout int                    `yaml:"workerTimeout" json:"worker_timeout"`
 	XXX           map[string]interface{} `yaml:",inline"`
 }
@@ -25,7 +25,7 @@ func NewConfig() Config {
 		Points:        1000000,
 		Series:        1,
 		Time:          10,
-		Worker:        10,
+		WorkerNum:     10,
 		WorkerTimeout: 30,
 	}
 }
