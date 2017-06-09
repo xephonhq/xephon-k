@@ -4,12 +4,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"reflect"
+	"sync"
 )
 
 var initPointsLength = 100
 
 // Data is a map using SeriesID as key
 type Data struct {
+	mu     sync.Mutex
 	series map[common.SeriesID]SeriesStore
 }
 
@@ -29,6 +31,7 @@ func NewData(capacity int) *Data {
 }
 
 func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) error {
+	data.mu.Lock()
 	store, ok := data.series[id]
 	if !ok {
 		// create the new store and put it in the map
@@ -36,6 +39,7 @@ func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) er
 		data.series[id] = NewIntSeriesStore(series)
 		store = data.series[id]
 	}
+	data.mu.Unlock()
 	intStore, ok := store.(*IntSeriesStore)
 	if !ok {
 		return errors.Errorf("%s %v is %s but tried to write int", store.GetName(), store.GetTags(), store.GetSeriesType())
@@ -48,6 +52,7 @@ func (data *Data) WriteIntSeries(id common.SeriesID, series common.IntSeries) er
 }
 
 func (data *Data) WriteDoubleSeries(id common.SeriesID, series common.DoubleSeries) error {
+	data.mu.Lock()
 	store, ok := data.series[id]
 	if !ok {
 		// create the new store and put it in the map
@@ -55,6 +60,7 @@ func (data *Data) WriteDoubleSeries(id common.SeriesID, series common.DoubleSeri
 		data.series[id] = NewDoubleSeriesStore(series)
 		store = data.series[id]
 	}
+	data.mu.Unlock()
 	doubleStore, ok := store.(*DoubleSeriesStore)
 	if !ok {
 		return errors.Errorf("%s %v is %s but tried to write double", store.GetName(), store.GetTags(), store.GetSeriesType())
