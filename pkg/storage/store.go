@@ -24,24 +24,19 @@ type Store interface {
 	Shutdown()
 }
 
-func CreateStore(engine string, config Config) (store Store, err error) {
+func CreateStore(engine string, config Config) (Store, error) {
 	switch engine {
 	case "discard", "null":
 		return discard.NewDiscardStore(), nil
 	case "memory":
-		if err = memory.CreateStore(config.Memory); err != nil {
-			return nil, err
-		}
-		store, err = memory.GetStore()
-		return
+		return memory.CreateStore(config.Memory)
 	case "disk":
 		log.Fatal("TODO: disk")
-		return
+		return nil, nil
 	case "cassandra":
-		log.Fatal("TODO: cassandra")
-		return
+		return cassandra.CreateStore(config.Cassandra)
 	default:
 		log.Fatalf("unknown storage %s", engine)
-		return
+		return nil, nil
 	}
 }

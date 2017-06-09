@@ -30,8 +30,7 @@ func TestHTTPServerMemoryBackendE2E(t *testing.T) {
 	}()
 
 	c := config.NewDaemon()
-	memory.CreateStore(c.Storage.Memory)
-	store, _ := memory.GetStore()
+	store, _ := memory.CreateStore(c.Storage.Memory)
 	writeService := service.NewWriteService(store)
 	readService := service.NewReadService(store)
 	srv := http.NewServer(c.Server.Http, writeService, readService)

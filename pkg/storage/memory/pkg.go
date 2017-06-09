@@ -27,15 +27,16 @@ func init() {
 	storeMap.stores = make(map[string]*Store, 1)
 }
 
-func CreateStore(config Config) error {
+func CreateStore(config Config) (*Store, error) {
 	storeMap.mu.Lock()
 	defer storeMap.mu.Unlock()
 
 	if err := config.Validate(); err != nil {
-		return err
+		return nil, err
 	}
-	storeMap.stores["default"] = NewMemStore(config)
-	return nil
+	store := NewMemStore(config)
+	storeMap.stores["default"] = store
+	return store, nil
 }
 
 func GetStore() (*Store, error) {

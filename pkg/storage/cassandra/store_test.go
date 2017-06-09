@@ -3,7 +3,6 @@ package cassandra
 import (
 	"fmt"
 	"github.com/xephonhq/xephon-k/pkg/common"
-	"testing"
 )
 
 // TODO: only run this test when cassandra is presented
@@ -49,26 +48,26 @@ func createDummyDoubleSeries() []common.DoubleSeries {
 	return multipleSeries
 }
 
-func TestStore_QueryIntSeries(t *testing.T) {
-	t.Skip("skip cassandra read int series test")
-	store := GetDefaultCassandraStore("localhost")
-	// FIXME: let's assume that other tests have already write it
-	tags := make(map[string]string)
-	tags["os"] = "ubuntu"
-	tags["machine"] = "machine-1"
-	qExact := common.Query{Tags: tags, Name: "cpi", MatchPolicy: "exact"}
-	store.QueryIntSeries(qExact)
-	//log.Infof("result length is %d", len())
-}
-
-func TestStore_WriteIntSeries(t *testing.T) {
-	t.Skip("skip cassandra write int series test")
-	store := GetDefaultCassandraStore("localhost")
-	store.WriteIntSeries(createDummySeries())
-}
-
-func TestStore_WriteDoubleSeries(t *testing.T) {
-	t.Skip("skip cassandra write double series test")
-	store := GetDefaultCassandraStore("localhost")
-	store.WriteDoubleSeries(createDummyDoubleSeries())
-}
+//func TestStore_QueryIntSeries(t *testing.T) {
+//	t.Skip("skip cassandra read int series test")
+//	store := GetDefaultCassandraStore("localhost")
+//	// FIXME: let's assume that other tests have already write it
+//	tags := make(map[string]string)
+//	tags["os"] = "ubuntu"
+//	tags["machine"] = "machine-1"
+//	qExact := common.Query{Tags: tags, Name: "cpi", MatchPolicy: "exact"}
+//	store.QueryIntSeries(qExact)
+//	//log.Infof("result length is %d", len())
+//}
+//
+//func TestStore_WriteIntSeries(t *testing.T) {
+//	t.Skip("skip cassandra write int series test")
+//	store := GetDefaultCassandraStore("localhost")
+//	store.WriteIntSeries(createDummySeries())
+//}
+//
+//func TestStore_WriteDoubleSeries(t *testing.T) {
+//	t.Skip("skip cassandra write double series test")
+//	store := GetDefaultCassandraStore("localhost")
+//	store.WriteDoubleSeries(createDummyDoubleSeries())
+//}

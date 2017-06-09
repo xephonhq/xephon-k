@@ -1,63 +1,35 @@
 package cassandra
 
 import (
-	"sync"
-
 	"github.com/gocql/gocql"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	//"time"
+	"github.com/pkg/errors"
 )
-
-var storeMap StoreMap
-
-// StoreMap is used to allow multiple cassandra session, it is also used as a singleton when you are just using the default store.
-// its methods use a RWMutex
-type StoreMap struct {
-	mu     sync.RWMutex
-	stores map[string]*Store
-}
-
-func init() {
-	storeMap.stores = make(map[string]*Store, 1)
-}
-
-// GetDefaultCassandraStore will connect to cassandra if it is not found
-// NOTE: we don't do it in init because it would break other stores, mem, mysql etc.
-// TODO: we should return error and allow retry etc.
-func GetDefaultCassandraStore(cassandraHost string) *Store {
-	storeMap.mu.RLock()
-	defer storeMap.mu.RUnlock()
-
-	store, ok := storeMap.stores["default"]
-	if ok {
-		return store
-	}
-	log.Info("default cassandra store not found, connecting to cassandra now")
-	storeMap.stores["default"] = NewCassandraStore(cassandraHost)
-	return storeMap.stores["default"]
-
-}
 
 // Store contains a cassandra session
 type Store struct {
+	config  Config
 	session *gocql.Session
 }
 
 // NewCassandraStore creates a new cassandra store connecting to localhost cassandra
-func NewCassandraStore(cassandraHost string) *Store {
-	store := &Store{}
+func NewCassandraStore(config Config) (*Store, error) {
+	store := &Store{
+		config: config,
+	}
 	// connect to cassandra
-	cluster := gocql.NewCluster(cassandraHost)
+	cluster := gocql.NewCluster(config.Host)
+	cluster.Port = config.Port
 	cluster.Keyspace = defaultKeySpace
 	session, err := cluster.CreateSession()
 	if err != nil {
-		log.Fatalf("can't connect to cassandra %s", err)
-		return store
+		return nil, errors.Wrapf(err, "can't connect to %s:%d", config.Host, config.Port)
 	} else {
-		log.Infof("connected to cassandra %s", cassandraHost)
+		log.Infof("connected to cassandra %s:%d", config.Host, config.Port)
 	}
 	store.session = session
-	return store
+	return store, nil
 }
 
 // StoreType implements store interface

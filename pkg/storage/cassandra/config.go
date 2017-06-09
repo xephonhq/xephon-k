@@ -4,10 +4,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// TODO: keyspace
 type Config struct {
-	Host string                 `yaml:"host" json:"host"`
-	Port int                    `yaml:"port" json:"port"`
-	XXX  map[string]interface{} `yaml:",inline"`
+	Host     string                 `yaml:"host" json:"host"`
+	Port     int                    `yaml:"port" json:"port"`
+	Keyspace string                 `yaml:"keyspace" json:"keyspace"`
+	XXX      map[string]interface{} `yaml:",inline"`
 }
 
 // avoid recursion in UnmarshalYAML
@@ -15,8 +17,9 @@ type configAlias Config
 
 func NewConfig() Config {
 	return Config{
-		Host: "localhost",
-		Port: 9042,
+		Host:     "localhost",
+		Port:     9042,
+		Keyspace: defaultKeySpace,
 	}
 }
 
