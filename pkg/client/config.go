@@ -8,7 +8,7 @@ type Config struct {
 	Host    string                 `yaml:"host"`
 	Port    int                    `yaml:"port"`
 	URL     string                 `yaml:"url"`
-	Timeout int                    `yaml:timeout`
+	Timeout int                    `yaml:"timeout"`
 	XXX     map[string]interface{} `yaml:",inline"`
 }
 

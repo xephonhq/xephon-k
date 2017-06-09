@@ -1,47 +1,43 @@
-package xephonk
+package client
 
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 
-	"io/ioutil"
-
-	"github.com/xephonhq/xephon-k/pkg/client"
 	"github.com/xephonhq/xephon-k/pkg/common"
-	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
-var log = util.Logger.NewEntryWithPkg("k.client.xephonk")
-
-type Client struct {
-	config     client.Config
+type GenericHTTPClient struct {
+	config     Config
 	h          http.Client
 	writeReq   *http.Request
-	serializer *Serializer
+	serializer Serializer
 }
 
-func New(config client.Config, transport *http.Transport) (*Client, error) {
+func New(config Config, transport *http.Transport, serializer Serializer) (*GenericHTTPClient, error) {
 	writeReq, err := http.NewRequest("POST", fmt.Sprintf("http://%s:%d/%s", config.Host, config.Port, config.URL), nil)
 	if err != nil {
 		return nil, err
 	}
-	return &Client{
+	serializer.Reset()
+	return &GenericHTTPClient{
 		config:     config,
 		h:          http.Client{Transport: transport, Timeout: time.Second * time.Duration(config.Timeout)},
 		writeReq:   writeReq,
-		serializer: &Serializer{},
+		serializer: serializer,
 	}, nil
 }
 
-func (c *Client) WriteInt(series *common.IntSeries) {
+func (c *GenericHTTPClient) WriteInt(series *common.IntSeries) {
 	c.serializer.WriteInt(*series)
 }
 
-func (c *Client) Send() client.Result {
+func (c *GenericHTTPClient) Send() Result {
 	c.serializer.End()
-	result := client.Result{
+	result := Result{
 		Start:        time.Now(),
 		RequestSize:  int64(c.serializer.DataLen()),
 		ResponseSize: 0,

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/xephonhq/xephon-k/pkg/common"
 	"io"
 	"io/ioutil"
+
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
 type Serializer struct {
@@ -14,9 +15,10 @@ type Serializer struct {
 	firstSeries bool
 }
 
-func (xk *Serializer) Start() {
-	xk.buf.WriteString("[")
-	xk.firstSeries = true
+func NewSeializer() *Serializer{
+	s := &Serializer{}
+	s.Reset()
+	return s
 }
 
 func (xk *Serializer) End() {
@@ -27,6 +29,8 @@ func (xk *Serializer) Reset() {
 	// Reset resets the buffer to be empty,
 	// but it retains the underlying storage for use by future writes.
 	xk.buf.Reset()
+	xk.buf.WriteString("[")
+	xk.firstSeries = true
 }
 
 func (xk *Serializer) ReadCloser() io.ReadCloser {

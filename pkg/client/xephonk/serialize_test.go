@@ -1,15 +1,15 @@
 package xephonk
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/util"
 	"testing"
+
+	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
 func TestSerializer_WriteInt(t *testing.T) {
-	xks := Serializer{}
-	xks.Start()
+	xks := NewSeializer()
 	xks.WriteInt(util.CreateDummyIntPoints())
 	xks.WriteInt(util.CreateDummyIntPoints())
 	xks.End()
-	//log.Info(string(xks.Data()))
+	log.Info(string(xks.Data()))
 }
