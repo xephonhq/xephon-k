@@ -97,6 +97,7 @@ func (scheduler *Scheduler) Run() error {
 			wg.Done()
 		}()
 	}
+	// TODO: the reporter need to read, other wise the first batch would block all the workers
 	wg.Wait()
 	return nil
 }

@@ -34,12 +34,14 @@ func (worker *Worker) Work() {
 			log.Info("worker finished by context")
 			return
 		case s, ok := <-worker.input:
-			// TODO: make the real request
-			worker.client.WriteInt(s)
 			if !ok {
 				log.Info("worker finished by input")
 				return
 			}
+			worker.client.WriteInt(s)
+			// TODO: change send to return pointer
+			res := worker.client.Send()
+			worker.report <- &res
 		}
 	}
 }
