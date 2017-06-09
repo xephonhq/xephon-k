@@ -28,6 +28,7 @@ type Series interface {
 	GetMetaCopy() SeriesMeta
 	GetMinTime() int64
 	GetMaxTime() int64
+	Length() int
 	PrintPoints()
 }
 
@@ -102,6 +103,10 @@ func (m *RawSeries) GetMinTime() int64 {
 }
 
 func (m *RawSeries) GetMaxTime() int64 {
+	return 0
+}
+
+func (m *RawSeries) Length() int {
 	return 0
 }
 

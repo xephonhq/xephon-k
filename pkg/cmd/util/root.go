@@ -24,14 +24,15 @@ var RootCmd = &cobra.Command{
 			return
 		}
 		filePath := args[0]
-		log.Info("inspect file %s", filePath)
+		log.Infof("inspect file %s", filePath)
 		f, err := os.OpenFile(filePath, os.O_RDONLY, 0666)
 		assert(err)
 		// TODO: the magic check is wrong, it will try to read glide.yaml
 		// TODO: print too much ....
 		r, err := disk.NewLocalDataFileReader(f)
 		assert(err)
-		r.PrintAll()
+		//r.PrintAll()
+		r.PrintAbstract()
 		r.Close()
 	},
 }

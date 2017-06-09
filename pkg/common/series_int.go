@@ -31,6 +31,10 @@ func (m *IntSeries) GetMaxTime() int64 {
 	return m.Points[len(m.Points)-1].T
 }
 
+func (m *IntSeries) Length() int {
+	return len(m.Points)
+}
+
 func (m *IntSeries) PrintPoints() {
 	for i, p := range m.Points {
 		fmt.Printf("%d, %d, %v\n", i, p.T, p.V)
@@ -53,6 +57,10 @@ func (m *IntSeriesColumnar) GetMaxTime() int64 {
 
 func (m *IntSeriesColumnar) IsColumnar() bool {
 	return true
+}
+
+func (m *IntSeriesColumnar) Length() int {
+	return len(m.T)
 }
 
 func (m *IntSeriesColumnar) PrintPoints() {
