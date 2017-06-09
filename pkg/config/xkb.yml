@@ -39,12 +39,15 @@ targets:
     host: localhost
     port: 8086
     url: write?db=sb
+    timeout: 30
   xephonk:
     host: localhost
     port: 2333
     url: write
+    timeout: 30
   kairosdb:
     host: localhost
     port: 8080
     url: api/v1/datapoints
+    timeout: 30
 

@@ -34,17 +34,20 @@ func NewBench() BenchConfig {
 		Loader: loader.NewConfig(),
 		Targets: Targets{
 			InfluxDB: client.Config{
-				Host: "localhost",
-				Port: 8086,
-				URL:  "write?db=sb",
+				Host:    "localhost",
+				Port:    8086,
+				URL:     "write?db=sb",
+				Timeout: 30,
 			}, XephonK: client.Config{
-				Host: "localhost",
-				Port: 2333,
-				URL:  "write",
+				Host:    "localhost",
+				Port:    2333,
+				URL:     "write",
+				Timeout: 30,
 			}, KairosDB: client.Config{
-				Host: "localhost",
-				Port: 8080,
-				URL:  "api/v1/datapoints",
+				Host:    "localhost",
+				Port:    8080,
+				URL:     "api/v1/datapoints",
+				Timeout: 30,
 			}},
 	}
 }

@@ -1,15 +1,9 @@
-package client
+#!/usr/bin/env python3
 
-import (
-	"github.com/pkg/errors"
-)
+# TBD
 
 type Config struct {
-	Host    string                 `yaml:"host"`
-	Port    int                    `yaml:"port"`
-	URL     string                 `yaml:"url"`
-	Timeout int                    `yaml:timeout`
-	XXX     map[string]interface{} `yaml:",inline"`
+    XXX     map[string]interface{} `yaml:",inline"`
 }
 
 // avoid recursion in UnmarshalYAML
@@ -25,6 +19,7 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	return nil
 }
+
 
 func (c *Config) Apply() error {
 	if err := c.Validate(); err != nil {
