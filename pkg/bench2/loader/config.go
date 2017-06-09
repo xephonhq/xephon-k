@@ -6,6 +6,7 @@ import (
 
 type Config struct {
 	Target        string                 `yaml:"target" json:"target"`
+	Reporter      string                 `yaml:"reporter" json:"reporter"`
 	LimitBy       string                 `yaml:"limitBy" json:"limit_by"`
 	Points        int                    `yaml:"points" json:"points"`
 	Series        int                    `yaml:"series" json:"series"`

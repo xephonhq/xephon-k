@@ -11,7 +11,7 @@ var log = util.Logger.NewEntryWithPkg("k.bench2.reporter")
 
 // check interface
 
-var _ Reporter = (*NullReporter)(nil)
+var _ Reporter = (*DiscardReporter)(nil)
 
 type Reporter interface {
 	//ReporterName() string

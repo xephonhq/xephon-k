@@ -1,6 +1,7 @@
 package bench2
 
 import (
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/bench2/reporter"
 	"github.com/xephonhq/xephon-k/pkg/client"
 	"github.com/xephonhq/xephon-k/pkg/client/xephonk"
@@ -14,12 +15,17 @@ type Scheduler struct {
 	reporter reporter.Reporter
 }
 
-func NewScheduler(config config.BenchConfig) *Scheduler {
-	return &Scheduler{
+func NewScheduler(config config.BenchConfig) (*Scheduler, error) {
+	s := &Scheduler{
 		config: config,
-		// TODO: config reporter
-		reporter: reporter.NullReporter{},
 	}
+	switch config.Loader.Reporter {
+	case "discard", "null":
+		s.reporter = &reporter.DiscardReporter{}
+	default:
+		return nil, errors.Errorf("unsupported reporter", config.Loader.Reporter)
+	}
+	return s, nil
 }
 
 func (scheduler *Scheduler) Run() error {

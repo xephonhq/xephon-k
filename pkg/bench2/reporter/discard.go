@@ -5,13 +5,13 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/client"
 )
 
-// NullReporter is used to drain from channel only, it reports to nowhere
-type NullReporter struct {
+// DiscardReporter is used to drain from channel only, it reports to nowhere
+type DiscardReporter struct {
 	counter int64
 }
 
 // Start implements Reporter
-func (n *NullReporter) Start(ctx context.Context, c chan *client.Result) {
+func (n *DiscardReporter) Start(ctx context.Context, c chan *client.Result) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -25,7 +25,7 @@ func (n *NullReporter) Start(ctx context.Context, c chan *client.Result) {
 	}
 }
 
-func (n *NullReporter) Finalize() {
+func (n *DiscardReporter) Finalize() {
 	log.Infof("total request %d", n.counter)
 	log.Info("null reporter has nothing to say")
 }

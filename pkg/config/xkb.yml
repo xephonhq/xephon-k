@@ -8,6 +8,7 @@ log:
 mode: local
 loader:
   target: xephonk
+  reporter: discard
   # limitBy: time | points
   limitBy: time
   points: -1
