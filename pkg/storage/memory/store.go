@@ -30,9 +30,6 @@ func (store *Store) QuerySeries(queries []common.Query) ([]common.QueryResult, [
 	result := make([]common.QueryResult, 0, len(queries))
 	series := make([]common.Series, 0, len(queries))
 	// TODO:
-	// - first look up the series id
-	// - add match number
-	// - read the data by time range
 	// - apply the aggregator when look up?
 	// - test it in non e2e test
 	for i := 0; i < len(queries); i++ {
@@ -125,5 +122,5 @@ func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
 // Shutdown
 func (store *Store) Shutdown() {
 	// TODO: ask user if they want to flush in memory data to disk
-	log.Info("shutting down memory store, nothing to do, have a nice weekend~")
+	log.Info("shutting down memory store, nothing to do")
 }

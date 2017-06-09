@@ -7,7 +7,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
-var log = util.Logger.NewEntryWithPkg("k.s.mem")
+var log = util.Logger.NewEntryWithPkg("k.storage.memory")
 var initSeriesCount = 10
 
 const (

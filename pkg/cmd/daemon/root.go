@@ -11,7 +11,6 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/server/http"
 	"github.com/xephonhq/xephon-k/pkg/server/service"
 	"github.com/xephonhq/xephon-k/pkg/storage"
-	"github.com/xephonhq/xephon-k/pkg/storage/memory"
 	"github.com/xephonhq/xephon-k/pkg/util"
 	"gopkg.in/yaml.v2"
 	"os/signal"
@@ -46,27 +45,12 @@ var RootCmd = &cobra.Command{
 			grpcServer *grpc.Server
 		)
 
-		// TODO: actually this logic should be handled in the storage package
 		log.Infof("use %s storage", cfgStorage)
-		switch cfgStorage {
-		case "memory":
-			if err = memory.CreateStore(config.Storage.Memory); err != nil {
-				log.Fatalf("can't create mem store %v", err)
-				return
-			}
-			if store, err = memory.GetStore(); err != nil {
-				log.Fatalf("can't get mem store %v", err)
-				return
-			}
-		case "disk":
-			log.Fatal("TODO: disk")
-		case "cassandra":
-			log.Fatal("TODO: cassandra")
-		default:
-			log.Fatalf("unknown storage %s", cfgStorage)
+		store, err = storage.CreateStore(cfgStorage, config.Storage)
+		if err != nil {
+			log.Fatalf("can't create store %v", err)
 			return
 		}
-		// TODO: disk and cassandra
 		writeService := service.NewWriteService(store)
 		readService := service.NewReadService(store)
 
@@ -132,7 +116,7 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&configFile, "config", defaultConfigFile, "specify config file location")
 	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
-	RootCmd.PersistentFlags().StringVar(&cfgStorage, "storage", defaultStorage, "storage backend: memory|disk|cassandra")
+	RootCmd.PersistentFlags().StringVar(&cfgStorage, "storage", defaultStorage, "storage backend: null|memory|disk|cassandra")
 }
 
 func configFileError(err error) {

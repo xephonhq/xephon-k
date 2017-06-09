@@ -17,7 +17,7 @@ const (
 	MagicNumber uint64 = 0x786570686F6E2D6B
 )
 
-var log = util.Logger.NewEntryWithPkg("k.s.disk")
+var log = util.Logger.NewEntryWithPkg("k.storage.disk")
 
 func MagicBytes() []byte {
 	return []byte("xephon-k")
