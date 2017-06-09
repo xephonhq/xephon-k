@@ -2,6 +2,7 @@ install:
   - go install ./cmd/xkb
   - go install ./cmd/xkc
   - go install ./cmd/xkd
+  - go install ./cmd/xkutil
   - sh -c "cp $(which xkd) script/xephon-k-cassandra/node"
   # - go install ./playground/xnaive
   # - go install ./playground/xbucket

@@ -1,8 +1,8 @@
-hash: db3e565e05cdb9eadd5f5a2f204b9c4beba33d73da460804e59d8b8be766a16c
-updated: 2017-06-08T18:47:27.206722669-07:00
+hash: 93c45de04f2055a06aeac7c4d4da8bc56178bdc0551f33293f623faa4e43fc5a
+updated: 2017-06-08T19:14:14.491416418-07:00
 imports:
 - name: github.com/dyweb/gommon
-  version: a6bef353d682f8a21d0ba4131f1388f13a64a88b
+  version: 76ed1dcaaf6a8dabd8d631ac71db0724424d6b82
   vcs: git
   subpackages:
   - log

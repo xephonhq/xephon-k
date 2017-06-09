@@ -5,7 +5,7 @@ import:
   version: 6ed17b5128e8932c9ecd4c3970e8ea5e60a418ac
 - package: github.com/dyweb/gommon
   vcs: git
-  version: a6bef353d682f8a21d0ba4131f1388f13a64a88b
+  version: 76ed1dcaaf6a8dabd8d631ac71db0724424d6b82
 - package: github.com/gocql/gocql
   vcs: git
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
