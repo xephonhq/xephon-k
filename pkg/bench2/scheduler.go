@@ -98,6 +98,12 @@ func (scheduler *Scheduler) Run() error {
 		}()
 	}
 	// TODO: the reporter need to read, other wise the first batch would block all the workers
+	// but now we support limit by time
+	go func() {
+		scheduler.reporter.Start(context.Background(), report)
+	}()
 	wg.Wait()
+	close(report)
+	scheduler.reporter.Finalize()
 	return nil
 }
