@@ -1,6 +1,7 @@
 package bench2
 
 import (
+	"github.com/xephonhq/xephon-k/pkg/bench2/reporter"
 	"github.com/xephonhq/xephon-k/pkg/client"
 	"github.com/xephonhq/xephon-k/pkg/client/xephonk"
 	"github.com/xephonhq/xephon-k/pkg/config"
@@ -9,12 +10,15 @@ import (
 )
 
 type Scheduler struct {
-	config config.BenchConfig
+	config   config.BenchConfig
+	reporter reporter.Reporter
 }
 
 func NewScheduler(config config.BenchConfig) *Scheduler {
 	return &Scheduler{
 		config: config,
+		// TODO: config reporter
+		reporter: reporter.NullReporter{},
 	}
 }
 
