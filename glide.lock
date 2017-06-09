@@ -1,24 +1,13 @@
-hash: c9aa126ebacf8b3ab11675c05c6cb317dfcd7f7429968b07ab2352c988c5aca0
-updated: 2017-05-24T19:42:48.603722006-07:00
+hash: db3e565e05cdb9eadd5f5a2f204b9c4beba33d73da460804e59d8b8be766a16c
+updated: 2017-06-08T18:47:27.206722669-07:00
 imports:
 - name: github.com/dyweb/gommon
-  version: 8ca50631c052f4dd995c69ee35bda0fb79a1e0bf
+  version: a6bef353d682f8a21d0ba4131f1388f13a64a88b
   vcs: git
   subpackages:
   - log
   - requests
   - structure
-- name: github.com/go-kit/kit
-  version: fadad6fffe0466b19df9efd9acde5c9a52df5fa4
-  vcs: git
-  subpackages:
-  - endpoint
-  - log
-  - transport/http
-- name: github.com/go-logfmt/logfmt
-  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
-- name: github.com/go-stack/stack
-  version: 7a2f19628aabfe68f0766b59e74d6315f8347d22
 - name: github.com/gocql/gocql
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
   vcs: git
@@ -33,14 +22,18 @@ imports:
   - gogoproto
   - proto
   - protoc-gen-gogo/descriptor
+- name: github.com/golang/protobuf
+  version: 5a0f697c9ed9d68fef0116532c6e05cfeae00e55
+  subpackages:
+  - proto
+  - protoc-gen-go/descriptor
+  - ptypes/any
 - name: github.com/golang/snappy
   version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
-- name: github.com/kr/logfmt
-  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
   vcs: git
@@ -53,9 +46,45 @@ imports:
   version: 7dcfb8076726a3fdd9353b6b8a1f1b6be6811bd6
   subpackages:
   - context
-  - context/ctxhttp
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/text
+  version: eae24e7440a7aee8476ea69a0c574eafb42f5839
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: aa2eb687b4d3e17154372564ad8d6bf11c3cf21f
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: dbdb479a60db5b6b4a496fac2cc99cbc787a7a71
+  subpackages:
+  - codes
+  - credentials
+  - grpclb/grpc_lb_v1
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - reflection
+  - reflection/grpc_reflection_v1alpha
+  - stats
+  - status
+  - tap
+  - transport
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+- name: gopkg.in/yaml.v2
+  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9

@@ -5,19 +5,18 @@ import:
   version: 6ed17b5128e8932c9ecd4c3970e8ea5e60a418ac
 - package: github.com/dyweb/gommon
   vcs: git
-  version: 8ca50631c052f4dd995c69ee35bda0fb79a1e0bf
+  version: a6bef353d682f8a21d0ba4131f1388f13a64a88b
 - package: github.com/gocql/gocql
   vcs: git
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
-- package: github.com/go-kit/kit
-  vcs: git
-  version: fadad6fffe0466b19df9efd9acde5c9a52df5fa4
 - package: github.com/pkg/errors
   vcs: git
   version: 0.8.0
 - package: github.com/gogo/protobuf
   vcs: git
   version: 9df9efe4c742f1a2bfdedf1c3b6902fc6e814c6b
+- package: google.golang.org/grpc
+- package: gopkg.in/yaml.v2
 testImport:
 - package: github.com/stretchr/testify
   vcs: git

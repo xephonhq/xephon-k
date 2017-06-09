@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/cmd"
+	"github.com/xephonhq/xephon-k/pkg/cmd/daemon"
 )
 
 // The daemon
 func main() {
-	cmd.ExecuteDaemon()
+	daemon.Execute()
 }

@@ -1,4 +1,4 @@
-package service
+package http
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// TODO: rename, it's copied from old read service
 func TestReadServiceHTTPFactory_MakeDecode(t *testing.T) {
 	assert := asst.New(t)
 	queryData := `{

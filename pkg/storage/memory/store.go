@@ -7,16 +7,17 @@ import (
 
 // Store is the in memory storage with data and index
 type Store struct {
-	data  *Data
-	index *Index // TODO: might change to value instead of pointer (why I said that?)
+	config Config
+	data   *Data
+	index  *Index // TODO: might change to value instead of pointer (why I said that?)
 }
 
-// NewMemStore creates an in memory storage with small allocated space
-func NewMemStore() *Store {
-	store := &Store{}
-	store.data = NewData(initSeriesCount)
-	store.index = NewIndex(initSeriesCount)
-	return store
+func NewMemStore(config Config) *Store {
+	return &Store{
+		config: config,
+		data:   NewData(initSeriesCount),
+		index:  NewIndex(initSeriesCount),
+	}
 }
 
 // StoreType implements Store interface
@@ -29,9 +30,6 @@ func (store *Store) QuerySeries(queries []common.Query) ([]common.QueryResult, [
 	result := make([]common.QueryResult, 0, len(queries))
 	series := make([]common.Series, 0, len(queries))
 	// TODO:
-	// - first look up the series id
-	// - add match number
-	// - read the data by time range
 	// - apply the aggregator when look up?
 	// - test it in non e2e test
 	for i := 0; i < len(queries); i++ {
@@ -55,7 +53,7 @@ func (store *Store) QuerySeries(queries []common.Query) ([]common.QueryResult, [
 			// need to make a shallow copy, otherwise it will refer to itself and cause stackoverflow
 			originalFilter := query.Filter
 			query.Filter = common.Filter{Type: "and", LeftOperand: &common.Filter{Type: "tag_match", Key: nameTagKey, Value: query.Name},
-				RightOperand:                  &originalFilter}
+				RightOperand: &originalFilter}
 			seriesIDs := store.index.Filter(&query.Filter)
 			queryResult.Matched = len(seriesIDs)
 			for j := 0; j < len(seriesIDs); j++ {
@@ -121,7 +119,8 @@ func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
 	return nil
 }
 
-// Shutdown TODO: gracefully flush in memory data to disk
+// Shutdown
 func (store *Store) Shutdown() {
-	log.Info("shutting down memory store, nothing to do, have a nice weekend~")
+	// TODO: ask user if they want to flush in memory data to disk
+	log.Info("shutting down memory store, nothing to do")
 }

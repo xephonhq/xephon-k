@@ -90,7 +90,7 @@ var (
 )
 
 const (
-	DefaultBufferSize      = 4 * 1024  // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
+	DefaultFileBufferSize  = 4 * 1024  // 4KB, same as bufio defaultBufSize, InfluxDB use 1MB
 	IndexOfIndexUnitLength = 8 + 4 + 4 // id + offset + length
 	FooterLength           = 25
 )
@@ -137,7 +137,7 @@ type LocalDataFileIndexWriter struct {
 //func NewLocalFileWriter(w io.WriteCloser, bufferSize int) *LocalDataFileWriter {
 func NewLocalFileWriter(f *os.File, bufferSize int, encodingOpt EncodingOption) (*LocalDataFileWriter, error) {
 	if bufferSize <= 0 {
-		bufferSize = DefaultBufferSize
+		bufferSize = DefaultFileBufferSize
 	}
 
 	return &LocalDataFileWriter{

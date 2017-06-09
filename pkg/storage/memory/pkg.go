@@ -3,10 +3,11 @@ package memory
 import (
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
-var log = util.Logger.NewEntryWithPkg("k.s.mem")
+var log = util.Logger.NewEntryWithPkg("k.storage.memory")
 var initSeriesCount = 10
 
 const (
@@ -24,12 +25,26 @@ type StoreMap struct {
 
 func init() {
 	storeMap.stores = make(map[string]*Store, 1)
-	storeMap.stores["default"] = NewMemStore()
 }
 
-// GetDefaultMemStore returns the default mem store initialized when package starts
-func GetDefaultMemStore() *Store {
+func CreateStore(config Config) (*Store, error) {
+	storeMap.mu.Lock()
+	defer storeMap.mu.Unlock()
+
+	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+	store := NewMemStore(config)
+	storeMap.stores["default"] = store
+	return store, nil
+}
+
+func GetStore() (*Store, error) {
 	storeMap.mu.RLock()
 	defer storeMap.mu.RUnlock()
-	return storeMap.stores["default"]
+	s, ok := storeMap.stores["default"]
+	if !ok {
+		return nil, errors.New("default store is not created! call CreateStore first")
+	}
+	return s, nil
 }
