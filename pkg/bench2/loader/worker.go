@@ -13,10 +13,19 @@ type Worker struct {
 	ctx    context.Context
 	input  <-chan *common.IntSeries
 	report chan<- *client.Result
-	client *client.TSDBClient
+	client client.TSDBClient
 }
 
-func (worker *Worker) work() {
+func NewWorker(ctx context.Context, input <-chan *common.IntSeries, report chan<- *client.Result, client client.TSDBClient) *Worker {
+	return &Worker{
+		ctx:    ctx,
+		input:  input,
+		report: report,
+		client: client,
+	}
+}
+
+func (worker *Worker) Work() {
 	log.Info("worker started")
 
 	for {
@@ -24,7 +33,9 @@ func (worker *Worker) work() {
 		case <-worker.ctx.Done():
 			log.Info("worker finished by context")
 			return
-		case _, ok := <-worker.input:
+		case s, ok := <-worker.input:
+			// TODO: make the real request
+			worker.client.WriteInt(s)
 			if !ok {
 				log.Info("worker finished by input")
 				return
