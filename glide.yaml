@@ -9,9 +9,6 @@ import:
 - package: github.com/gocql/gocql
   vcs: git
   version: 4d2d1ac71932f7c4a6c7feb0d654462e4116c58b
-- package: github.com/go-kit/kit
-  vcs: git
-  version: fadad6fffe0466b19df9efd9acde5c9a52df5fa4
 - package: github.com/pkg/errors
   vcs: git
   version: 0.8.0
