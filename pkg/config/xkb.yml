@@ -7,8 +7,8 @@ log:
 # TODO: remote is not supported, but we should, and it should also be able to spawn the needed resources
 mode: local
 payload:
-# fixed number of points
-# TODO: pointsPerSeries
+  # fixed: time | points
+  fixed: time
   totalPoints: -1
   totalSeries: 100
   duration: 10s
@@ -23,14 +23,15 @@ generator:
   double:
     max: 1.0
     min: 2.2
-worker:
-  num: 100
   batchSize: 100
   series: 10
+worker:
+  num: 100
   qps: -1
 reporter:
   # report to tsdb
   # aggregation interval etc.
+  interval:
 target:
   influxdb:
     host: localhost
