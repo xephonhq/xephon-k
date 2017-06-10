@@ -7,6 +7,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/bench2/loader"
 	"github.com/xephonhq/xephon-k/pkg/bench2/reporter"
 	"github.com/xephonhq/xephon-k/pkg/client"
+	"github.com/xephonhq/xephon-k/pkg/client/influxdb"
 	"github.com/xephonhq/xephon-k/pkg/client/xephonk"
 	"github.com/xephonhq/xephon-k/pkg/common"
 	"github.com/xephonhq/xephon-k/pkg/config"
@@ -89,6 +90,8 @@ func (scheduler *Scheduler) Run() error {
 			switch scheduler.config.Loader.Target {
 			case "xephonk":
 				c = xephonk.MustNew(scheduler.config.Targets.XephonK, transport)
+			case "influxdb":
+				c = influxdb.MustNew(scheduler.config.Targets.InfluxDB, transport)
 			default:
 				log.Fatal("only support xephonk for now")
 			}

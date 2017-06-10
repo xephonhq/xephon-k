@@ -1,4 +1,4 @@
-package xephonk
+package influxdb
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
-var log = util.Logger.NewEntryWithPkg("k.client.xephonk")
+var log = util.Logger.NewEntryWithPkg("k.client.influxdb")
 
 func New(config client.Config, transport *http.Transport) (client.TSDBClient, error) {
 	return client.New(config, transport, NewSerializer())

@@ -1,4 +1,4 @@
-package xephonk
+package influxdb
 
 import (
 	"testing"
