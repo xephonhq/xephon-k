@@ -82,5 +82,8 @@ func (c *BenchConfig) Validate() error {
 	if c.Mode != "local" {
 		return errors.Errorf("only support local mode, got %s instead", c.Mode)
 	}
+	if err := c.Loader.Validate(); err != nil {
+		return err
+	}
 	return nil
 }

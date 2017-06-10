@@ -18,6 +18,7 @@ var log = util.Logger.NewEntryWithPkg("k.cmd.bench")
 const (
 	defaultConfigFile = "xkb.yml"
 	defaultTarget     = "xephonk"
+	defaultLimit      = "time"
 )
 
 var (
@@ -25,6 +26,7 @@ var (
 	configFile = defaultConfigFile
 	debug      = false
 	target     = defaultTarget
+	limit      = defaultLimit
 )
 
 var RootCmd = &cobra.Command{
@@ -33,6 +35,7 @@ var RootCmd = &cobra.Command{
 	Long:  "xkb is the bechmark tool for Xephon K",
 	Run: func(cmd *cobra.Command, args []string) {
 		config.Loader.Target = target
+		config.Loader.LimitBy = limit
 		if !promptConfig() {
 			return
 		}
@@ -56,6 +59,10 @@ func Execute() {
 }
 
 func promptConfig() bool {
+	if err := config.Validate(); err != nil {
+		log.Warnf("wrong config %v", err)
+		return false
+	}
 	b, _ := yaml.Marshal(config)
 	fmt.Print(string(b))
 	fmt.Print("Do you want to proceed? [Y/N]")
@@ -77,6 +84,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&configFile, "config", defaultConfigFile, "specify config file location")
 	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
 	RootCmd.PersistentFlags().StringVar(&target, "target", defaultTarget, "target: xephonk|kariosdb|influxdb")
+	RootCmd.PersistentFlags().StringVar(&limit, "limit", defaultLimit, "limit: time|points")
 }
 
 func configFileError(err error) {

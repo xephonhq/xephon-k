@@ -51,6 +51,8 @@ func (c *Config) Apply() error {
 }
 
 func (c *Config) Validate() error {
-	// TODO: real validate
+	if c.LimitBy != "time" && c.LimitBy != "points" {
+		return errors.Errorf("can only limit by time|points but got %s", c.LimitBy)
+	}
 	return nil
 }
