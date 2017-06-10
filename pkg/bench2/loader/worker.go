@@ -35,7 +35,7 @@ func (worker *Worker) Work() {
 			return
 		case s, ok := <-worker.input:
 			if !ok {
-				log.Info("worker finished by input")
+				log.Info("worker finished by input channel")
 				return
 			}
 			worker.client.WriteInt(s)

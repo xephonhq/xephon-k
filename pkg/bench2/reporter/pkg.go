@@ -14,7 +14,6 @@ var log = util.Logger.NewEntryWithPkg("k.bench2.reporter")
 var _ Reporter = (*DiscardReporter)(nil)
 
 type Reporter interface {
-	//ReporterName() string
-	Start(context.Context, chan *client.Result)
+	Run(context.Context, chan *client.Result)
 	Finalize()
 }

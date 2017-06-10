@@ -70,9 +70,8 @@ func (scheduler *Scheduler) Run() error {
 				select {
 				case <-ctx.Done():
 					log.Infof("generator stopped after %d seconds", scheduler.config.Loader.Time)
-					// TODO: will this break the outer for loop
+					// NOTE: break will only break the select, thus we use goto
 					// https://stackoverflow.com/questions/11104085/in-go-does-a-break-statement-break-from-a-switch-select
-					//break
 					goto GENERATOR_FINISH
 				default:
 					data <- gen.NextInt()
@@ -103,13 +102,15 @@ func (scheduler *Scheduler) Run() error {
 			wg.Done()
 		}()
 	}
-	// TODO: the reporter need to read, other wise the first batch would block all the workers
-	// but now we support limit by time
+
 	go func() {
-		scheduler.reporter.Start(context.Background(), report)
+		scheduler.reporter.Run(context.Background(), report)
 	}()
 	wg.Wait()
+	// A closed channel can still be drained from https://dave.cheney.net/tag/golang-3
 	close(report)
+	// NOTE: sleep 1s so the reporter can drained the result channel
+	time.Sleep(time.Second)
 	scheduler.reporter.Finalize()
 	return nil
 }
