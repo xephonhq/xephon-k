@@ -29,6 +29,8 @@ func NewScheduler(config config.BenchConfig) (*Scheduler, error) {
 	switch config.Loader.Reporter {
 	case "discard", "null":
 		s.reporter = &reporter.DiscardReporter{}
+	case "basic":
+		s.reporter = &reporter.BasicReporter{}
 	default:
 		return nil, errors.Errorf("unsupported reporter", config.Loader.Reporter)
 	}

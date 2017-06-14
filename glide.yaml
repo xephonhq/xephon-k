@@ -17,6 +17,9 @@ import:
   version: 9df9efe4c742f1a2bfdedf1c3b6902fc6e814c6b
 - package: google.golang.org/grpc
 - package: gopkg.in/yaml.v2
+- package: github.com/VividCortex/gohistogram
+  vcs: git
+  version: 51564d9861991fb0ad0f531c99ef602d0f9866e6
 testImport:
 - package: github.com/stretchr/testify
   vcs: git

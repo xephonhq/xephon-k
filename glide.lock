@@ -1,5 +1,5 @@
-hash: 93c45de04f2055a06aeac7c4d4da8bc56178bdc0551f33293f623faa4e43fc5a
-updated: 2017-06-08T19:14:14.491416418-07:00
+hash: be1512c39c34285950e8b2f3706720a156251d7456ac13454afab5125d68feda
+updated: 2017-06-14T12:21:34.980095519-07:00
 imports:
 - name: github.com/dyweb/gommon
   version: 76ed1dcaaf6a8dabd8d631ac71db0724424d6b82
@@ -23,7 +23,7 @@ imports:
   - proto
   - protoc-gen-gogo/descriptor
 - name: github.com/golang/protobuf
-  version: 5a0f697c9ed9d68fef0116532c6e05cfeae00e55
+  version: e325f446bebc2998605911c0a2650d9920361d4a
   subpackages:
   - proto
   - protoc-gen-go/descriptor
@@ -42,6 +42,9 @@ imports:
   vcs: git
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
+- name: github.com/VividCortex/gohistogram
+  version: 51564d9861991fb0ad0f531c99ef602d0f9866e6
+  vcs: git
 - name: golang.org/x/net
   version: 7dcfb8076726a3fdd9353b6b8a1f1b6be6811bd6
   subpackages:
@@ -53,7 +56,7 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/text
-  version: eae24e7440a7aee8476ea69a0c574eafb42f5839
+  version: 3491b61b9edc56653ad4333e605e2908e46a036b
   subpackages:
   - secure/bidirule
   - transform
@@ -64,7 +67,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: dbdb479a60db5b6b4a496fac2cc99cbc787a7a71
+  version: 1ab4adf22dbaf4eb6cfd01eaa711612ffcf87890
   subpackages:
   - codes
   - credentials
