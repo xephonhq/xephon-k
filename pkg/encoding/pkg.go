@@ -15,6 +15,7 @@ const (
 	CodecRawLittleEndian
 	CodecVarInt
 	CodecRLE
+	CodecDelta
 )
 
 var (
@@ -98,11 +99,14 @@ func CodecString(codec byte) string {
 		return "codec: variable length integer"
 	case CodecRLE:
 		return "codec: run length with variable length integer"
+	case CodecDelta:
+		return "codec: delta with variable length integer"
 	default:
 		return fmt.Sprintf("codec: unknown %d", codec)
 	}
 }
 
+// TODO: only CodecString is tested, Str2Codec is not tested
 func Str2Codec(str string) (byte, error) {
 	switch str {
 	case "raw-big":
@@ -113,6 +117,8 @@ func Str2Codec(str string) (byte, error) {
 		return CodecVarInt, nil
 	case "rle":
 		return CodecRLE, nil
+	case "delta":
+		return CodecDelta, nil
 	default:
 		return 0, errors.Errorf("unknown encoding string %s", str)
 	}
