@@ -41,7 +41,7 @@ targets:
   influxdb:
     host: localhost
     port: 8086
-    url: write?db=sb
+    url: write?db=xb
     timeout: 30
   xephonk:
     host: localhost
