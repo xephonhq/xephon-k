@@ -2,9 +2,9 @@ package reporter
 
 import (
 	"context"
-	"github.com/xephonhq/xephon-k/pkg/client"
-	"github.com/VividCortex/gohistogram"
 	"fmt"
+	"github.com/VividCortex/gohistogram"
+	"github.com/xephonhq/xephon-k/pkg/client"
 )
 
 type BasicReporter struct {

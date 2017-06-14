@@ -24,7 +24,11 @@ storage:
     # 512 MB
     singleFileSize: 536870912
     fileBufferSize: 1048576
-    # TODO: encoding, buffer size
+    # TODO: buffer size
+    encoding:
+      time: raw-big
+      int: rle
+      double: var
   cassandra:
     host: localhost
     port: 9042

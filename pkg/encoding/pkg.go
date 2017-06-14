@@ -102,3 +102,18 @@ func CodecString(codec byte) string {
 		return fmt.Sprintf("codec: unknown %d", codec)
 	}
 }
+
+func Str2Codec(str string) (byte, error) {
+	switch str {
+	case "raw-big":
+		return CodecRawBigEndian, nil
+	case "raw-little":
+		return CodecRawLittleEndian, nil
+	case "var":
+		return CodecVarInt, nil
+	case "rle":
+		return CodecRLE, nil
+	default:
+		return 0, errors.Errorf("unknown encoding string %s", str)
+	}
+}

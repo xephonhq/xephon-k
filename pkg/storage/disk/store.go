@@ -30,11 +30,18 @@ func NewDiskStore(config Config) (*Store, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "can't create file!")
 	}
-	// TODO: config encoding
+
+	// config encoding
+	// TODO: do we still need to check, we have validate in
+	log.Infof("encoding: %s", config.Encoding)
+	timeCodec, _ := encoding.Str2Codec(config.Encoding["time"])
+	intCodec, _ := encoding.Str2Codec(config.Encoding["int"])
+	doubleCodec, _ := encoding.Str2Codec(config.Encoding["double"])
+
 	opt, err := NewEncodingOption(func(o *EncodingOption) {
-		o.TimeCodec = encoding.CodecRawBigEndian
-		o.IntValueCodec = encoding.CodecRawBigEndian
-		o.DoubleValueCodec = encoding.CodecRawBigEndian
+		o.TimeCodec = timeCodec
+		o.IntValueCodec = intCodec
+		o.DoubleValueCodec = doubleCodec
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "can't set encoding options")
@@ -86,7 +93,10 @@ func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
 
 func (store *Store) Shutdown() {
 	log.Info("shutting down on disk store")
-	store.writer.WriteIndex()
+	if err := store.writer.WriteIndex(); err != nil {
+		log.Warn("can't write index")
+		log.Warn(err)
+	}
 	if err := store.writer.Close(); err != nil {
 		log.Warn("can't close writer")
 		log.Warn(err)
