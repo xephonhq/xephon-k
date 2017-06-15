@@ -179,7 +179,7 @@ func (d *RLEDecoder) read() error {
 		return errors.New("can't read run length")
 	}
 	d.cur += n
-	// covert
+	// convert
 	x := int64(v >> 1)
 	if v&1 != 0 {
 		x = ^x

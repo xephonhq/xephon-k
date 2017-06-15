@@ -1,4 +1,4 @@
-package serialize
+package influxdb
 
 import (
 	"bytes"
@@ -21,36 +21,38 @@ weather,location=us-midwest temperature=82 1465839830100400200
 // localhost:8086/write?db=sb
 */
 
-type InfluxDBSerialize struct {
+type Serializer struct {
 	buf       bytes.Buffer
 	prefixBuf bytes.Buffer
 }
 
-func (influx *InfluxDBSerialize) Start() {
+func NewSerializer() *Serializer {
+	s := &Serializer{}
+	s.Reset()
+	return s
+}
+
+func (influx *Serializer) End() {
 	// nop
 }
 
-func (influx *InfluxDBSerialize) End() {
-	// nop
-}
-
-func (influx *InfluxDBSerialize) Reset() {
+func (influx *Serializer) Reset() {
 	influx.buf.Reset()
 }
 
-func (influx *InfluxDBSerialize) ReadCloser() io.ReadCloser {
+func (influx *Serializer) ReadCloser() io.ReadCloser {
 	return ioutil.NopCloser(bytes.NewReader(influx.buf.Bytes()))
 }
 
-func (influx *InfluxDBSerialize) Data() []byte {
+func (influx *Serializer) Data() []byte {
 	return influx.buf.Bytes()
 }
 
-func (influx *InfluxDBSerialize) DataLen() int {
+func (influx *Serializer) DataLen() int {
 	return influx.buf.Len()
 }
 
-func (influx *InfluxDBSerialize) WriteInt(series common.IntSeries) {
+func (influx *Serializer) WriteInt(series common.IntSeries) {
 	// http://herman.asia/efficient-string-concatenation-in-go
 	influx.prefixBuf.WriteString(series.Name)
 	influx.prefixBuf.WriteString(",")

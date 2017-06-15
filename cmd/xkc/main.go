@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/xephonhq/xephon-k/pkg/cmd"
+	"fmt"
+	"os"
 )
 
 // The Collector
 func main() {
-	cmd.ExecuteCollector()
+	fmt.Print("collector no longer works")
+	os.Exit(-1)
 }

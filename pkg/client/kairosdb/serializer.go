@@ -1,4 +1,4 @@
-package serialize
+package kairosdb
 
 import (
 	"bytes"
@@ -9,37 +9,40 @@ import (
 	"io/ioutil"
 )
 
-type KairosDBSerialize struct {
+type Serializer struct {
 	buf         bytes.Buffer
 	firstSeries bool
 }
 
-func (kdb *KairosDBSerialize) Start() {
+func NewSerializer() *Serializer {
+	s := &Serializer{}
+	s.Reset()
+	return s
+}
+
+func (kdb *Serializer) End() {
+	kdb.buf.WriteString("]")
+}
+
+func (kdb *Serializer) Reset() {
+	kdb.buf.Reset()
 	kdb.buf.WriteString("[")
 	kdb.firstSeries = true
 }
 
-func (kdb *KairosDBSerialize) End() {
-	kdb.buf.WriteString("]")
-}
-
-func (kdb *KairosDBSerialize) Reset() {
-	kdb.buf.Reset()
-}
-
-func (kdb *KairosDBSerialize) ReadCloser() io.ReadCloser {
+func (kdb *Serializer) ReadCloser() io.ReadCloser {
 	return ioutil.NopCloser(bytes.NewReader(kdb.buf.Bytes()))
 }
 
-func (kdb *KairosDBSerialize) Data() []byte {
+func (kdb *Serializer) Data() []byte {
 	return kdb.buf.Bytes()
 }
 
-func (kdb *KairosDBSerialize) DataLen() int {
+func (kdb *Serializer) DataLen() int {
 	return kdb.buf.Len()
 }
 
-func (kdb *KairosDBSerialize) WriteInt(series common.IntSeries) {
+func (kdb *Serializer) WriteInt(series common.IntSeries) {
 	if !kdb.firstSeries {
 		kdb.buf.WriteString(",")
 	} else {

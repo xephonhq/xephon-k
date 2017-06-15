@@ -2,10 +2,12 @@ package memory
 
 import (
 	"github.com/xephonhq/xephon-k/pkg/common"
+	"sync"
 )
 
 // Index is a map of inverted index with tag name as key and tag value as term for the inverted index
 type Index struct {
+	mu              sync.RWMutex
 	tagKeyIndex     map[string]map[string]bool // map[string]bool is used as set
 	invertedIndexes map[string]*InvertedIndex
 }
@@ -13,6 +15,7 @@ type Index struct {
 // InvertedIndex use Term for tag value postings for a list of sorted series ID
 // TODO: Series ID should use locality sensitive hashing https://en.wikipedia.org/wiki/Locality-sensitive_hashing
 type InvertedIndex struct {
+	mu       sync.RWMutex
 	Term     string
 	Postings []common.SeriesID
 }
@@ -68,6 +71,7 @@ func (idx *Index) Get(tagKey string, tagValue string) []common.SeriesID {
 }
 
 func (idx *Index) Add(id common.SeriesID, tagKey string, tagValue string) {
+	idx.mu.Lock()
 	// update tagKeyIndex
 	_, ok := idx.tagKeyIndex[tagKey]
 	if !ok {
@@ -82,11 +86,15 @@ func (idx *Index) Add(id common.SeriesID, tagKey string, tagValue string) {
 	if !ok {
 		idx.invertedIndexes[term] = newInvertedIndex(term)
 	}
+	// NOTE: we unlock here because each inverted index also have its own lock
+	idx.mu.Unlock()
 	idx.invertedIndexes[term].Add(id)
 }
 
 // TODO: actually we can have a fixed size map to cache the hot series, so there is no need to lookup if the id is already in there
 func (iidx *InvertedIndex) Add(id common.SeriesID) {
+	iidx.mu.Lock()
+	defer iidx.mu.Unlock()
 	// binary search and insert the value if not found
 	low, high := 0, len(iidx.Postings)
 	for low < high {

@@ -6,37 +6,51 @@ log:
 # local/remote
 # TODO: remote is not supported, but we should, and it should also be able to spawn the needed resources
 mode: local
-payload:
-# fixed number of points
-# TODO: pointsPerSeries
-  totalPoints: -1
-  totalSeries: 100
-  duration: 10s
-  int: 10%
-  double: 80%
+loader:
+  target: xephonk
+  # discard | basic
+  reporter: basic
+  # limitBy: time | points
+  limitBy: time
+  points: 1000000
+  series: 100
+  time: 10
+  workerNum: 10
+  workerTimeout: 30
+#  TODO: qps is not supported
+#  qps: -1
 generator:
-  timeInterval: 1s
+  # TODO: minimal uint is 1s
+  timeInterval: 1
   timeNoise: false
-  int:
-    max: 10
-    min: 1
-  double:
-    max: 1.0
-    min: 2.2
-worker:
-  num: 100
-  batchSize: 100
-  series: 10
-  qps: -1
-reporter:
+#  int:
+#    max: 10
+#    min: 1
+#  double:
+#    max: 1.0
+#    min: 2.2
+  pointsPerSeries: 100
+  numSeries: 10
+  #  int: 0.1
+  #  double: 0.9
+#reporter:
   # report to tsdb
   # aggregation interval etc.
-target:
+#  interval:
+targets:
   influxdb:
     host: localhost
-    port: -1
+    port: 8086
+    url: write?db=xb
+    timeout: 30
   xephonk:
-    host:
-    port:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
   kairosdb:
-currentTarget: xephonk
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+

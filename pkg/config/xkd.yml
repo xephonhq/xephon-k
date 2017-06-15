@@ -18,13 +18,18 @@ storage:
     chunkSize: 104857600
     enableIndex: true
   disk:
+    # /home/at15/workspace/ssd/lib/xephonk
     folder: /tmp
     concurrentWriteFiles: 1
     # 1 KB 1024 1 MB 1048576
     # 512 MB
     singleFileSize: 536870912
     fileBufferSize: 1048576
-    # TODO: encoding, buffer size
+    # TODO: buffer size
+    encoding:
+      time: raw-big
+      int: rle
+      double: var
   cassandra:
     host: localhost
     port: 9042

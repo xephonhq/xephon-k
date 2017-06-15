@@ -115,7 +115,7 @@ func init() {
 	RootCmd.AddCommand(SchemaCmd)
 
 	RootCmd.PersistentFlags().StringVar(&configFile, "config", defaultConfigFile, "specify config file location")
-	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug")
+	RootCmd.PersistentFlags().BoolVar(&debug, "debug		", false, "debug")
 	RootCmd.PersistentFlags().StringVar(&cfgStorage, "storage", defaultStorage, "storage backend: null|memory|disk|cassandra")
 }
 

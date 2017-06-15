@@ -1,5 +1,6 @@
 package cmd
 
+/*
 import (
 	"fmt"
 	"github.com/spf13/cobra"
@@ -230,3 +231,4 @@ func init() {
 	// TODO: there is problem of sharing variables between global commands, though they would never get executed together
 	CollectorCmd.Flags().StringVar(&db, "db", "xephonk", "target database: xephonk|influxdb|kairosdb")
 }
+*/

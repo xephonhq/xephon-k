@@ -2,6 +2,7 @@ package disk
 
 import (
 	"github.com/pkg/errors"
+	"github.com/xephonhq/xephon-k/pkg/encoding"
 	"io/ioutil"
 	"os"
 )
@@ -16,6 +17,7 @@ type Config struct {
 	ConcurrentWriteFiles int                    `yaml:"concurrentWriteFiles" json:"concurrentWriteFiles"`
 	SingleFileSize       int                    `yaml:"singleFileSize" json:"singleFileSize"`
 	FileBufferSize       int                    `yaml:"fileBufferSize" json:"file_buffer_size"`
+	Encoding             map[string]string      `yaml:"encoding" json:"encoding"`
 	XXX                  map[string]interface{} `yaml:",inline"`
 }
 
@@ -28,6 +30,11 @@ func NewConfig() Config {
 		ConcurrentWriteFiles: 1,
 		SingleFileSize:       MinimalSingleFileSize,
 		FileBufferSize:       DefaultFileBufferSize,
+		Encoding: map[string]string{
+			"time":   "raw-big",
+			"int":    "var",
+			"double": "var",
+		},
 	}
 }
 
@@ -67,6 +74,11 @@ func (c *Config) Validate() error {
 	}
 	if c.FileBufferSize < DefaultFileBufferSize {
 		return errors.Errorf("file buffer size must be larger than 1KB, got %d bytes", c.FileBufferSize)
+	}
+	for _, v := range c.Encoding {
+		if _, err := encoding.Str2Codec(v); err != nil {
+			return err
+		}
 	}
 	return nil
 }

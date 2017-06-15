@@ -79,6 +79,19 @@ func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
 
 	footer := b[size-FooterLength:]
 
+	// check version
+	if !IsValidFormat(footer[16:]) {
+		// unmap and close the file
+		if err := r.Close(); err != nil {
+			return nil, errors.Wrap(err, "can't close reader after invalid format is detected")
+		}
+		// FIXME:  SIGSEGV
+		//return nil, errors.Errorf("version and/or magic does not match, expected %d %d but got %v %v",
+		//	Version, MagicNumber, footer[16], footer[17:])
+		return nil, errors.Errorf("version and/or magic does not match, expected %d %d",
+			Version, MagicNumber)
+	}
+
 	// read index position
 	indexOffset := binary.BigEndian.Uint64(footer[:8])
 	indexOfIndexOffset := binary.BigEndian.Uint32(footer[8:12])
@@ -101,15 +114,6 @@ func NewLocalDataFileReader(f *os.File) (*LocalDataFileReader, error) {
 	r.indexOffset = indexOffset
 	r.indexOfIndexOffset = indexOfIndexOffset
 	r.indexLength = indexLength
-
-	// check version
-	if !IsValidFormat(footer[16:]) {
-		// unmap and close the file
-		if err := r.Close(); err != nil {
-			return nil, errors.Wrap(err, "can't close reader after invalid format is detected")
-		}
-		return nil, errors.Errorf("version and/or magic does not match, expected %v %d but got %v %d", Version, MagicNumber, b[size-9], b[size-8:])
-	}
 
 	return r, nil
 }
@@ -203,15 +207,19 @@ func (reader *LocalDataFileReader) Close() error {
 	return nil
 }
 
-func (reader *LocalDataFileReader) PrintAll() {
-	fmt.Printf("Print all data in %s\n", reader.f.Name())
-	fmt.Printf("size: %d series count: %d\n", reader.size, reader.SeriesCount())
-	fmt.Printf("index size: %d\n", reader.indexLength)
+func (reader *LocalDataFileReader) PrintAbstract() {
 	if err := reader.ReadAllIndexEntries(); err != nil {
 		fmt.Println("failed to read index entries")
 		fmt.Print(err)
 		return
 	}
+	fmt.Printf("Print abstract in %s\n", reader.f.Name())
+	fmt.Printf("size: %d series count: %d\n", reader.size, reader.SeriesCount())
+	fmt.Printf("index size: %d\n", reader.indexLength)
+}
+
+func (reader *LocalDataFileReader) PrintAll() {
+	reader.PrintAbstract()
 	// TODO: we should have persistent output, which means we need an extra array for everything we store in map
 	// maybe we should add a debug flag in the reader, so it can keep extra information
 	for id, wrapper := range reader.index {

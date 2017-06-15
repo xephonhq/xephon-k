@@ -1,0 +1,376 @@
+fatal error: INFO[0002] POST /write 317060 pkg=k.server.http
+concurrent map writesINFO[0002] POST /write 312808 pkg=k.server.http
+
+goroutine 6 [running]:
+runtime.throw(0xa4a74e, 0x15)
+	/home/at15/app/go/src/runtime/panic.go:596 +0x95 fp=0xc420241710 sp=0xc4202416f0
+runtime.mapassign(0x98f6a0, 0xc4201b89f0, 0xc420241830, 0x9)
+	/home/at15/app/go/src/runtime/hashmap.go:499 +0x667 fp=0xc4202417b0 sp=0xc420241710
+github.com/xephonhq/xephon-k/pkg/storage/memory.(*Index).Add(0xc42017c5e0, 0x56d8d853f6cfb8b3, 0xc420495820, 0x9, 0xc4204957f8, 0x1)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/storage/memory/index.go:76 +0xfa fp=0xc420241860 sp=0xc4202417b0
+github.com/xephonhq/xephon-k/pkg/storage/memory.(*Store).WriteIntSeries(0xc420174600, 0xc420358280, 0x1, 0x1, 0x95f6e0, 0xc4205ae508)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/storage/memory/store.go:95 +0x1f8 fp=0xc420241980 sp=0xc420241860
+github.com/xephonhq/xephon-k/pkg/server/service.(*WriteService).Write(0xc42017c5f0, 0xc420241b48, 0x22, 0xc420241ae8, 0x1)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/service/write.go:23 +0x180 fp=0xc4202419d0 sp=0xc420241980
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).write(0xc420174640, 0xd0c6a0, 0xc42019a000, 0xc420320100)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/write.go:63 +0xce1 fp=0xc420241c78 sp=0xc4202419d0
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).(github.com/xephonhq/xephon-k/pkg/server/http.write)-fm(0xd0c6a0, 0xc42019a000, 0xc420320100)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/server.go:71 +0x48 fp=0xc420241ca8 sp=0xc420241c78
+net/http.HandlerFunc.ServeHTTP(0xc4201ca000, 0xd0c6a0, 0xc42019a000, 0xc420320100)
+	/home/at15/app/go/src/net/http/server.go:1942 +0x44 fp=0xc420241cd0 sp=0xc420241ca8
+net/http.(*ServeMux).ServeHTTP(0xc4201b8000, 0xd0c6a0, 0xc42019a000, 0xc420320100)
+	/home/at15/app/go/src/net/http/server.go:2238 +0x130 fp=0xc420241d10 sp=0xc420241cd0
+net/http.serverHandler.ServeHTTP(0xc4201ce000, 0xd0c6a0, 0xc42019a000, 0xc420320100)
+	/home/at15/app/go/src/net/http/server.go:2568 +0x92 fp=0xc420241d58 sp=0xc420241d10
+net/http.(*conn).serve(0xc42016c320, 0xd0d060, 0xc420248340)
+	/home/at15/app/go/src/net/http/server.go:1825 +0x612 fp=0xc420241fc8 sp=0xc420241d58
+runtime.goexit()
+	/home/at15/app/go/src/runtime/asm_amd64.s:2197 +0x1 fp=0xc420241fd0 sp=0xc420241fc8
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 1 [select]:
+github.com/xephonhq/xephon-k/pkg/cmd/daemon.glob..func1(0xd47100, 0xd6c150, 0x0, 0x0)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/cmd/daemon/root.go:83 +0x7b6
+github.com/xephonhq/xephon-k/vendor/github.com/spf13/cobra.(*Command).execute(0xd47100, 0xc420010270, 0x0, 0x0, 0xd47100, 0xc420010270)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/vendor/github.com/spf13/cobra/command.go:621 +0x23a
+github.com/xephonhq/xephon-k/vendor/github.com/spf13/cobra.(*Command).ExecuteC(0xd47100, 0x0, 0xa66e28, 0xc42010df68)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/vendor/github.com/spf13/cobra/command.go:696 +0x339
+github.com/xephonhq/xephon-k/vendor/github.com/spf13/cobra.(*Command).Execute(0xd47100, 0xc, 0xc420174500)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/vendor/github.com/spf13/cobra/command.go:655 +0x2b
+github.com/xephonhq/xephon-k/pkg/cmd/daemon.Execute()
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/cmd/daemon/root.go:106 +0x2d
+main.main()
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/cmd/xkd/main.go:9 +0x20
+
+goroutine 17 [syscall, locked to thread]:
+runtime.goexit()
+	/home/at15/app/go/src/runtime/asm_amd64.s:2197 +0x1
+
+goroutine 18 [syscall]:
+os/signal.signal_recv(0x0)
+	/home/at15/app/go/src/runtime/sigqueue.go:116 +0x104
+os/signal.loop()
+	/home/at15/app/go/src/os/signal/signal_unix.go:22 +0x22
+created by os/signal.init.1
+	/home/at15/app/go/src/os/signal/signal_unix.go:28 +0x41
+
+goroutine 19 [select, locked to thread]:
+runtime.gopark(0xa68590, 0x0, 0xa3fcd9, 0x6, 0x18, 0x2)
+	/home/at15/app/go/src/runtime/proc.go:271 +0x13a
+runtime.selectgoImpl(0xc420030f50, 0x0, 0x18)
+	/home/at15/app/go/src/runtime/select.go:423 +0x1364
+runtime.selectgo(0xc420030f50)
+	/home/at15/app/go/src/runtime/select.go:238 +0x1c
+runtime.ensureSigM.func1()
+	/home/at15/app/go/src/runtime/signal_unix.go:434 +0x2dd
+runtime.goexit()
+	/home/at15/app/go/src/runtime/asm_amd64.s:2197 +0x1
+
+goroutine 20 [IO wait]:
+net.runtime_pollWait(0x7f49b4559f28, 0x72, 0xd06ba0)
+	/home/at15/app/go/src/runtime/netpoll.go:164 +0x59
+net.(*pollDesc).wait(0xc420187338, 0x72, 0xd01718, 0xc420168440)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:75 +0x38
+net.(*pollDesc).waitRead(0xc420187338, 0xffffffffffffffff, 0x0)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:80 +0x34
+net.(*netFD).accept(0xc4201872d0, 0x0, 0xd05260, 0xc420168440)
+	/home/at15/app/go/src/net/fd_unix.go:430 +0x1e5
+net.(*TCPListener).accept(0xc42017e0c0, 0xc42016c800, 0x981560, 0xffffffffffffffff)
+	/home/at15/app/go/src/net/tcpsock_posix.go:136 +0x2e
+net.(*TCPListener).AcceptTCP(0xc42017e0c0, 0xc4201c0dc0, 0xc4201c0dc8, 0xc4201c0db8)
+	/home/at15/app/go/src/net/tcpsock.go:215 +0x49
+net/http.tcpKeepAliveListener.Accept(0xc42017e0c0, 0xa67fc0, 0xc42016c780, 0xd0d120, 0xc420179110)
+	/home/at15/app/go/src/net/http/server.go:3044 +0x2f
+net/http.(*Server).Serve(0xc4201ce000, 0xd0ca60, 0xc42017e0c0, 0x0, 0x0)
+	/home/at15/app/go/src/net/http/server.go:2643 +0x228
+net/http.(*Server).ListenAndServe(0xc4201ce000, 0xa4730c, 0x10)
+	/home/at15/app/go/src/net/http/server.go:2585 +0xb0
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).Start(0xc420174640, 0x0, 0x0)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/server.go:93 +0x26f
+github.com/xephonhq/xephon-k/pkg/cmd/daemon.glob..func1.1(0xc420174640, 0xc420182420)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/cmd/daemon/root.go:69 +0x2b
+created by github.com/xephonhq/xephon-k/pkg/cmd/daemon.glob..func1
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/cmd/daemon/root.go:72 +0xa4a
+
+goroutine 21 [IO wait]:
+net.runtime_pollWait(0x7f49b4559e68, 0x72, 0xd06ba0)
+	/home/at15/app/go/src/runtime/netpoll.go:164 +0x59
+net.(*pollDesc).wait(0xc4201d20d8, 0x72, 0xd01718, 0xc4201d00e0)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:75 +0x38
+net.(*pollDesc).waitRead(0xc4201d20d8, 0xffffffffffffffff, 0x0)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:80 +0x34
+net.(*netFD).accept(0xc4201d2070, 0x0, 0xd05260, 0xc4201d00e0)
+	/home/at15/app/go/src/net/fd_unix.go:430 +0x1e5
+net.(*TCPListener).accept(0xc4201da000, 0xc4201d80d0, 0xc420053d68, 0x18)
+	/home/at15/app/go/src/net/tcpsock_posix.go:136 +0x2e
+net.(*TCPListener).Accept(0xc4201da000, 0xa67998, 0xc4201e0000, 0xd0c4a0, 0xc4201da000)
+	/home/at15/app/go/src/net/tcpsock.go:228 +0x49
+github.com/xephonhq/xephon-k/vendor/google.golang.org/grpc.(*Server).Serve(0xc4201e0000, 0xd0c4a0, 0xc4201da000, 0x0, 0x0)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/vendor/google.golang.org/grpc/server.go:439 +0x18f
+github.com/xephonhq/xephon-k/pkg/server/grpc.(*Server).Start(0xc420174680, 0x0, 0x0)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/grpc/server.go:49 +0x2c5
+github.com/xephonhq/xephon-k/pkg/cmd/daemon.glob..func1.2(0xc420174680, 0xc420182420)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/cmd/daemon/root.go:77 +0x2b
+created by github.com/xephonhq/xephon-k/pkg/cmd/daemon.glob..func1
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/cmd/daemon/root.go:80 +0x8bc
+
+goroutine 34 [IO wait]:
+net.runtime_pollWait(0x7f49b4559da8, 0x72, 0x6)
+	/home/at15/app/go/src/runtime/netpoll.go:164 +0x59
+net.(*pollDesc).wait(0xc4201d21b8, 0x72, 0xd06ba0, 0xd01718)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:75 +0x38
+net.(*pollDesc).waitRead(0xc4201d21b8, 0xc4201fa000, 0x1000)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:80 +0x34
+net.(*netFD).Read(0xc4201d2150, 0xc4201fa000, 0x1000, 0x1000, 0x0, 0xd06ba0, 0xd01718)
+	/home/at15/app/go/src/net/fd_unix.go:250 +0x1b7
+net.(*conn).Read(0xc4201da010, 0xc4201fa000, 0x1000, 0x1000, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/net.go:181 +0x70
+net/http.(*connReader).Read(0xc4201ba280, 0xc4201fa000, 0x1000, 0x1000, 0x0, 0xc420055bb0, 0x514cb8)
+	/home/at15/app/go/src/net/http/server.go:754 +0x140
+bufio.(*Reader).fill(0xc4201d61e0)
+	/home/at15/app/go/src/bufio/bufio.go:97 +0x117
+bufio.(*Reader).Peek(0xc4201d61e0, 0x4, 0x0, 0x0, 0x0, 0x0, 0xc420055c10)
+	/home/at15/app/go/src/bufio/bufio.go:129 +0x67
+net/http.(*conn).readRequest(0xc4201e21e0, 0xd0d060, 0xc4201ba240, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/http/server.go:931 +0xe91
+net/http.(*conn).serve(0xc4201e21e0, 0xd0d060, 0xc4201ba240)
+	/home/at15/app/go/src/net/http/server.go:1763 +0x49a
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 35 [runnable]:
+io.Copy(0xd061a0, 0xd6bfc8, 0xd047e0, 0xc42017a040, 0x99d8a0, 0x9eac60, 0x0)
+	/home/at15/app/go/src/io/io.go:359 +0x9e
+io.CopyN(0xd061a0, 0xd6bfc8, 0x7f49b4519080, 0xc420018340, 0x40001, 0xc4203d2199, 0x1, 0xa)
+	/home/at15/app/go/src/io/io.go:336 +0x90
+net/http.(*chunkWriter).writeHeader(0xc4203d2118, 0xc420441000, 0x3, 0x800)
+	/home/at15/app/go/src/net/http/server.go:1280 +0x114a
+net/http.(*chunkWriter).Write(0xc4203d2118, 0xc420441000, 0x3, 0x800, 0x0, 0xc4201f41a0, 0xa686a8)
+	/home/at15/app/go/src/net/http/server.go:347 +0x32a
+bufio.(*Writer).Flush(0xc420174880, 0xc4201e2310, 0xc4201e2310)
+	/home/at15/app/go/src/bufio/bufio.go:566 +0x75
+net/http.(*response).finishRequest(0xc4203d20e0)
+	/home/at15/app/go/src/net/http/server.go:1538 +0x56
+net/http.(*conn).serve(0xc4201e2280, 0xd0d060, 0xc4201ba340)
+	/home/at15/app/go/src/net/http/server.go:1830 +0x652
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 36 [runnable]:
+io.copyBuffer(0xd061a0, 0xd6bfc8, 0xd047e0, 0xc4204f4540, 0x0, 0x0, 0x0, 0x9bdfa0, 0x7f49b4519001, 0xc4204f4540)
+	/home/at15/app/go/src/io/io.go:383 +0x83
+io.Copy(0xd061a0, 0xd6bfc8, 0xd047e0, 0xc4204f4540, 0x99d8a0, 0x9eac60, 0x0)
+	/home/at15/app/go/src/io/io.go:360 +0x68
+io.CopyN(0xd061a0, 0xd6bfc8, 0x7f49b4519080, 0xc420248200, 0x40001, 0xc42025e0b9, 0x1, 0xa)
+	/home/at15/app/go/src/io/io.go:336 +0x90
+net/http.(*chunkWriter).writeHeader(0xc42025e038, 0xc420197800, 0x3, 0x800)
+	/home/at15/app/go/src/net/http/server.go:1280 +0x114a
+net/http.(*chunkWriter).Write(0xc42025e038, 0xc420197800, 0x3, 0x800, 0x0, 0xc4201f4340, 0xa686a8)
+	/home/at15/app/go/src/net/http/server.go:347 +0x32a
+bufio.(*Writer).Flush(0xc4201bab00, 0xc4201e23b0, 0xc4201e23b0)
+	/home/at15/app/go/src/bufio/bufio.go:566 +0x75
+net/http.(*response).finishRequest(0xc42025e000)
+	/home/at15/app/go/src/net/http/server.go:1538 +0x56
+net/http.(*conn).serve(0xc4201e2320, 0xd0d060, 0xc4201ba4c0)
+	/home/at15/app/go/src/net/http/server.go:1830 +0x652
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 231 [runnable]:
+net/http.(*connReader).backgroundRead(0xc420248080)
+	/home/at15/app/go/src/net/http/server.go:655
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf
+
+goroutine 7 [semacquire]:
+sync.runtime_notifyListWait(0xc420248150, 0xc)
+	/home/at15/app/go/src/runtime/sema.go:297 +0x10b
+sync.(*Cond).Wait(0xc420248140)
+	/home/at15/app/go/src/sync/cond.go:57 +0x89
+net/http.(*connReader).abortPendingRead(0xc420248080)
+	/home/at15/app/go/src/net/http/server.go:686 +0xbf
+net/http.(*response).finishRequest(0xc4204e00e0)
+	/home/at15/app/go/src/net/http/server.go:1543 +0xa4
+net/http.(*conn).serve(0xc42016c3c0, 0xd0d060, 0xc420248040)
+	/home/at15/app/go/src/net/http/server.go:1830 +0x652
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 8 [IO wait]:
+net.runtime_pollWait(0x7f49b45599e8, 0x72, 0xb)
+	/home/at15/app/go/src/runtime/netpoll.go:164 +0x59
+net.(*pollDesc).wait(0xc42016eb58, 0x72, 0xd06ba0, 0xd01718)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:75 +0x38
+net.(*pollDesc).waitRead(0xc42016eb58, 0xc42025d000, 0x1000)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:80 +0x34
+net.(*netFD).Read(0xc42016eaf0, 0xc42025d000, 0x1000, 0x1000, 0x0, 0xd06ba0, 0xd01718)
+	/home/at15/app/go/src/net/fd_unix.go:250 +0x1b7
+net.(*conn).Read(0xc42000e0c8, 0xc42025d000, 0x1000, 0x1000, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/net.go:181 +0x70
+net/http.(*connReader).Read(0xc420158cc0, 0xc42025d000, 0x1000, 0x1000, 0x0, 0xc420059bb0, 0x514cb8)
+	/home/at15/app/go/src/net/http/server.go:754 +0x140
+bufio.(*Reader).fill(0xc42001cea0)
+	/home/at15/app/go/src/bufio/bufio.go:97 +0x117
+bufio.(*Reader).Peek(0xc42001cea0, 0x4, 0x0, 0x0, 0x0, 0x0, 0xc420059c10)
+	/home/at15/app/go/src/bufio/bufio.go:129 +0x67
+net/http.(*conn).readRequest(0xc42016c460, 0xd0d060, 0xc420158c80, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/http/server.go:931 +0xe91
+net/http.(*conn).serve(0xc42016c460, 0xd0d060, 0xc420158c80)
+	/home/at15/app/go/src/net/http/server.go:1763 +0x49a
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 9 [runnable]:
+reflect.(*rtype).exportedMethods(0x9ffa80, 0x9b9860, 0x16, 0xf)
+	/home/at15/app/go/src/reflect/type.go:782 +0x68
+reflect.(*rtype).NumMethod(0x9ffa80, 0xc420496600)
+	/home/at15/app/go/src/reflect/type.go:833 +0x54
+encoding/json.(*decodeState).indirect(0xc420340360, 0x9b9860, 0xc420496600, 0x199, 0x0, 0x0, 0xc4204965f0, 0x0, 0x0, 0x0, ...)
+	/home/at15/app/go/src/encoding/json/decode.go:467 +0x144
+encoding/json.(*decodeState).array(0xc420340360, 0x9b9860, 0xc420496600, 0x199)
+	/home/at15/app/go/src/encoding/json/decode.go:486 +0x6f
+encoding/json.(*decodeState).value(0xc420340360, 0x9b9860, 0xc420496600, 0x199)
+	/home/at15/app/go/src/encoding/json/decode.go:399 +0x287
+encoding/json.(*decodeState).array(0xc420340360, 0x93d500, 0xc42035ad20, 0x16)
+	/home/at15/app/go/src/encoding/json/decode.go:555 +0x1e3
+encoding/json.(*decodeState).value(0xc420340360, 0x93d500, 0xc42035ad20, 0x16)
+	/home/at15/app/go/src/encoding/json/decode.go:399 +0x287
+encoding/json.(*decodeState).unmarshal(0xc420340360, 0x93d500, 0xc42035ad20, 0x0, 0x0)
+	/home/at15/app/go/src/encoding/json/decode.go:184 +0x21a
+encoding/json.Unmarshal(0xc420440000, 0x709, 0x800, 0x93d500, 0xc42035ad20, 0x0, 0xc42033a120)
+	/home/at15/app/go/src/encoding/json/decode.go:104 +0x148
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).write(0xc420174640, 0xd0c6a0, 0xc4202041c0, 0xc420406100)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/write.go:35 +0x89e
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).(github.com/xephonhq/xephon-k/pkg/server/http.write)-fm(0xd0c6a0, 0xc4202041c0, 0xc420406100)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/server.go:71 +0x48
+net/http.HandlerFunc.ServeHTTP(0xc4201ca000, 0xd0c6a0, 0xc4202041c0, 0xc420406100)
+	/home/at15/app/go/src/net/http/server.go:1942 +0x44
+net/http.(*ServeMux).ServeHTTP(0xc4201b8000, 0xd0c6a0, 0xc4202041c0, 0xc420406100)
+	/home/at15/app/go/src/net/http/server.go:2238 +0x130
+net/http.serverHandler.ServeHTTP(0xc4201ce000, 0xd0c6a0, 0xc4202041c0, 0xc420406100)
+	/home/at15/app/go/src/net/http/server.go:2568 +0x92
+net/http.(*conn).serve(0xc42016c500, 0xd0d060, 0xc420158f40)
+	/home/at15/app/go/src/net/http/server.go:1825 +0x612
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 10 [runnable]:
+net.runtime_pollWait(0x7f49b4559868, 0x72, 0xd)
+	/home/at15/app/go/src/runtime/netpoll.go:164 +0x59
+net.(*pollDesc).wait(0xc42016ec38, 0x72, 0xd06ba0, 0xd01718)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:75 +0x38
+net.(*pollDesc).waitRead(0xc42016ec38, 0xc4202f9000, 0x1000)
+	/home/at15/app/go/src/net/fd_poll_runtime.go:80 +0x34
+net.(*netFD).Read(0xc42016ebd0, 0xc4202f9000, 0x1000, 0x1000, 0x0, 0xd06ba0, 0xd01718)
+	/home/at15/app/go/src/net/fd_unix.go:250 +0x1b7
+net.(*conn).Read(0xc42000e0d8, 0xc4202f9000, 0x1000, 0x1000, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/net.go:181 +0x70
+net/http.(*connReader).Read(0xc420159240, 0xc4202f9000, 0x1000, 0x1000, 0x0, 0xc420287bb0, 0x514cb8)
+	/home/at15/app/go/src/net/http/server.go:754 +0x140
+bufio.(*Reader).fill(0xc42001d1a0)
+	/home/at15/app/go/src/bufio/bufio.go:97 +0x117
+bufio.(*Reader).Peek(0xc42001d1a0, 0x4, 0x0, 0x0, 0x0, 0x0, 0xc420287c10)
+	/home/at15/app/go/src/bufio/bufio.go:129 +0x67
+net/http.(*conn).readRequest(0xc42016c5a0, 0xd0d060, 0xc420159200, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/http/server.go:931 +0xe91
+net/http.(*conn).serve(0xc42016c5a0, 0xd0d060, 0xc420159200)
+	/home/at15/app/go/src/net/http/server.go:1763 +0x49a
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 11 [runnable]:
+syscall.Syscall(0x1, 0xe, 0xc4203d7000, 0x7d, 0x7d, 0x7d, 0x0)
+	/home/at15/app/go/src/syscall/asm_linux_amd64.s:18 +0x5
+syscall.write(0xe, 0xc4203d7000, 0x7d, 0x1000, 0x77, 0x0, 0x0)
+	/home/at15/app/go/src/syscall/zsyscall_linux_amd64.go:1064 +0x55
+syscall.Write(0xe, 0xc4203d7000, 0x7d, 0x1000, 0x1d, 0xc4202660b9, 0x1)
+	/home/at15/app/go/src/syscall/syscall_unix.go:181 +0x49
+net.(*netFD).Write(0xc42016ec40, 0xc4203d7000, 0x7d, 0x1000, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/fd_unix.go:332 +0x15e
+net.(*conn).Write(0xc42000e0e0, 0xc4203d7000, 0x7d, 0x1000, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/net.go:193 +0x70
+net/http.checkConnErrorWriter.Write(0xc42016c640, 0xc4203d7000, 0x7d, 0x1000, 0x3, 0xc42028bd20, 0x6b8201)
+	/home/at15/app/go/src/net/http/server.go:3141 +0x56
+bufio.(*Writer).Flush(0xc4201bac40, 0x0, 0x0)
+	/home/at15/app/go/src/bufio/bufio.go:566 +0x75
+net/http.(*response).finishRequest(0xc420266000)
+	/home/at15/app/go/src/net/http/server.go:1541 +0x8f
+net/http.(*conn).serve(0xc42016c640, 0xd0d060, 0xc4201babc0)
+	/home/at15/app/go/src/net/http/server.go:1830 +0x652
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 12 [runnable]:
+encoding/json.(*decodeState).scanWhile(0xc4201cd320, 0x9, 0xc420313360)
+	/home/at15/app/go/src/encoding/json/decode.go:343 +0xa8
+encoding/json.(*decodeState).value(0xc4201cd320, 0x9b9860, 0xc420313370, 0x199)
+	/home/at15/app/go/src/encoding/json/decode.go:394 +0x234
+encoding/json.(*decodeState).array(0xc4201cd320, 0x93d500, 0xc420429060, 0x16)
+	/home/at15/app/go/src/encoding/json/decode.go:555 +0x1e3
+encoding/json.(*decodeState).value(0xc4201cd320, 0x93d500, 0xc420429060, 0x16)
+	/home/at15/app/go/src/encoding/json/decode.go:399 +0x287
+encoding/json.(*decodeState).unmarshal(0xc4201cd320, 0x93d500, 0xc420429060, 0x0, 0x0)
+	/home/at15/app/go/src/encoding/json/decode.go:184 +0x21a
+encoding/json.Unmarshal(0xc420449000, 0x709, 0x800, 0x93d500, 0xc420429060, 0x0, 0xc420404270)
+	/home/at15/app/go/src/encoding/json/decode.go:104 +0x148
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).write(0xc420174640, 0xd0c6a0, 0xc4200ec000, 0xc42000a900)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/write.go:35 +0x89e
+github.com/xephonhq/xephon-k/pkg/server/http.(*Server).(github.com/xephonhq/xephon-k/pkg/server/http.write)-fm(0xd0c6a0, 0xc4200ec000, 0xc42000a900)
+	/home/at15/workspace/src/github.com/xephonhq/xephon-k/pkg/server/http/server.go:71 +0x48
+net/http.HandlerFunc.ServeHTTP(0xc4201ca000, 0xd0c6a0, 0xc4200ec000, 0xc42000a900)
+	/home/at15/app/go/src/net/http/server.go:1942 +0x44
+net/http.(*ServeMux).ServeHTTP(0xc4201b8000, 0xd0c6a0, 0xc4200ec000, 0xc42000a900)
+	/home/at15/app/go/src/net/http/server.go:2238 +0x130
+net/http.serverHandler.ServeHTTP(0xc4201ce000, 0xd0c6a0, 0xc4200ec000, 0xc42000a900)
+	/home/at15/app/go/src/net/http/server.go:2568 +0x92
+net/http.(*conn).serve(0xc42016c780, 0xd0d060, 0xc420158980)
+	/home/at15/app/go/src/net/http/server.go:1825 +0x612
+created by net/http.(*Server).Serve
+	/home/at15/app/go/src/net/http/server.go:2668 +0x2ce
+
+goroutine 124 [runnable]:
+net/http.(*connReader).backgroundRead(0xc420248380)
+	/home/at15/app/go/src/net/http/server.go:655
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf
+
+goroutine 155 [runnable]:
+syscall.Syscall(0x0, 0xf, 0xc4201589d1, 0x1, 0xffffffffffffffff, 0x0, 0xb)
+	/home/at15/app/go/src/syscall/asm_linux_amd64.s:18 +0x5
+syscall.read(0xf, 0xc4201589d1, 0x1, 0x1, 0x72, 0x0, 0x0)
+	/home/at15/app/go/src/syscall/zsyscall_linux_amd64.go:783 +0x55
+syscall.Read(0xf, 0xc4201589d1, 0x1, 0x1, 0xffffffffffffffff, 0x7f49b45192c0, 0x42e0e4)
+	/home/at15/app/go/src/syscall/syscall_unix.go:162 +0x49
+net.(*netFD).Read(0xc42016ecb0, 0xc4201589d1, 0x1, 0x1, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/fd_unix.go:246 +0x13b
+net.(*conn).Read(0xc42000e0e8, 0xc4201589d1, 0x1, 0x1, 0x0, 0x0, 0x0)
+	/home/at15/app/go/src/net/net.go:181 +0x70
+net/http.(*connReader).backgroundRead(0xc4201589c0)
+	/home/at15/app/go/src/net/http/server.go:656 +0x58
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf
+
+goroutine 184 [runnable]:
+net/http.(*connReader).backgroundRead(0xc4201ba380)
+	/home/at15/app/go/src/net/http/server.go:655
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf
+
+goroutine 164 [runnable]:
+net/http.(*connReader).backgroundRead(0xc4201ba500)
+	/home/at15/app/go/src/net/http/server.go:655
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf
+
+goroutine 196 [runnable]:
+net/http.(*connReader).backgroundRead(0xc420158f80)
+	/home/at15/app/go/src/net/http/server.go:655
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf
+
+goroutine 213 [runnable]:
+net/http.(*connReader).backgroundRead(0xc4201bac00)
+	/home/at15/app/go/src/net/http/server.go:655
+created by net/http.(*connReader).startBackgroundRead
+	/home/at15/app/go/src/net/http/server.go:652 +0xdf

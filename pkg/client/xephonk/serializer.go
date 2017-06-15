@@ -1,48 +1,52 @@
-package serialize
+package xephonk
 
 import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/xephonhq/xephon-k/pkg/common"
 	"io"
 	"io/ioutil"
+
+	"github.com/xephonhq/xephon-k/pkg/common"
 )
 
-type XephonKSerialize struct {
+type Serializer struct {
 	buf         bytes.Buffer // In most cases, new(Buffer) (or just declaring a Buffer variable) is sufficient to initialize a Buffer.
 	firstSeries bool
 }
 
-func (xk *XephonKSerialize) Start() {
+func NewSerializer() *Serializer {
+	s := &Serializer{}
+	s.Reset()
+	return s
+}
+
+func (xk *Serializer) End() {
+	xk.buf.WriteString("]")
+}
+
+func (xk *Serializer) Reset() {
+	// Reset resets the buffer to be empty,
+	// but it retains the underlying storage for use by future writes.
+	xk.buf.Reset()
 	xk.buf.WriteString("[")
 	xk.firstSeries = true
 }
 
-func (xk *XephonKSerialize) End() {
-	xk.buf.WriteString("]")
-}
-
-func (xk *XephonKSerialize) Reset() {
-	// Reset resets the buffer to be empty,
-	// but it retains the underlying storage for use by future writes.
-	xk.buf.Reset()
-}
-
-func (xk *XephonKSerialize) ReadCloser() io.ReadCloser {
+func (xk *Serializer) ReadCloser() io.ReadCloser {
 	return ioutil.NopCloser(bytes.NewReader(xk.buf.Bytes()))
 }
 
-func (xk *XephonKSerialize) Data() []byte {
+func (xk *Serializer) Data() []byte {
 	return xk.buf.Bytes()
 }
 
-func (xk *XephonKSerialize) DataLen() int {
+func (xk *Serializer) DataLen() int {
 	return xk.buf.Len()
 }
 
 // WriteInt implements Serializer
-func (xk *XephonKSerialize) WriteInt(series common.IntSeries) {
+func (xk *Serializer) WriteInt(series common.IntSeries) {
 	if !xk.firstSeries {
 		xk.buf.WriteString(",")
 	} else {
