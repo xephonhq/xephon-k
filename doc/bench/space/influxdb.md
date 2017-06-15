@@ -197,13 +197,15 @@ INFO[0024] bench finished pkg=k.cmd.bench
 
 100,000,000 19M
 
+- tar -czf a.tar.gz *.tsm
+
 ````
 root@816048fc9f7e:/var/lib/influxdb/data/xb/autogen/2# du -sh *
-13M	000000032-000000005.tsm
-1.8M	000000036-000000003.tsm
-2.2M	000000040-000000003.tsm
-1.1M	000000042-000000002.tsm
-396K	000000043-000000001.tsm
+15M	000000032-000000005.tsm
+2.2M	000000036-000000003.tsm
+1.1M	000000038-000000002.tsm
+488K	000000039-000000001.tsm
+2.2M	a.tar.gz
 ````
 
 ```` 
@@ -296,5 +298,4 @@ INFO[0073] total request size 4700000000 pkg=k.bench.reporter
 INFO[0073] toatl response size 0 pkg=k.bench.reporter 
 INFO[0073] 204: 10000 pkg=k.bench.reporter 
 INFO[0073] bench finished pkg=k.cmd.bench 
-
 ````

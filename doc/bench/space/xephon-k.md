@@ -454,3 +454,9 @@ INFO[0073] toatl response size 30000 pkg=k.bench.reporter
 INFO[0073] 200: 10000 pkg=k.bench.reporter 
 INFO[0073] bench finished pkg=k.cmd.bench 
 ````
+
+287 M after compressed is 
+
+- zip result in 582.8 kb ....?
+- lzma 181.7 kb
+- 7z 181.8 kb

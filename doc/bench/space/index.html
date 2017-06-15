@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Space usage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+</head>
+<body>
+<div id="total-request" style="width: 600px;height:400px;"></div>
+<script type="text/javascript">
+    var totalRequestChart = echarts.init(document.getElementById('total-request'));
+
+    var option = {
+        // TODO: show the ratio of success request at same time
+        title: {
+            text: 'Disk space used for millions of points'
+        },
+        tooltip: {},
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: true},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        legend: {
+            data: [
+                'Xephon-K (Disk)',
+//                   'Xephon-K (Disk) (Gzip)',
+                'Xephon-K (Cassandra)',
+//                   'Xephon-K (Cassandra) (Gzip)',
+                'InfluxDB'
+//                   'InfluxDB (Gzip)'
+            ],
+//            orient: 'vertical',
+            orient: 'horizontal',
+//            left: 'right',
+            top: 'bottom'
+        },
+        xAxis: {
+            name: 'number of million points',
+            nameLocation: 'middle',
+            nameGap: 20,
+            data: ["1", "10", "100"]
+        },
+        yAxis: {
+            name: 'disk space used (MB)'
+        },
+        series: [
+            {
+                name: 'Xephon-K (Disk)',
+                type: 'bar',
+                label: {normal: {show: true, position: [10, -20]}},
+                data: [3.2, 29, 287]
+            }, {
+                name: 'Xephon-K (Cassandra)',
+                type: 'bar',
+                label: {normal: {show: true, position: [10, -20]}},
+                data: [5.7, 58, 528]
+            },
+            {
+                name: 'InfluxDB',
+                type: 'bar',
+                label: {normal: {show: true, position: [10, -20]}},
+                data: [6.1, 1.8, 19]
+            }
+        ]
+    };
+
+    totalRequestChart.setOption(option);
+</script>
+</body>
+</html>

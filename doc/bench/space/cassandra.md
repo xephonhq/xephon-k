@@ -215,10 +215,50 @@ INFO[0053] bench finished pkg=k.cmd.bench
 4.0K	mc-5-big-TOC.txt
 ````
 
-100,000,000 
+100,000,000 528 M, peak memory 11GB
+
+- `tar czf a.tar.gz *.db`, compressed file is 133 MB
 
 ````
-⇒  xkb --limit points                 
+root@5f850cc0b142:/var/lib/cassandra/data/xephon/metrics_int-50a04e9051f511e7a59d6d2c86545d91# du -sh *
+133M	a.tar.gz
+4.0K	backups
+112K	mc-23-big-CompressionInfo.db
+229M	mc-23-big-Data.db
+4.0K	mc-23-big-Digest.crc32
+4.0K	mc-23-big-Filter.db
+412K	mc-23-big-Index.db
+8.0K	mc-23-big-Statistics.db
+4.0K	mc-23-big-Summary.db
+4.0K	mc-23-big-TOC.txt
+112K	mc-44-big-CompressionInfo.db
+229M	mc-44-big-Data.db
+4.0K	mc-44-big-Digest.crc32
+4.0K	mc-44-big-Filter.db
+408K	mc-44-big-Index.db
+8.0K	mc-44-big-Statistics.db
+4.0K	mc-44-big-Summary.db
+4.0K	mc-44-big-TOC.txt
+28K	mc-47-big-CompressionInfo.db
+57M	mc-47-big-Data.db
+4.0K	mc-47-big-Digest.crc32
+4.0K	mc-47-big-Filter.db
+104K	mc-47-big-Index.db
+8.0K	mc-47-big-Statistics.db
+4.0K	mc-47-big-Summary.db
+4.0K	mc-47-big-TOC.txt
+8.0K	mc-48-big-CompressionInfo.db
+12M	mc-48-big-Data.db
+4.0K	mc-48-big-Digest.crc32
+4.0K	mc-48-big-Filter.db
+24K	mc-48-big-Index.db
+8.0K	mc-48-big-Statistics.db
+4.0K	mc-48-big-Summary.db
+4.0K	mc-48-big-TOC.txt
+````
+
+````
+⇒  xkb --limit points
 log:
   level: info
   color: true
@@ -255,95 +295,57 @@ targets:
     url: api/v1/datapoints
     timeout: 30
 Do you want to proceed? [Y/N]y
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0015] worker started pkg=k.bench.worker 
-INFO[0298] generator stopped after 100000000 points pkg=k.bench 
-INFO[0298] close data channel pkg=k.bench 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] worker finished by input channel pkg=k.bench.worker 
-INFO[0299] basic report finished by channel pkg=k.bench.reporter 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0028] worker started pkg=k.bench.worker 
+INFO[0314] generator stopped after 100000000 points pkg=k.bench 
+INFO[0314] close data channel pkg=k.bench 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] worker finished by input channel pkg=k.bench.worker 
+INFO[0314] basic report finished by channel pkg=k.bench.reporter 
 Total: 10000
-0.09862516371428573 	 
-0.12816770578809525 	 ........
-0.1673819467547168 	 ................
-0.20428748378902908 	 ............................
-0.24313223281091817 	 ........................................
-0.2797275944762493 	 ................................................
-0.3165705315344549 	 ....................................
-0.3562841506409338 	 ...........
-0.3957629258 	 ....
-0.4296983816380954 	 ..
-0.4630805769629631 	 .
-0.4948053062857142 	 
-0.5295602051999999 	 
-0.564086119 	 
-0.61233398725 	 
-0.6466507745000001 	 
-0.7066414510000001 	 
-0.7542285653333334 	 
-0.7956240361999999 	 
-0.844792097 	 
-INFO[0300] run time 283.781797 s pkg=k.bench.reporter 
-INFO[0300] total request 10000 pkg=k.bench.reporter 
-INFO[0300] fastest 79662242 pkg=k.bench.reporter 
-INFO[0300] slowest 844792097 pkg=k.bench.reporter 
-INFO[0300] total request size 1800990000 pkg=k.bench.reporter 
-INFO[0300] toatl response size 30000 pkg=k.bench.reporter 
-INFO[0300] 200: 10000 pkg=k.bench.reporter 
-INFO[0300] bench finished pkg=k.cmd.bench 
+0.10139872650000001 	 
+0.1250772921203208 	 .......
+0.15888912001463396 	 ............
+0.18788544288105727 	 ..................
+0.21725582411316371 	 .........................
+0.2505242037726742 	 ..................................
+0.2854833870690365 	 ................................................
+0.3192575442346488 	 ...........................
+0.3543575349254566 	 ..............
+0.39478698483950575 	 ......
+0.4324088514531249 	 ..
+0.47090578787234033 	 
+0.5150659387142857 	 
+0.5527264906666666 	 
+0.5937416911875001 	 
+0.6501657372499999 	 
+0.6940864644285715 	 
+0.758047297 	 
+0.804213103 	 
+0.84117449225 	 
+INFO[0315] run time 286.120063 s pkg=k.bench.reporter 
+INFO[0315] total request 10000 pkg=k.bench.reporter 
+INFO[0315] fastest 77673081 pkg=k.bench.reporter 
+INFO[0315] slowest 855101446 pkg=k.bench.reporter 
+INFO[0315] total request size 1800990000 pkg=k.bench.reporter 
+INFO[0315] toatl response size 30000 pkg=k.bench.reporter 
+INFO[0315] 200: 10000 pkg=k.bench.reporter 
+INFO[0315] bench finished pkg=k.cmd.bench
 ````
 
-100,000,000 589 M
-
-````
-root@5f850cc0b142:/var/lib/cassandra/data/xephon/metrics_int-50a04e9051f511e7a59d6d2c86545d91# du -sh *
-4.0K	backups
-112K	mc-23-big-CompressionInfo.db
-229M	mc-23-big-Data.db
-4.0K	mc-23-big-Digest.crc32
-4.0K	mc-23-big-Filter.db
-412K	mc-23-big-Index.db
-8.0K	mc-23-big-Statistics.db
-4.0K	mc-23-big-Summary.db
-4.0K	mc-23-big-TOC.txt
-112K	mc-44-big-CompressionInfo.db
-229M	mc-44-big-Data.db
-4.0K	mc-44-big-Digest.crc32
-4.0K	mc-44-big-Filter.db
-408K	mc-44-big-Index.db
-8.0K	mc-44-big-Statistics.db
-4.0K	mc-44-big-Summary.db
-4.0K	mc-44-big-TOC.txt
-28K	mc-47-big-CompressionInfo.db
-57M	mc-47-big-Data.db
-4.0K	mc-47-big-Digest.crc32
-4.0K	mc-47-big-Filter.db
-104K	mc-47-big-Index.db
-8.0K	mc-47-big-Statistics.db
-4.0K	mc-47-big-Summary.db
-4.0K	mc-47-big-TOC.txt
-8.0K	mc-48-big-CompressionInfo.db
-12M	mc-48-big-Data.db
-4.0K	mc-48-big-Digest.crc32
-4.0K	mc-48-big-Filter.db
-24K	mc-48-big-Index.db
-8.0K	mc-48-big-Statistics.db
-4.0K	mc-48-big-Summary.db
-4.0K	mc-48-big-TOC.txt
-````
