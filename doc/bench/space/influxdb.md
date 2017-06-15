@@ -194,3 +194,107 @@ INFO[0024] toatl response size 0 pkg=k.bench.reporter
 INFO[0024] 204: 10000 pkg=k.bench.reporter 
 INFO[0024] bench finished pkg=k.cmd.bench 
 ````
+
+100,000,000 19M
+
+````
+root@816048fc9f7e:/var/lib/influxdb/data/xb/autogen/2# du -sh *
+13M	000000032-000000005.tsm
+1.8M	000000036-000000003.tsm
+2.2M	000000040-000000003.tsm
+1.1M	000000042-000000002.tsm
+396K	000000043-000000001.tsm
+````
+
+```` 
+⇒  xkb --limit points --target influxdb
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: influxdb
+  reporter: basic
+  limitBy: points
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 10
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+Do you want to proceed? [Y/N]y
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0072] generator stopped after 100000000 points pkg=k.bench 
+INFO[0072] close data channel pkg=k.bench 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] worker finished by input channel pkg=k.bench.worker 
+INFO[0072] basic report finished by channel pkg=k.bench.reporter 
+Total: 10000
+0.02547461117073171 	 
+0.031097282741052626 	 .........
+0.03665486298137381 	 .................
+0.042203592756335215 	 ....................
+0.04817877791572606 	 ..........................
+0.05572437511756023 	 ........................................
+0.06319053637218329 	 .........................
+0.06934404148698481 	 ..................
+0.07529120360185178 	 ...............
+0.08208258025285177 	 ..........
+0.08906499071720102 	 ......
+0.09612240634000006 	 ....
+0.10460719207407412 	 ..
+0.11306831372000001 	 .
+0.12126799583333335 	 
+0.12983624591666668 	 
+0.140761655 	 
+0.15038328033333334 	 
+0.17062228799999998 	 
+0.179243064 	 
+INFO[0073] run time 63.458617 s pkg=k.bench.reporter 
+INFO[0073] total request 10000 pkg=k.bench.reporter 
+INFO[0073] fastest 20303930 pkg=k.bench.reporter 
+INFO[0073] slowest 179243064 pkg=k.bench.reporter 
+INFO[0073] total request size 4700000000 pkg=k.bench.reporter 
+INFO[0073] toatl response size 0 pkg=k.bench.reporter 
+INFO[0073] 204: 10000 pkg=k.bench.reporter 
+INFO[0073] bench finished pkg=k.cmd.bench 
+
+````

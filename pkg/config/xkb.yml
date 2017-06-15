@@ -12,7 +12,7 @@ loader:
   reporter: basic
   # limitBy: time | points
   limitBy: time
-  points: 10000000
+  points: 100000000
   series: 100
   time: 10
   workerNum: 10
@@ -29,7 +29,7 @@ generator:
 #  double:
 #    max: 1.0
 #    min: 2.2
-  pointsPerSeries: 1000
+  pointsPerSeries: 10000
   numSeries: 10
   #  int: 0.1
   #  double: 0.9

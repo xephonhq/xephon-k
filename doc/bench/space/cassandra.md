@@ -214,3 +214,136 @@ INFO[0053] bench finished pkg=k.cmd.bench
 4.0K	mc-5-big-Summary.db
 4.0K	mc-5-big-TOC.txt
 ````
+
+100,000,000 
+
+````
+⇒  xkb --limit points                 
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: points
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 10
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+Do you want to proceed? [Y/N]y
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0015] worker started pkg=k.bench.worker 
+INFO[0298] generator stopped after 100000000 points pkg=k.bench 
+INFO[0298] close data channel pkg=k.bench 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] worker finished by input channel pkg=k.bench.worker 
+INFO[0299] basic report finished by channel pkg=k.bench.reporter 
+Total: 10000
+0.09862516371428573 	 
+0.12816770578809525 	 ........
+0.1673819467547168 	 ................
+0.20428748378902908 	 ............................
+0.24313223281091817 	 ........................................
+0.2797275944762493 	 ................................................
+0.3165705315344549 	 ....................................
+0.3562841506409338 	 ...........
+0.3957629258 	 ....
+0.4296983816380954 	 ..
+0.4630805769629631 	 .
+0.4948053062857142 	 
+0.5295602051999999 	 
+0.564086119 	 
+0.61233398725 	 
+0.6466507745000001 	 
+0.7066414510000001 	 
+0.7542285653333334 	 
+0.7956240361999999 	 
+0.844792097 	 
+INFO[0300] run time 283.781797 s pkg=k.bench.reporter 
+INFO[0300] total request 10000 pkg=k.bench.reporter 
+INFO[0300] fastest 79662242 pkg=k.bench.reporter 
+INFO[0300] slowest 844792097 pkg=k.bench.reporter 
+INFO[0300] total request size 1800990000 pkg=k.bench.reporter 
+INFO[0300] toatl response size 30000 pkg=k.bench.reporter 
+INFO[0300] 200: 10000 pkg=k.bench.reporter 
+INFO[0300] bench finished pkg=k.cmd.bench 
+````
+
+100,000,000 589 M
+
+````
+root@5f850cc0b142:/var/lib/cassandra/data/xephon/metrics_int-50a04e9051f511e7a59d6d2c86545d91# du -sh *
+4.0K	backups
+112K	mc-23-big-CompressionInfo.db
+229M	mc-23-big-Data.db
+4.0K	mc-23-big-Digest.crc32
+4.0K	mc-23-big-Filter.db
+412K	mc-23-big-Index.db
+8.0K	mc-23-big-Statistics.db
+4.0K	mc-23-big-Summary.db
+4.0K	mc-23-big-TOC.txt
+112K	mc-44-big-CompressionInfo.db
+229M	mc-44-big-Data.db
+4.0K	mc-44-big-Digest.crc32
+4.0K	mc-44-big-Filter.db
+408K	mc-44-big-Index.db
+8.0K	mc-44-big-Statistics.db
+4.0K	mc-44-big-Summary.db
+4.0K	mc-44-big-TOC.txt
+28K	mc-47-big-CompressionInfo.db
+57M	mc-47-big-Data.db
+4.0K	mc-47-big-Digest.crc32
+4.0K	mc-47-big-Filter.db
+104K	mc-47-big-Index.db
+8.0K	mc-47-big-Statistics.db
+4.0K	mc-47-big-Summary.db
+4.0K	mc-47-big-TOC.txt
+8.0K	mc-48-big-CompressionInfo.db
+12M	mc-48-big-Data.db
+4.0K	mc-48-big-Digest.crc32
+4.0K	mc-48-big-Filter.db
+24K	mc-48-big-Index.db
+8.0K	mc-48-big-Statistics.db
+4.0K	mc-48-big-Summary.db
+4.0K	mc-48-big-TOC.txt
+````
