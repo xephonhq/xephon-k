@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Space usage after compression</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+</head>
+<body>
+<div id="total-request" style="width: 800px;height:600px;"></div>
+<script type="text/javascript">
+    var totalRequestChart = echarts.init(document.getElementById('total-request'));
+
+    var option = {
+        title: {
+            text: 'Disk space used for 100 millions points w/ Gzip'
+        },
+        tooltip: {},
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: true},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        legend: {
+            data: [
+                'Original',
+                'Gzipped'
+            ],
+//            orient: 'vertical',
+            orient: 'horizontal',
+//            left: 'right',
+            top: 'bottom'
+        },
+        yAxis: {
+            name: 'disk space used (MB)',
+//            nameLocation: 'middle',
+//            nameGap: 20,
+            type: 'value'
+        },
+        xAxis: {
+            type: 'category',
+            data: ["Xephon-K (Raw)", "Xephon-K (Delta-RLE)", "Xephon-K (Cassandra)", "InfluxDB"]
+        },
+        series: [
+            {
+                name: 'Original',
+                type: 'bar',
+                label: {normal: {show: true, position:[18, -20]}},
+                data: [1500, 287, 520, 19]
+            }, {
+                name: 'Gzipped',
+                type: 'bar',
+                label: {normal: {show: true, position:[18, -20]}},
+                data: [287, 0.571, 130, 2.2]
+            }
+        ]
+    };
+
+    totalRequestChart.setOption(option);
+</script>
+</body>
+</html>
