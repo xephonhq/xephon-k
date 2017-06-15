@@ -70,7 +70,7 @@ targets:
 INFO[0012] bench finished pkg=k.cmd.bench 
 ````
 
-10s 10c 627, 1.9s
+10s 100c 627, 1.9s
 
 ````
 INFO[0014] basic report finished by channel pkg=k.bench.reporter 

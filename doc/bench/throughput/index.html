@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bechmark Result</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.4.0/echarts.min.js"></script>
+</head>
+<body>
+<div id="total-request" style="width: 800px;height:400px;"></div>
+<script type="text/javascript">
+    var totalRequestChart = echarts.init(document.getElementById('total-request'));
+
+    var option = {
+        // TODO: show the ratio of success request at same time
+        title: {
+            text: 'Number of batches per second'
+        },
+        tooltip: {},
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: true},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        legend: {
+            data: ['Xephon-K(Null)', 'Xephon-K(Mem)', 'Xephon-K(Disk)', 'Xephon-K(Cassandra)', 'KairosDB', 'InfluxDB'],
+//            orient: 'vertical',
+            orient: 'horizontal',
+//            left: 'right',
+            top: 'bottom'
+        },
+        xAxis: {
+            name: 'number of concurrent clients',
+            nameLocation: 'middle',
+            nameGap: 20,
+            data: ["10", "100", "1000"]
+        },
+        yAxis: {
+            name: 'succeeded batches'
+        },
+        series: [
+            {
+                name: 'Xephon-K(Null)',
+                type: 'bar',
+                data: [140.7, 194.5, 284.8]
+            },
+            {
+                name: 'Xephon-K(Mem)',
+                type: 'bar',
+                data: [153.5, 175.3, 139]
+            },
+            {
+                name: 'Xephon-K(Disk)',
+                type: 'bar',
+                data: [147.2, 190.4, 150]
+            },
+            {
+                name: 'Xephon-K(Cassandra)',
+                type: 'bar',
+                data: [31.8, 45.7, 54.6]
+            },
+            {
+                name: 'KairosDB',
+                type: 'bar',
+                data: [56.4, 46.8, 45.3]
+            },
+            {
+                name: 'InfluxDB',
+                type: 'bar',
+                data: [162, 171, 125]
+            }
+        ]
+    };
+
+    totalRequestChart.setOption(option);
+</script>
+</body>
+</html>

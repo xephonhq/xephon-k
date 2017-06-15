@@ -1,6 +1,7 @@
 # KairosDB
 
 10s 10c, using docker compose without mounting volume
+564, 0.16
 
 ````
 Total: 564
@@ -71,6 +72,7 @@ INFO[0013] bench finished pkg=k.cmd.bench
 ````
 
 10s, 100c, docker compose, 562, 1.9s
+
 
 ```` 
 INFO[0012] basic report finished by channel pkg=k.bench.reporter 
