@@ -19,8 +19,7 @@ storage:
     enableIndex: true
   disk:
     # /home/at15/workspace/ssd/lib/xephonk
-    # /tmp
-    folder: /home/at15/workspace/ssd/lib/xephonk
+    folder: /tmp
     concurrentWriteFiles: 1
     # 1 KB 1024 1 MB 1048576
     # 512 MB
