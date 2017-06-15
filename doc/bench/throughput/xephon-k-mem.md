@@ -1,3 +1,5 @@
+# Xephon-K Mem
+
 - 10s, 10 client, disable index TODO: it has concurrent map access again??
 
 NOTE: this result is when generator yield 0 points per series, the default config is zero .... 
@@ -120,4 +122,75 @@ targets:
     url: api/v1/datapoints
     timeout: 30
 INFO[0012] bench finished pkg=k.cmd.bench 
+````
+
+10s, 100c, 1753, 0.58
+
+````
+INFO[0012] basic report finished by channel pkg=k.bench.reporter 
+Total: 1753
+0.05252847954545454 	 .
+0.1497975479757281 	 .......................
+0.3080670730866937 	 ........................................................
+0.47522930056571455 	 ...................
+0.6251182133883791 	 .....................................
+0.7688089279078946 	 .................
+0.8920961607454546 	 ..................
+1.0644694612527477 	 ..........
+1.1876952337692308 	 ....
+1.2930189929117646 	 ...
+1.411249842590909 	 ..
+1.5703640440909086 	 .
+1.673480292 	 
+1.790571128111111 	 .
+1.9030379400000001 	 
+2.0365130396666666 	 
+2.161930483 	 
+2.500472522 	 
+2.65827995 	 
+3.0063469785 	 
+INFO[0013] total time 11.228774 s pkg=k.bench.reporter 
+INFO[0013] total request 1753 pkg=k.bench.reporter 
+INFO[0013] fastest 0.027413 s pkg=k.bench.reporter 
+INFO[0013] slowest 3.049857 s pkg=k.bench.reporter 
+INFO[0013] average 0.581593 s pkg=k.bench.reporter 
+INFO[0013] total request size 315713547 pkg=k.bench.reporter 
+INFO[0013] toatl response size 5259 pkg=k.bench.reporter 
+INFO[0013] 200: 1753 pkg=k.bench.reporter 
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: time
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 100
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+INFO[0013] bench finished pkg=k.cmd.bench 
 ````
