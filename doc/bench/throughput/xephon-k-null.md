@@ -1,6 +1,6 @@
 # Xephon-K Null
 
-10s, 10c, 1407
+10s, 10c, 1407, 0.059
 
 ````
 Total: 1407
@@ -70,7 +70,7 @@ targets:
 INFO[0013] bench finished pkg=k.cmd.bench 
 ````
 
-10s, 100c, 1945, 0.5
+10s, 100c, 1945, 0.513
 
 ````
 Total: 1945
@@ -141,7 +141,8 @@ INFO[0015] bench finished pkg=k.cmd.bench
 ````
 
 10s, 1000c, meet too many open files again, last time, using docker seems to solve this problem?
- 
+2.50
+
 ````
 Total: 4886
 0.025048396133365645 	 ....................................................................................

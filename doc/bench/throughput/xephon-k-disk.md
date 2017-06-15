@@ -1,6 +1,6 @@
 # Xephon-K Disk
 
-10s 10c 1472, 0.05s 
+10s 10c 1472, 0.056s 
 
 ````
 Total: 1472
@@ -70,7 +70,7 @@ targets:
 INFO[0014] bench finished pkg=k.cmd.bench
 ````
 
-10s, 100c, 1904, 0.5s, too many open files, 29MB, note, the request size is much smaller than 100, 000, 000 points
+10s, 100c, 1904, 0.505s, too many open files, 29MB, note, the request size is much smaller than 100, 000, 000 points
 
 ````
 INFO[0012] basic report finished by channel pkg=k.bench.reporter 

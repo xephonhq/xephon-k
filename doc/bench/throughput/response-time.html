@@ -13,7 +13,7 @@
     var option = {
         // TODO: show the ratio of success request at same time
         title: {
-            text: 'Number of batches per second'
+            text: 'Average response time'
         },
         tooltip: {},
         toolbox: {
@@ -38,44 +38,44 @@
             data: ["10", "100", "1000"]
         },
         yAxis: {
-            name: 'succeeded batches'
+            name: 'response time (s)'
         },
         series: [
             {
                 name: 'Xephon-K(Null)',
                 type: 'bar',
                 label: {normal: {show: true, position: [0, -20]}},
-                data: [140.7, 194.5, 284.8]
+                data: [0.059, 0.513, 2.50]
             },
             {
                 name: 'Xephon-K(Mem)',
                 type: 'bar',
                 label: {normal: {show: true, position: [0, -20]}},
-                data: [153.5, 175.3, 139]
+                data: [0.047, 0.58, 3.7]
             },
             {
                 name: 'Xephon-K(Disk)',
                 type: 'bar',
                 label: {normal: {show: true, position: [0, -20]}},
-                data: [147.2, 190.4, 150]
+                data: [0.056, 0.505, 2.4]
             },
             {
                 name: 'Xephon-K(Cassandra)',
                 type: 'bar',
                 label: {normal: {show: true, position: [0, -20]}},
-                data: [31.8, 45.7, 54.6]
+                data: [0.29, 1.9, 11.7]
             },
             {
                 name: 'KairosDB',
                 type: 'bar',
                 label: {normal: {show: true, position: [0, -20]}},
-                data: [56.4, 46.8, 45.3]
+                data: [0.16, 1.93, 13.36]
             },
             {
                 name: 'InfluxDB',
                 type: 'bar',
                 label: {normal: {show: true, position: [0, -20]}},
-                data: [162, 171, 125]
+                data: [0.057, 0.6, 5.3]
             }
         ]
     };

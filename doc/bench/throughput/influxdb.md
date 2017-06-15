@@ -1,6 +1,6 @@
 # InfluxDB
 
-10s 10c 1623
+10s 10c 1623, 0.057
 
 ````
 INFO[0012] basic report finished by channel pkg=k.bench.reporter 

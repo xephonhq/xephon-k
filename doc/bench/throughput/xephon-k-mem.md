@@ -75,7 +75,7 @@ targets:
 INFO[0012] bench finished pkg=k.cmd.bench 
 ````
 
-10s, 10c, right 1535
+10s, 10c, right 1535, 0.047
 
 ````
 INFO[0012] total time 10.120981 s pkg=k.bench.reporter 
