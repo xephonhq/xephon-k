@@ -86,6 +86,10 @@ func (store *Store) WriteIntSeries(series []common.IntSeries) error {
 		if err != nil {
 			return errors.Wrapf(err, "write data failed for %s %v", series[i].Name, series[i].Tags)
 		}
+		// index might be disabled for current benchmark
+		if !store.config.EnableIndex {
+			continue
+		}
 		// Write Index
 		// TODO: write index and write data can be parallel, though I don't know if it has performance boost
 		// TODO: write index should also have error
@@ -106,6 +110,10 @@ func (store *Store) WriteDoubleSeries(series []common.DoubleSeries) error {
 		err := store.data.WriteDoubleSeries(id, series[i])
 		if err != nil {
 			return errors.Wrapf(err, "write data failed for %s %v", series[i].Name, series[i].Tags)
+		}
+		// index might be disabled for current benchmark
+		if !store.config.EnableIndex {
+			continue
 		}
 		// Write Index
 		// TODO: write index and write data can be parallel, though I don't know if it has performance boost
