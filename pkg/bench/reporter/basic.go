@@ -12,12 +12,12 @@ type BasicReporter struct {
 	counter           int64
 	start             time.Time
 	end               time.Time
-	fastest           int64
-	slowest           int64
+	fastest           float64
+	slowest           float64
 	totalRequestSize  int64
 	totalResponseSize int64
 	statusCode        map[int]int64
-	hisogram          gohistogram.Histogram
+	hisogram          *gohistogram.NumericHistogram
 }
 
 func (b *BasicReporter) Run(ctx context.Context, c chan *client.Result) {
@@ -40,7 +40,7 @@ LOOP:
 				break LOOP
 			}
 			// NOTE: since reporter is accessed by only one goroutine, these operation should be safe
-			d := result.End.Sub(result.Start).Nanoseconds()
+			d := result.End.Sub(result.Start).Seconds()
 			if d < b.fastest {
 				b.fastest = d
 			}
@@ -60,10 +60,11 @@ LOOP:
 
 func (b *BasicReporter) Finalize() {
 	fmt.Print(b.hisogram.String())
-	log.Infof("run time %f s", b.end.Sub(b.start).Seconds())
+	log.Infof("total time %f s", b.end.Sub(b.start).Seconds())
 	log.Infof("total request %d", b.counter)
-	log.Infof("fastest %d", b.fastest)
-	log.Infof("slowest %d", b.slowest)
+	log.Infof("fastest %f s", b.fastest)
+	log.Infof("slowest %f s", b.slowest)
+	log.Infof("average %f s", b.hisogram.Mean())
 	// TODO: human readable format
 	log.Infof("total request size %d", b.totalRequestSize)
 	log.Infof("toatl response size %d", b.totalResponseSize)

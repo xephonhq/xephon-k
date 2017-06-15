@@ -32,7 +32,7 @@ func NewScheduler(config config.BenchConfig) (*Scheduler, error) {
 	case "basic":
 		s.reporter = &reporter.BasicReporter{}
 	default:
-		return nil, errors.Errorf("unsupported reporter", config.Loader.Reporter)
+		return nil, errors.Errorf("unsupported reporter %s", config.Loader.Reporter)
 	}
 	return s, nil
 }

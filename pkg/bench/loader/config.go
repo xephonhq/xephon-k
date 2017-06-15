@@ -28,6 +28,7 @@ func NewConfig() Config {
 		Time:          10,
 		WorkerNum:     10,
 		WorkerTimeout: 30,
+		Reporter:      "basic",
 	}
 }
 

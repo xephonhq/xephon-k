@@ -48,6 +48,7 @@ var RootCmd = &cobra.Command{
 			log.Fatal(err)
 			return
 		}
+		printConfig()
 		log.Info("bench finished")
 	},
 }
@@ -58,13 +59,17 @@ func Execute() {
 	}
 }
 
+func printConfig() {
+	b, _ := yaml.Marshal(config)
+	fmt.Print(string(b))
+}
+
 func promptConfig() bool {
 	if err := config.Validate(); err != nil {
 		log.Warnf("wrong config %v", err)
 		return false
 	}
-	b, _ := yaml.Marshal(config)
-	fmt.Print(string(b))
+	printConfig()
 	fmt.Print("Do you want to proceed? [Y/N]")
 	var choice string
 	// TODO: we should only wait for a limit amount of time
