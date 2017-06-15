@@ -107,3 +107,110 @@ root@af2b4b0898ef:/var/lib/cassandra/data/xephon/metrics_int-061feae051f211e798e
 4.0K	mc-1-big-Summary.db
 4.0K	mc-1-big-TOC.txt
 ````
+
+10, 000, 000 58M, NOTE: it is using 100 points per series, which I think might be why it is so slow ... I will increase that 
+to 1,000 to see if it speeds up on other targets
+
+````
+⇒  xkb --limit points
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: points
+  points: 10000000
+  series: 100
+  time: 10
+  workerNum: 10
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 100
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+Do you want to proceed? [Y/N]y
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0008] worker started pkg=k.bench.worker 
+INFO[0052] generator stopped after 10000000 points pkg=k.bench 
+INFO[0052] close data channel pkg=k.bench 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] worker finished by input channel pkg=k.bench.worker 
+INFO[0052] basic report finished by channel pkg=k.bench.reporter 
+Total: 100000
+0.0033398144862595205 	 ................................................................................................................................................................
+0.005965555984695432 	 ................................
+0.009283370952029522 	 ...
+0.012445071919896631 	 
+0.015580992948979591 	 
+0.019303649494117652 	 
+0.023690358423076922 	 
+0.028695261 	 
+0.032111190222222225 	 
+0.035243050892307684 	 
+0.03944567668421053 	 
+0.04325521556020942 	 
+0.0463956313248175 	 
+0.05032273020588234 	 
+0.05347614522222222 	 
+0.05774266392857143 	 
+0.06214909592307693 	 
+0.0677891166 	 
+0.07089879975 	 
+0.07406825633333333 	 
+INFO[0053] run time 44.595655 s pkg=k.bench.reporter 
+INFO[0053] total request 100000 pkg=k.bench.reporter 
+INFO[0053] fastest 960517 pkg=k.bench.reporter 
+INFO[0053] slowest 75119183 pkg=k.bench.reporter 
+INFO[0053] total request size 189900000 pkg=k.bench.reporter 
+INFO[0053] toatl response size 300000 pkg=k.bench.reporter 
+INFO[0053] 200: 100000 pkg=k.bench.reporter 
+INFO[0053] bench finished pkg=k.cmd.bench 
+````
+
+````
+4.0K	backups
+28K	mc-5-big-CompressionInfo.db
+58M	mc-5-big-Data.db
+4.0K	mc-5-big-Digest.crc32
+4.0K	mc-5-big-Filter.db
+96K	mc-5-big-Index.db
+8.0K	mc-5-big-Statistics.db
+4.0K	mc-5-big-Summary.db
+4.0K	mc-5-big-TOC.txt
+````
