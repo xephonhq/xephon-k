@@ -14,8 +14,3 @@ var VersionCmd = &cobra.Command{
 		fmt.Println(pkg.Version)
 	},
 }
-
-func init() {
-	BenchCmd.AddCommand(VersionCmd)
-	CollectorCmd.AddCommand(VersionCmd)
-}
