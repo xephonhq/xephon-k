@@ -15,7 +15,7 @@ loader:
   points: 100000000
   series: 100
   time: 10
-  workerNum: 100
+  workerNum: 1000
   workerTimeout: 30
 #  TODO: qps is not supported
 #  qps: -1

@@ -70,7 +70,7 @@ targets:
 INFO[0014] bench finished pkg=k.cmd.bench
 ````
 
-10s, 100c, 1904, 0.5s 
+10s, 100c, 1904, 0.5s, too many open files, 29MB, note, the request size is much smaller than 100, 000, 000 points
 
 ````
 INFO[0012] basic report finished by channel pkg=k.bench.reporter 
@@ -139,4 +139,76 @@ targets:
     url: api/v1/datapoints
     timeout: 30
 INFO[0013] bench finished pkg=k.cmd.bench
+````
+
+10s, 1000c, 2.4s too many open files, 2100, 37MB
+
+````
+INFO[0017] basic report finished by channel pkg=k.bench.reporter 
+Total: 4500
+0.06503710464872517 	 .............................................................................................................
+0.7460046388979591 	 .............
+1.451260495848361 	 ..........
+2.1357716998633554 	 .......
+2.8905308846896545 	 ...
+3.6090073469813944 	 .........
+4.1757641951477265 	 ...
+4.9283410136956505 	 .
+5.57605821540625 	 .
+6.401577796608696 	 .
+6.975071746681819 	 
+7.55564702317143 	 .
+8.158142469945947 	 ....
+8.944331800109453 	 ........
+9.875095056100001 	 ..............
+10.63689198375 	 ...
+11.244940673999993 	 .
+11.834832136965515 	 .
+12.369477097285715 	 
+13.060684307 	 
+INFO[0018] total time 15.925720 s pkg=k.bench.reporter 
+INFO[0018] total request 4500 pkg=k.bench.reporter 
+INFO[0018] fastest 0.000041 s pkg=k.bench.reporter 
+INFO[0018] slowest 13.324191 s pkg=k.bench.reporter 
+INFO[0018] average 2.468008 s pkg=k.bench.reporter 
+INFO[0018] total request size 810445500 pkg=k.bench.reporter 
+INFO[0018] toatl response size 7200 pkg=k.bench.reporter 
+INFO[0018] 200: 2400 pkg=k.bench.reporter 
+INFO[0018] 0: 2100 pkg=k.bench.reporter 
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: time
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 1000
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+INFO[0018] bench finished pkg=k.cmd.bench 
 ````

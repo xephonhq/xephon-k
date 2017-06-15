@@ -139,3 +139,74 @@ targets:
     timeout: 30
 INFO[0015] bench finished pkg=k.cmd.bench
 ````
+
+10s, 1000c, meet too many open files again, last time, using docker seems to solve this problem?
+ 
+````
+Total: 4886
+0.025048396133365645 	 ....................................................................................
+0.9255612686530176 	 ..................
+1.7314230289446257 	 ............
+2.354237470726458 	 .........
+2.992571925317343 	 ...........
+3.576663612965988 	 ......
+4.449020903450674 	 ..................
+5.34087896286636 	 ........
+6.020238054726185 	 ......
+6.695190262861539 	 .....
+7.519384754915154 	 ......
+8.43046741831818 	 ...
+9.489908734290907 	 ..
+10.452952540709678 	 .
+11.15994354252174 	 
+11.98495257577143 	 .
+12.963767908699998 	 
+13.727257348 	 
+15.449447533296293 	 .
+16.237691126999998 	 
+INFO[0023] total time 18.504740 s pkg=k.bench.reporter 
+INFO[0023] total request 4886 pkg=k.bench.reporter 
+INFO[0023] fastest 0.000044 s pkg=k.bench.reporter 
+INFO[0023] slowest 16.654811 s pkg=k.bench.reporter 
+INFO[0023] average 2.500904 s pkg=k.bench.reporter 
+INFO[0023] total request size 879963714 pkg=k.bench.reporter 
+INFO[0023] toatl response size 8544 pkg=k.bench.reporter 
+INFO[0023] 0: 2038 pkg=k.bench.reporter 
+INFO[0023] 200: 2848 pkg=k.bench.reporter 
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: time
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 1000
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+INFO[0023] bench finished pkg=k.cmd.bench 
+````

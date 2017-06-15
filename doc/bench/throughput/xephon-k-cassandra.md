@@ -140,3 +140,75 @@ targets:
     timeout: 30
 INFO[0015] bench finished pkg=k.cmd.bench 
 ````
+
+10s (not really...), 1000c, 
+
+````
+INFO[0041] basic report finished by channel pkg=k.bench.reporter 
+Total: 2189
+0.0383672968368421 	 .................
+0.813273105850746 	 ......
+2.431096911587302 	 ...........
+3.6952212878227852 	 .......
+4.731130248885136 	 .............
+6.060364972951389 	 .............
+7.390589468971014 	 ............
+8.685756356074076 	 .......
+9.931236914206895 	 .......
+11.084379300064516 	 .....
+12.352632542195403 	 .......
+13.843497839441442 	 ..........
+15.654074393137098 	 ...........
+17.129080950986847 	 ......
+19.263259802813177 	 ................
+20.747514336697485 	 ..........
+22.00281510594703 	 .............
+23.031888942984732 	 ...........
+24.31982404686076 	 .......
+25.801402818142854 	 
+INFO[0042] total time 40.593780 s pkg=k.bench.reporter 
+INFO[0042] total request 2189 pkg=k.bench.reporter 
+INFO[0042] fastest 0.000063 s pkg=k.bench.reporter 
+INFO[0042] slowest 26.222244 s pkg=k.bench.reporter 
+INFO[0042] average 11.776238 s pkg=k.bench.reporter 
+INFO[0042] total request size 394236711 pkg=k.bench.reporter 
+INFO[0042] toatl response size 6036 pkg=k.bench.reporter 
+INFO[0042] 200: 2012 pkg=k.bench.reporter 
+INFO[0042] 0: 177 pkg=k.bench.reporter 
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: time
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 1000
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+INFO[0042] bench finished pkg=k.cmd.bench 
+````
