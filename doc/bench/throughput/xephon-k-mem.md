@@ -1,5 +1,8 @@
 - 10s, 10 client, disable index TODO: it has concurrent map access again??
 
+NOTE: this result is when generator yield 0 points per series, the default config is zero .... 
+https://github.com/xephonhq/xephon-k/issues/57
+
 113608, avg: 0.000853
 
 ````
@@ -56,6 +59,55 @@ targets:
     host: localhost
     port: 8086
     url: write?db=sb
+    timeout: 30
+  xephonk:
+    host: localhost
+    port: 2333
+    url: write
+    timeout: 30
+  kairosdb:
+    host: localhost
+    port: 8080
+    url: api/v1/datapoints
+    timeout: 30
+INFO[0012] bench finished pkg=k.cmd.bench 
+````
+
+10s, 10c, right 1535
+
+````
+INFO[0012] total time 10.120981 s pkg=k.bench.reporter 
+INFO[0012] total request 1535 pkg=k.bench.reporter 
+INFO[0012] fastest 0.017193 s pkg=k.bench.reporter 
+INFO[0012] slowest 0.099905 s pkg=k.bench.reporter 
+INFO[0012] average 0.047307 s pkg=k.bench.reporter 
+INFO[0012] total request size 276451965 pkg=k.bench.reporter 
+INFO[0012] toatl response size 4605 pkg=k.bench.reporter 
+INFO[0012] 200: 1535 pkg=k.bench.reporter 
+log:
+  level: info
+  color: true
+  source: false
+mode: local
+loader:
+  target: xephonk
+  reporter: basic
+  limitBy: time
+  points: 100000000
+  series: 100
+  time: 10
+  workerNum: 10
+  workerTimeout: 30
+generator:
+  timeInterval: 1
+  timeNoise: false
+  pointsPerSeries: 10000
+  numSeries: 10
+targets:
+  influxdb:
+    host: localhost
+    port: 8086
+    url: write?db=xb
     timeout: 30
   xephonk:
     host: localhost
