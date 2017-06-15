@@ -70,5 +70,4 @@ func (b *BasicReporter) Finalize() {
 	for code, count := range b.statusCode {
 		log.Infof("%d: %d", code, count)
 	}
-	log.Info("null reporter has nothing to say")
 }
