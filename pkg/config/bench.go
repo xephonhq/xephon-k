@@ -2,8 +2,8 @@ package config
 
 import (
 	"github.com/pkg/errors"
-	"github.com/xephonhq/xephon-k/pkg/bench2/generator"
-	"github.com/xephonhq/xephon-k/pkg/bench2/loader"
+	"github.com/xephonhq/xephon-k/pkg/bench/generator"
+	"github.com/xephonhq/xephon-k/pkg/bench/loader"
 	"github.com/xephonhq/xephon-k/pkg/client"
 	"github.com/xephonhq/xephon-k/pkg/util"
 )

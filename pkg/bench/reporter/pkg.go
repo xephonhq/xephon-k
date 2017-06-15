@@ -7,7 +7,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
-var log = util.Logger.NewEntryWithPkg("k.bench2.reporter")
+var log = util.Logger.NewEntryWithPkg("k.bench.reporter")
 
 // check interface
 

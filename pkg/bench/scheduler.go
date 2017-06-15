@@ -1,11 +1,11 @@
-package bench2
+package bench
 
 import (
 	"context"
 	"github.com/pkg/errors"
-	"github.com/xephonhq/xephon-k/pkg/bench2/generator"
-	"github.com/xephonhq/xephon-k/pkg/bench2/loader"
-	"github.com/xephonhq/xephon-k/pkg/bench2/reporter"
+	"github.com/xephonhq/xephon-k/pkg/bench/generator"
+	"github.com/xephonhq/xephon-k/pkg/bench/loader"
+	"github.com/xephonhq/xephon-k/pkg/bench/reporter"
 	"github.com/xephonhq/xephon-k/pkg/client"
 	"github.com/xephonhq/xephon-k/pkg/client/influxdb"
 	"github.com/xephonhq/xephon-k/pkg/client/kairosdb"

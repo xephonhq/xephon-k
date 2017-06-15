@@ -7,7 +7,7 @@ import (
 	"github.com/xephonhq/xephon-k/pkg/util"
 )
 
-var log = util.Logger.NewEntryWithPkg("k.bench2.worker")
+var log = util.Logger.NewEntryWithPkg("k.bench.worker")
 
 type Worker struct {
 	ctx    context.Context

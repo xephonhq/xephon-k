@@ -3,7 +3,7 @@ package bench
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/xephonhq/xephon-k/pkg/bench2"
+	"github.com/xephonhq/xephon-k/pkg/bench"
 	common "github.com/xephonhq/xephon-k/pkg/cmd"
 	cf "github.com/xephonhq/xephon-k/pkg/config"
 	"github.com/xephonhq/xephon-k/pkg/util"
@@ -39,7 +39,7 @@ var RootCmd = &cobra.Command{
 		if !promptConfig() {
 			return
 		}
-		scheduler, err := bench2.NewScheduler(config)
+		scheduler, err := bench.NewScheduler(config)
 		if err != nil {
 			log.Fatal(err)
 			return
