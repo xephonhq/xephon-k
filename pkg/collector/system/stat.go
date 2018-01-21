@@ -26,6 +26,7 @@ const (
 - TODO: softirq
 */
 
+// NOTE: the value in procfs is uint, but I chose float64 for easy serialization
 type CPUStat struct {
 	User      float64
 	Nice      float64
