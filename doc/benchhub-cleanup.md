@@ -85,3 +85,10 @@ Collector
 Stuff
 
 - [Expose internal metrics](https://github.com/xephonhq/xephon-k/issues/28)
+
+## Benchmark
+
+- pkg/bench/scheduler.go
+  - LimitBy choose the policy, number of points, or load time
+  - use channel of `chan *common.IntSeries` to pass data to worker
+  - reuse transport
