@@ -19,4 +19,4 @@ fmt:
 
 .PHONY: test
 test:
-	go test -v -cover ./xk
+	go test -v -cover ./xk/...

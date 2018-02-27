@@ -8,7 +8,7 @@ type DataProvider interface {
 
 type Provider interface {
 	MetaProvider
-	Provider
+	DataProvider
 }
 
 // TODO: code for register provider etc.
