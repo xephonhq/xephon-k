@@ -7,10 +7,15 @@ FLAGS = -X main.version=$(VERSION) -X main.commit=$(BUILD_COMMIT) -X main.buildT
 .PHONY: install
 install:
 	go install -ldflags "$(FLAGS)" ./cmd/xk
+	go install -ldflags "$(FLAGS)" ./cmd/xkctl
+
+.PHONY: generate
+generate:
+	gommon generate -v
 
 .PHONY: fmt
 fmt:
-	gofmt -d -l -w ./cmd/xk ./xk
+	gofmt -d -l -w ./cmd/xk ./cmd/xkctl ./xk
 
 .PHONY: test
 test:

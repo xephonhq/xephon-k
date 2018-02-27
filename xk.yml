@@ -1,0 +1,12 @@
+http:
+  addr: :2333
+  secure: false
+  cert: xk.crt
+  key: xk.key
+  enableTracing: false
+grpc:
+  addr: :2334
+  secure: false
+  cert: xk.crt
+  key: xk.key
+  enableTracing: false

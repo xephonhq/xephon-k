@@ -1,0 +1,22 @@
+// protoc --proto_path=/home/at15/workspace/src/:. --gogo_out=plugins=grpc:. rpc.proto
+syntax = "proto3";
+
+package xkrpc;
+
+option go_package = "grpc";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/xephonhq/xephon-k/xk/xkpb/types.proto";
+
+
+option (gogoproto.sizer_all) = true;
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+
+
+
+service Xephonk {
+    rpc Ping (xk.Ping) returns (xk.Pong) {
+    }
+}

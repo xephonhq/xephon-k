@@ -1,5 +1,10 @@
 # Commandline applications
 
+Current
+
+- [xk](xk) xephon-k server daemon
+- [xkctl](xkctl) client and util
+
 Deprecated
 
 - xkb xephon-k version of xephon-b
