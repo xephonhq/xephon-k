@@ -1,5 +1,7 @@
 # Write Process
 
+Deprecated, see [write-path](write-path.md)
+
 a6c543039763c0f08253d71a43aefe3b570ecf37
 
 - services/httpd/handler.go
