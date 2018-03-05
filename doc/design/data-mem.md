@@ -25,6 +25,20 @@ type Data struct {
 - test with larger memory usage
 
 
+## Go specific
+
+- https://github.com/allegro/bigcache
+- https://github.com/coocood/freecache
+
 ## Other databases
 
 ### InfluxDB
+
+- see [doc/survey/influxdb/write-path.md](../survey/influxdb/write-path.md) and [doc/survey/influxdb/read-path.md](../survey/influxdb/read-path.md)
+- use a ring shard (its robin hood hashing is used for meta index), it has # of cores partitions
+- each partition has a `map[string]*entry` where key is measurement + tags + field key, partition has rwmutex
+- each entry contains a slice of values, entry has rwmutex
+- data in memory is not compressed
+- default cache max memory is 1GB 
+- default cache snapshot memory size is 25MB 
+- default cache snapshot duration is 10 minute
