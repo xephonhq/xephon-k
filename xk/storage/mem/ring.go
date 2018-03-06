@@ -53,11 +53,11 @@ func (p *Partition) WritePoints(hash uint64, times []int64, values []float64) {
 	s := p.store[hash]
 	if s != nil {
 		s.mu.Lock()
+		p.mu.RUnlock()
 		s.size += len(times)
 		s.times = append(s.times, times...)
 		s.values = append(s.values, values...)
 		s.mu.Unlock()
-		p.mu.RUnlock()
 		return
 	}
 	p.mu.RUnlock()

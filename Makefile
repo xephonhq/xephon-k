@@ -21,6 +21,10 @@ fmt:
 test:
 	go test -v -cover ./xk/...
 
+.PHONY: test-race
+test-race:
+	go test -race ./xk/...
+
 .PHONY: loc
 loc:
 	cloc --exclude-dir=vendor,.idea,playground --exclude-list-file=script/cloc_exclude.txt .

@@ -34,28 +34,29 @@ func TestNewRing(t *testing.T) {
 }
 
 // NOTE: race
-// FIXME: fatal error: all goroutines are asleep - deadlock!
 func TestPartition_WritePoints(t *testing.T) {
 	var wg sync.WaitGroup
 	var batchSize int64 = 10
 	concurrency := runtime.NumCPU()
 	r := NewRing(runtime.NumCPU())
 	wg.Add(concurrency)
-	go func() {
-		var i uint64
-		var j int64
+	for c := 0; c < concurrency; c++ {
+		go func() {
+			var i uint64
+			var j int64
 
-		for i = 0; i < 100; i++ {
-			now := time.Now().UnixNano()
-			times := make([]int64, batchSize)
-			values := make([]float64, batchSize)
-			for j = 0; j < batchSize; j++ {
-				times[j] = now + j
-				values[j] = float64(j)
+			for i = 0; i < 100; i++ {
+				now := time.Now().UnixNano()
+				times := make([]int64, batchSize)
+				values := make([]float64, batchSize)
+				for j = 0; j < batchSize; j++ {
+					times[j] = now + j
+					values[j] = float64(j)
+				}
+				r.getPartition(i).WritePoints(i, times[:], values[:])
 			}
-			r.getPartition(i).WritePoints(i, times[:], values[:])
-		}
-		wg.Done()
-	}()
+			wg.Done()
+		}()
+	}
 	wg.Wait()
 }
