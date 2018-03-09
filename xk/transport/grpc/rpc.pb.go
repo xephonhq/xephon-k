@@ -2,12 +2,29 @@
 // source: rpc.proto
 
 /*
-Package grpc is a generated protocol buffer package.
+	Package grpc is a generated protocol buffer package.
 
-It is generated from these files:
-	rpc.proto
+	It is generated from these files:
+		rpc.proto
 
-It has these top-level messages:
+	It has these top-level messages:
+		Error
+		PingReq
+		PingRes
+		WritePointsReq
+		WritePointsRes
+		WriteSeriesReq
+		WriteSeriesRes
+		PrepareSeriesReq
+		PrepareSeriesRes
+		PreparedPointInt
+		PreparedPointDouble
+		WritePreparedPointsReq
+		WritePreparedPointsRes
+		WritePreparedSeriesReq
+		WritePreparedSeriesRes
+		WritePreparedSeriesColumnarReq
+		WritePreparedSeriesColumnarRes
 */
 package grpc
 
@@ -15,10 +32,14 @@ import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
 import _ "github.com/gogo/protobuf/gogoproto"
-import xk "github.com/xephonhq/xephon-k/xk/xkpb"
+import libtsdb "github.com/libtsdb/libtsdb-go/libtsdb/libtsdbpb"
 
 import context "golang.org/x/net/context"
 import grpc1 "google.golang.org/grpc"
+
+import binary "encoding/binary"
+
+import io "io"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -31,6 +52,190 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
+type Error struct {
+	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (m *Error) Reset()                    { *m = Error{} }
+func (m *Error) String() string            { return proto.CompactTextString(m) }
+func (*Error) ProtoMessage()               {}
+func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{0} }
+
+type PingReq struct {
+	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (m *PingReq) Reset()                    { *m = PingReq{} }
+func (m *PingReq) String() string            { return proto.CompactTextString(m) }
+func (*PingReq) ProtoMessage()               {}
+func (*PingReq) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{1} }
+
+type PingRes struct {
+	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (m *PingRes) Reset()                    { *m = PingRes{} }
+func (m *PingRes) String() string            { return proto.CompactTextString(m) }
+func (*PingRes) ProtoMessage()               {}
+func (*PingRes) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{2} }
+
+// raw, no prepare
+type WritePointsReq struct {
+	Int    []libtsdb.PointIntTagged    `protobuf:"bytes,1,rep,name=int" json:"int"`
+	Double []libtsdb.PointDoubleTagged `protobuf:"bytes,2,rep,name=double" json:"double"`
+}
+
+func (m *WritePointsReq) Reset()                    { *m = WritePointsReq{} }
+func (m *WritePointsReq) String() string            { return proto.CompactTextString(m) }
+func (*WritePointsReq) ProtoMessage()               {}
+func (*WritePointsReq) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{3} }
+
+type WritePointsRes struct {
+	Error *Error `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+}
+
+func (m *WritePointsRes) Reset()                    { *m = WritePointsRes{} }
+func (m *WritePointsRes) String() string            { return proto.CompactTextString(m) }
+func (*WritePointsRes) ProtoMessage()               {}
+func (*WritePointsRes) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{4} }
+
+type WriteSeriesReq struct {
+	Int    []libtsdb.SeriesIntTagged    `protobuf:"bytes,1,rep,name=int" json:"int"`
+	Double []libtsdb.SeriesDoubleTagged `protobuf:"bytes,2,rep,name=double" json:"double"`
+}
+
+func (m *WriteSeriesReq) Reset()                    { *m = WriteSeriesReq{} }
+func (m *WriteSeriesReq) String() string            { return proto.CompactTextString(m) }
+func (*WriteSeriesReq) ProtoMessage()               {}
+func (*WriteSeriesReq) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{5} }
+
+type WriteSeriesRes struct {
+	Error Error `protobuf:"bytes,1,opt,name=error" json:"error"`
+}
+
+func (m *WriteSeriesRes) Reset()                    { *m = WriteSeriesRes{} }
+func (m *WriteSeriesRes) String() string            { return proto.CompactTextString(m) }
+func (*WriteSeriesRes) ProtoMessage()               {}
+func (*WriteSeriesRes) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{6} }
+
+// prepare
+type PrepareSeriesReq struct {
+	Series []libtsdb.EmptySeries `protobuf:"bytes,1,rep,name=series" json:"series"`
+}
+
+func (m *PrepareSeriesReq) Reset()                    { *m = PrepareSeriesReq{} }
+func (m *PrepareSeriesReq) String() string            { return proto.CompactTextString(m) }
+func (*PrepareSeriesReq) ProtoMessage()               {}
+func (*PrepareSeriesReq) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{7} }
+
+type PrepareSeriesRes struct {
+	Series []uint64 `protobuf:"varint,1,rep,packed,name=series" json:"series,omitempty"`
+}
+
+func (m *PrepareSeriesRes) Reset()                    { *m = PrepareSeriesRes{} }
+func (m *PrepareSeriesRes) String() string            { return proto.CompactTextString(m) }
+func (*PrepareSeriesRes) ProtoMessage()               {}
+func (*PrepareSeriesRes) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{8} }
+
+type PreparedPointInt struct {
+	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	T  int64  `protobuf:"varint,2,opt,name=T,proto3" json:"T,omitempty"`
+	V  int64  `protobuf:"varint,3,opt,name=V,proto3" json:"V,omitempty"`
+}
+
+func (m *PreparedPointInt) Reset()                    { *m = PreparedPointInt{} }
+func (m *PreparedPointInt) String() string            { return proto.CompactTextString(m) }
+func (*PreparedPointInt) ProtoMessage()               {}
+func (*PreparedPointInt) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{9} }
+
+type PreparedPointDouble struct {
+	Id uint64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	T  int64   `protobuf:"varint,2,opt,name=T,proto3" json:"T,omitempty"`
+	V  float64 `protobuf:"fixed64,3,opt,name=V,proto3" json:"V,omitempty"`
+}
+
+func (m *PreparedPointDouble) Reset()                    { *m = PreparedPointDouble{} }
+func (m *PreparedPointDouble) String() string            { return proto.CompactTextString(m) }
+func (*PreparedPointDouble) ProtoMessage()               {}
+func (*PreparedPointDouble) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{10} }
+
+type WritePreparedPointsReq struct {
+	Int    []PreparedPointInt    `protobuf:"bytes,1,rep,name=int" json:"int"`
+	Double []PreparedPointDouble `protobuf:"bytes,2,rep,name=double" json:"double"`
+}
+
+func (m *WritePreparedPointsReq) Reset()                    { *m = WritePreparedPointsReq{} }
+func (m *WritePreparedPointsReq) String() string            { return proto.CompactTextString(m) }
+func (*WritePreparedPointsReq) ProtoMessage()               {}
+func (*WritePreparedPointsReq) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{11} }
+
+type WritePreparedPointsRes struct {
+	Error Error `protobuf:"bytes,1,opt,name=error" json:"error"`
+}
+
+func (m *WritePreparedPointsRes) Reset()                    { *m = WritePreparedPointsRes{} }
+func (m *WritePreparedPointsRes) String() string            { return proto.CompactTextString(m) }
+func (*WritePreparedPointsRes) ProtoMessage()               {}
+func (*WritePreparedPointsRes) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{12} }
+
+type WritePreparedSeriesReq struct {
+}
+
+func (m *WritePreparedSeriesReq) Reset()                    { *m = WritePreparedSeriesReq{} }
+func (m *WritePreparedSeriesReq) String() string            { return proto.CompactTextString(m) }
+func (*WritePreparedSeriesReq) ProtoMessage()               {}
+func (*WritePreparedSeriesReq) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{13} }
+
+type WritePreparedSeriesRes struct {
+	Error Error `protobuf:"bytes,1,opt,name=error" json:"error"`
+}
+
+func (m *WritePreparedSeriesRes) Reset()                    { *m = WritePreparedSeriesRes{} }
+func (m *WritePreparedSeriesRes) String() string            { return proto.CompactTextString(m) }
+func (*WritePreparedSeriesRes) ProtoMessage()               {}
+func (*WritePreparedSeriesRes) Descriptor() ([]byte, []int) { return fileDescriptorRpc, []int{14} }
+
+type WritePreparedSeriesColumnarReq struct {
+}
+
+func (m *WritePreparedSeriesColumnarReq) Reset()         { *m = WritePreparedSeriesColumnarReq{} }
+func (m *WritePreparedSeriesColumnarReq) String() string { return proto.CompactTextString(m) }
+func (*WritePreparedSeriesColumnarReq) ProtoMessage()    {}
+func (*WritePreparedSeriesColumnarReq) Descriptor() ([]byte, []int) {
+	return fileDescriptorRpc, []int{15}
+}
+
+type WritePreparedSeriesColumnarRes struct {
+	Error Error `protobuf:"bytes,1,opt,name=error" json:"error"`
+}
+
+func (m *WritePreparedSeriesColumnarRes) Reset()         { *m = WritePreparedSeriesColumnarRes{} }
+func (m *WritePreparedSeriesColumnarRes) String() string { return proto.CompactTextString(m) }
+func (*WritePreparedSeriesColumnarRes) ProtoMessage()    {}
+func (*WritePreparedSeriesColumnarRes) Descriptor() ([]byte, []int) {
+	return fileDescriptorRpc, []int{16}
+}
+
+func init() {
+	proto.RegisterType((*Error)(nil), "xkrpc.Error")
+	proto.RegisterType((*PingReq)(nil), "xkrpc.PingReq")
+	proto.RegisterType((*PingRes)(nil), "xkrpc.PingRes")
+	proto.RegisterType((*WritePointsReq)(nil), "xkrpc.WritePointsReq")
+	proto.RegisterType((*WritePointsRes)(nil), "xkrpc.WritePointsRes")
+	proto.RegisterType((*WriteSeriesReq)(nil), "xkrpc.WriteSeriesReq")
+	proto.RegisterType((*WriteSeriesRes)(nil), "xkrpc.WriteSeriesRes")
+	proto.RegisterType((*PrepareSeriesReq)(nil), "xkrpc.PrepareSeriesReq")
+	proto.RegisterType((*PrepareSeriesRes)(nil), "xkrpc.PrepareSeriesRes")
+	proto.RegisterType((*PreparedPointInt)(nil), "xkrpc.PreparedPointInt")
+	proto.RegisterType((*PreparedPointDouble)(nil), "xkrpc.PreparedPointDouble")
+	proto.RegisterType((*WritePreparedPointsReq)(nil), "xkrpc.WritePreparedPointsReq")
+	proto.RegisterType((*WritePreparedPointsRes)(nil), "xkrpc.WritePreparedPointsRes")
+	proto.RegisterType((*WritePreparedSeriesReq)(nil), "xkrpc.WritePreparedSeriesReq")
+	proto.RegisterType((*WritePreparedSeriesRes)(nil), "xkrpc.WritePreparedSeriesRes")
+	proto.RegisterType((*WritePreparedSeriesColumnarReq)(nil), "xkrpc.WritePreparedSeriesColumnarReq")
+	proto.RegisterType((*WritePreparedSeriesColumnarRes)(nil), "xkrpc.WritePreparedSeriesColumnarRes")
+}
+
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
 var _ grpc1.ClientConn
@@ -42,7 +247,19 @@ const _ = grpc1.SupportPackageIsVersion4
 // Client API for Xephonk service
 
 type XephonkClient interface {
-	Ping(ctx context.Context, in *xk.Ping, opts ...grpc1.CallOption) (*xk.Pong, error)
+	Ping(ctx context.Context, in *PingReq, opts ...grpc1.CallOption) (*PingRes, error)
+	// WritePoints is the most verbose one, but requires least effort on client side, just stream in point with tag
+	WritePoints(ctx context.Context, in *WritePointsReq, opts ...grpc1.CallOption) (*WritePointsRes, error)
+	// WriteSereis groups points of same series together to reduce cost of duplicating meta
+	WriteSeries(ctx context.Context, in *WriteSeriesReq, opts ...grpc1.CallOption) (*WriteSeriesRes, error)
+	// PrepareSeries gives each series a unique id, that can be used in this connection to omit passing full meta
+	PrepareSeries(ctx context.Context, in *PrepareSeriesReq, opts ...grpc1.CallOption) (*PrepareSeriesRes, error)
+	// WritePreparedPoints don't group points by series, but only prepared id is needed, not need to pass full meta
+	WritePreparedPoints(ctx context.Context, in *WritePreparedPointsReq, opts ...grpc1.CallOption) (*WritePreparedPointsRes, error)
+	// WritePreparedSeries not only use id for series, but also group points by series
+	WritePreparedSeries(ctx context.Context, in *WritePreparedSeriesReq, opts ...grpc1.CallOption) (*WritePreparedSeriesRes, error)
+	// WritePreparedSeriesColumnar use columnar format so points in one series can be compressed by protobuf
+	WritePreparedSeriesColumnar(ctx context.Context, in *WritePreparedSeriesColumnarReq, opts ...grpc1.CallOption) (*WritePreparedSeriesColumnarRes, error)
 }
 
 type xephonkClient struct {
@@ -53,9 +270,63 @@ func NewXephonkClient(cc *grpc1.ClientConn) XephonkClient {
 	return &xephonkClient{cc}
 }
 
-func (c *xephonkClient) Ping(ctx context.Context, in *xk.Ping, opts ...grpc1.CallOption) (*xk.Pong, error) {
-	out := new(xk.Pong)
+func (c *xephonkClient) Ping(ctx context.Context, in *PingReq, opts ...grpc1.CallOption) (*PingRes, error) {
+	out := new(PingRes)
 	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/Ping", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xephonkClient) WritePoints(ctx context.Context, in *WritePointsReq, opts ...grpc1.CallOption) (*WritePointsRes, error) {
+	out := new(WritePointsRes)
+	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/WritePoints", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xephonkClient) WriteSeries(ctx context.Context, in *WriteSeriesReq, opts ...grpc1.CallOption) (*WriteSeriesRes, error) {
+	out := new(WriteSeriesRes)
+	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/WriteSeries", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xephonkClient) PrepareSeries(ctx context.Context, in *PrepareSeriesReq, opts ...grpc1.CallOption) (*PrepareSeriesRes, error) {
+	out := new(PrepareSeriesRes)
+	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/PrepareSeries", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xephonkClient) WritePreparedPoints(ctx context.Context, in *WritePreparedPointsReq, opts ...grpc1.CallOption) (*WritePreparedPointsRes, error) {
+	out := new(WritePreparedPointsRes)
+	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/WritePreparedPoints", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xephonkClient) WritePreparedSeries(ctx context.Context, in *WritePreparedSeriesReq, opts ...grpc1.CallOption) (*WritePreparedSeriesRes, error) {
+	out := new(WritePreparedSeriesRes)
+	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/WritePreparedSeries", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xephonkClient) WritePreparedSeriesColumnar(ctx context.Context, in *WritePreparedSeriesColumnarReq, opts ...grpc1.CallOption) (*WritePreparedSeriesColumnarRes, error) {
+	out := new(WritePreparedSeriesColumnarRes)
+	err := grpc1.Invoke(ctx, "/xkrpc.Xephonk/WritePreparedSeriesColumnar", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +336,19 @@ func (c *xephonkClient) Ping(ctx context.Context, in *xk.Ping, opts ...grpc1.Cal
 // Server API for Xephonk service
 
 type XephonkServer interface {
-	Ping(context.Context, *xk.Ping) (*xk.Pong, error)
+	Ping(context.Context, *PingReq) (*PingRes, error)
+	// WritePoints is the most verbose one, but requires least effort on client side, just stream in point with tag
+	WritePoints(context.Context, *WritePointsReq) (*WritePointsRes, error)
+	// WriteSereis groups points of same series together to reduce cost of duplicating meta
+	WriteSeries(context.Context, *WriteSeriesReq) (*WriteSeriesRes, error)
+	// PrepareSeries gives each series a unique id, that can be used in this connection to omit passing full meta
+	PrepareSeries(context.Context, *PrepareSeriesReq) (*PrepareSeriesRes, error)
+	// WritePreparedPoints don't group points by series, but only prepared id is needed, not need to pass full meta
+	WritePreparedPoints(context.Context, *WritePreparedPointsReq) (*WritePreparedPointsRes, error)
+	// WritePreparedSeries not only use id for series, but also group points by series
+	WritePreparedSeries(context.Context, *WritePreparedSeriesReq) (*WritePreparedSeriesRes, error)
+	// WritePreparedSeriesColumnar use columnar format so points in one series can be compressed by protobuf
+	WritePreparedSeriesColumnar(context.Context, *WritePreparedSeriesColumnarReq) (*WritePreparedSeriesColumnarRes, error)
 }
 
 func RegisterXephonkServer(s *grpc1.Server, srv XephonkServer) {
@@ -73,7 +356,7 @@ func RegisterXephonkServer(s *grpc1.Server, srv XephonkServer) {
 }
 
 func _Xephonk_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
-	in := new(xk.Ping)
+	in := new(PingReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -85,7 +368,115 @@ func _Xephonk_Ping_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/xkrpc.Xephonk/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(XephonkServer).Ping(ctx, req.(*xk.Ping))
+		return srv.(XephonkServer).Ping(ctx, req.(*PingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Xephonk_WritePoints_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WritePointsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XephonkServer).WritePoints(ctx, in)
+	}
+	info := &grpc1.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/xkrpc.Xephonk/WritePoints",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XephonkServer).WritePoints(ctx, req.(*WritePointsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Xephonk_WriteSeries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WriteSeriesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XephonkServer).WriteSeries(ctx, in)
+	}
+	info := &grpc1.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/xkrpc.Xephonk/WriteSeries",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XephonkServer).WriteSeries(ctx, req.(*WriteSeriesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Xephonk_PrepareSeries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PrepareSeriesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XephonkServer).PrepareSeries(ctx, in)
+	}
+	info := &grpc1.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/xkrpc.Xephonk/PrepareSeries",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XephonkServer).PrepareSeries(ctx, req.(*PrepareSeriesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Xephonk_WritePreparedPoints_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WritePreparedPointsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XephonkServer).WritePreparedPoints(ctx, in)
+	}
+	info := &grpc1.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/xkrpc.Xephonk/WritePreparedPoints",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XephonkServer).WritePreparedPoints(ctx, req.(*WritePreparedPointsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Xephonk_WritePreparedSeries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WritePreparedSeriesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XephonkServer).WritePreparedSeries(ctx, in)
+	}
+	info := &grpc1.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/xkrpc.Xephonk/WritePreparedSeries",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XephonkServer).WritePreparedSeries(ctx, req.(*WritePreparedSeriesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Xephonk_WritePreparedSeriesColumnar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc1.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WritePreparedSeriesColumnarReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XephonkServer).WritePreparedSeriesColumnar(ctx, in)
+	}
+	info := &grpc1.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/xkrpc.Xephonk/WritePreparedSeriesColumnar",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XephonkServer).WritePreparedSeriesColumnar(ctx, req.(*WritePreparedSeriesColumnarReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -98,24 +489,2367 @@ var _Xephonk_serviceDesc = grpc1.ServiceDesc{
 			MethodName: "Ping",
 			Handler:    _Xephonk_Ping_Handler,
 		},
+		{
+			MethodName: "WritePoints",
+			Handler:    _Xephonk_WritePoints_Handler,
+		},
+		{
+			MethodName: "WriteSeries",
+			Handler:    _Xephonk_WriteSeries_Handler,
+		},
+		{
+			MethodName: "PrepareSeries",
+			Handler:    _Xephonk_PrepareSeries_Handler,
+		},
+		{
+			MethodName: "WritePreparedPoints",
+			Handler:    _Xephonk_WritePreparedPoints_Handler,
+		},
+		{
+			MethodName: "WritePreparedSeries",
+			Handler:    _Xephonk_WritePreparedSeries_Handler,
+		},
+		{
+			MethodName: "WritePreparedSeriesColumnar",
+			Handler:    _Xephonk_WritePreparedSeriesColumnar_Handler,
+		},
 	},
 	Streams:  []grpc1.StreamDesc{},
 	Metadata: "rpc.proto",
 }
 
+func (m *Error) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Error) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Message) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(len(m.Message)))
+		i += copy(dAtA[i:], m.Message)
+	}
+	return i, nil
+}
+
+func (m *PingReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PingReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Message) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(len(m.Message)))
+		i += copy(dAtA[i:], m.Message)
+	}
+	return i, nil
+}
+
+func (m *PingRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PingRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Message) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(len(m.Message)))
+		i += copy(dAtA[i:], m.Message)
+	}
+	return i, nil
+}
+
+func (m *WritePointsReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePointsReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Int) > 0 {
+		for _, msg := range m.Int {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	if len(m.Double) > 0 {
+		for _, msg := range m.Double {
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *WritePointsRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePointsRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Error != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(m.Error.Size()))
+		n1, err := m.Error.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n1
+	}
+	return i, nil
+}
+
+func (m *WriteSeriesReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WriteSeriesReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Int) > 0 {
+		for _, msg := range m.Int {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	if len(m.Double) > 0 {
+		for _, msg := range m.Double {
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *WriteSeriesRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WriteSeriesRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintRpc(dAtA, i, uint64(m.Error.Size()))
+	n2, err := m.Error.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n2
+	return i, nil
+}
+
+func (m *PrepareSeriesReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PrepareSeriesReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Series) > 0 {
+		for _, msg := range m.Series {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *PrepareSeriesRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PrepareSeriesRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Series) > 0 {
+		dAtA4 := make([]byte, len(m.Series)*10)
+		var j3 int
+		for _, num := range m.Series {
+			for num >= 1<<7 {
+				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j3++
+			}
+			dAtA4[j3] = uint8(num)
+			j3++
+		}
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(j3))
+		i += copy(dAtA[i:], dAtA4[:j3])
+	}
+	return i, nil
+}
+
+func (m *PreparedPointInt) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PreparedPointInt) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Id != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(m.Id))
+	}
+	if m.T != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(m.T))
+	}
+	if m.V != 0 {
+		dAtA[i] = 0x18
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(m.V))
+	}
+	return i, nil
+}
+
+func (m *PreparedPointDouble) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PreparedPointDouble) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Id != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(m.Id))
+	}
+	if m.T != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintRpc(dAtA, i, uint64(m.T))
+	}
+	if m.V != 0 {
+		dAtA[i] = 0x19
+		i++
+		binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.V))))
+		i += 8
+	}
+	return i, nil
+}
+
+func (m *WritePreparedPointsReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePreparedPointsReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Int) > 0 {
+		for _, msg := range m.Int {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	if len(m.Double) > 0 {
+		for _, msg := range m.Double {
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintRpc(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *WritePreparedPointsRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePreparedPointsRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintRpc(dAtA, i, uint64(m.Error.Size()))
+	n5, err := m.Error.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n5
+	return i, nil
+}
+
+func (m *WritePreparedSeriesReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePreparedSeriesReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	return i, nil
+}
+
+func (m *WritePreparedSeriesRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePreparedSeriesRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintRpc(dAtA, i, uint64(m.Error.Size()))
+	n6, err := m.Error.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n6
+	return i, nil
+}
+
+func (m *WritePreparedSeriesColumnarReq) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePreparedSeriesColumnarReq) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	return i, nil
+}
+
+func (m *WritePreparedSeriesColumnarRes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WritePreparedSeriesColumnarRes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintRpc(dAtA, i, uint64(m.Error.Size()))
+	n7, err := m.Error.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n7
+	return i, nil
+}
+
+func encodeVarintRpc(dAtA []byte, offset int, v uint64) int {
+	for v >= 1<<7 {
+		dAtA[offset] = uint8(v&0x7f | 0x80)
+		v >>= 7
+		offset++
+	}
+	dAtA[offset] = uint8(v)
+	return offset + 1
+}
+func (m *Error) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Message)
+	if l > 0 {
+		n += 1 + l + sovRpc(uint64(l))
+	}
+	return n
+}
+
+func (m *PingReq) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Message)
+	if l > 0 {
+		n += 1 + l + sovRpc(uint64(l))
+	}
+	return n
+}
+
+func (m *PingRes) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Message)
+	if l > 0 {
+		n += 1 + l + sovRpc(uint64(l))
+	}
+	return n
+}
+
+func (m *WritePointsReq) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Int) > 0 {
+		for _, e := range m.Int {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	if len(m.Double) > 0 {
+		for _, e := range m.Double {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *WritePointsRes) Size() (n int) {
+	var l int
+	_ = l
+	if m.Error != nil {
+		l = m.Error.Size()
+		n += 1 + l + sovRpc(uint64(l))
+	}
+	return n
+}
+
+func (m *WriteSeriesReq) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Int) > 0 {
+		for _, e := range m.Int {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	if len(m.Double) > 0 {
+		for _, e := range m.Double {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *WriteSeriesRes) Size() (n int) {
+	var l int
+	_ = l
+	l = m.Error.Size()
+	n += 1 + l + sovRpc(uint64(l))
+	return n
+}
+
+func (m *PrepareSeriesReq) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Series) > 0 {
+		for _, e := range m.Series {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *PrepareSeriesRes) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Series) > 0 {
+		l = 0
+		for _, e := range m.Series {
+			l += sovRpc(uint64(e))
+		}
+		n += 1 + sovRpc(uint64(l)) + l
+	}
+	return n
+}
+
+func (m *PreparedPointInt) Size() (n int) {
+	var l int
+	_ = l
+	if m.Id != 0 {
+		n += 1 + sovRpc(uint64(m.Id))
+	}
+	if m.T != 0 {
+		n += 1 + sovRpc(uint64(m.T))
+	}
+	if m.V != 0 {
+		n += 1 + sovRpc(uint64(m.V))
+	}
+	return n
+}
+
+func (m *PreparedPointDouble) Size() (n int) {
+	var l int
+	_ = l
+	if m.Id != 0 {
+		n += 1 + sovRpc(uint64(m.Id))
+	}
+	if m.T != 0 {
+		n += 1 + sovRpc(uint64(m.T))
+	}
+	if m.V != 0 {
+		n += 9
+	}
+	return n
+}
+
+func (m *WritePreparedPointsReq) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Int) > 0 {
+		for _, e := range m.Int {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	if len(m.Double) > 0 {
+		for _, e := range m.Double {
+			l = e.Size()
+			n += 1 + l + sovRpc(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *WritePreparedPointsRes) Size() (n int) {
+	var l int
+	_ = l
+	l = m.Error.Size()
+	n += 1 + l + sovRpc(uint64(l))
+	return n
+}
+
+func (m *WritePreparedSeriesReq) Size() (n int) {
+	var l int
+	_ = l
+	return n
+}
+
+func (m *WritePreparedSeriesRes) Size() (n int) {
+	var l int
+	_ = l
+	l = m.Error.Size()
+	n += 1 + l + sovRpc(uint64(l))
+	return n
+}
+
+func (m *WritePreparedSeriesColumnarReq) Size() (n int) {
+	var l int
+	_ = l
+	return n
+}
+
+func (m *WritePreparedSeriesColumnarRes) Size() (n int) {
+	var l int
+	_ = l
+	l = m.Error.Size()
+	n += 1 + l + sovRpc(uint64(l))
+	return n
+}
+
+func sovRpc(x uint64) (n int) {
+	for {
+		n++
+		x >>= 7
+		if x == 0 {
+			break
+		}
+	}
+	return n
+}
+func sozRpc(x uint64) (n int) {
+	return sovRpc(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *Error) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Error: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Error: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Message = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PingReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PingReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PingReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Message = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PingRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PingRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PingRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Message = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePointsReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePointsReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePointsReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Int", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Int = append(m.Int, libtsdb.PointIntTagged{})
+			if err := m.Int[len(m.Int)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Double", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Double = append(m.Double, libtsdb.PointDoubleTagged{})
+			if err := m.Double[len(m.Double)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePointsRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePointsRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePointsRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Error == nil {
+				m.Error = &Error{}
+			}
+			if err := m.Error.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WriteSeriesReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WriteSeriesReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WriteSeriesReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Int", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Int = append(m.Int, libtsdb.SeriesIntTagged{})
+			if err := m.Int[len(m.Int)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Double", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Double = append(m.Double, libtsdb.SeriesDoubleTagged{})
+			if err := m.Double[len(m.Double)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WriteSeriesRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WriteSeriesRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WriteSeriesRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Error.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PrepareSeriesReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PrepareSeriesReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PrepareSeriesReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Series", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Series = append(m.Series, libtsdb.EmptySeries{})
+			if err := m.Series[len(m.Series)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PrepareSeriesRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PrepareSeriesRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PrepareSeriesRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowRpc
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Series = append(m.Series, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowRpc
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthRpc
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowRpc
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Series = append(m.Series, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Series", wireType)
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PreparedPointInt) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PreparedPointInt: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PreparedPointInt: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field T", wireType)
+			}
+			m.T = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.T |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field V", wireType)
+			}
+			m.V = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.V |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PreparedPointDouble) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PreparedPointDouble: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PreparedPointDouble: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field T", wireType)
+			}
+			m.T = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.T |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field V", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.V = float64(math.Float64frombits(v))
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePreparedPointsReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePreparedPointsReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePreparedPointsReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Int", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Int = append(m.Int, PreparedPointInt{})
+			if err := m.Int[len(m.Int)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Double", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Double = append(m.Double, PreparedPointDouble{})
+			if err := m.Double[len(m.Double)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePreparedPointsRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePreparedPointsRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePreparedPointsRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Error.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePreparedSeriesReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePreparedSeriesReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePreparedSeriesReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePreparedSeriesRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePreparedSeriesRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePreparedSeriesRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Error.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePreparedSeriesColumnarReq) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePreparedSeriesColumnarReq: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePreparedSeriesColumnarReq: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WritePreparedSeriesColumnarRes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WritePreparedSeriesColumnarRes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WritePreparedSeriesColumnarRes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRpc
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Error.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRpc(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthRpc
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func skipRpc(dAtA []byte) (n int, err error) {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return 0, ErrIntOverflowRpc
+			}
+			if iNdEx >= l {
+				return 0, io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		wireType := int(wire & 0x7)
+		switch wireType {
+		case 0:
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return 0, io.ErrUnexpectedEOF
+				}
+				iNdEx++
+				if dAtA[iNdEx-1] < 0x80 {
+					break
+				}
+			}
+			return iNdEx, nil
+		case 1:
+			iNdEx += 8
+			return iNdEx, nil
+		case 2:
+			var length int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowRpc
+				}
+				if iNdEx >= l {
+					return 0, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				length |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			iNdEx += length
+			if length < 0 {
+				return 0, ErrInvalidLengthRpc
+			}
+			return iNdEx, nil
+		case 3:
+			for {
+				var innerWire uint64
+				var start int = iNdEx
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return 0, ErrIntOverflowRpc
+					}
+					if iNdEx >= l {
+						return 0, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					innerWire |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				innerWireType := int(innerWire & 0x7)
+				if innerWireType == 4 {
+					break
+				}
+				next, err := skipRpc(dAtA[start:])
+				if err != nil {
+					return 0, err
+				}
+				iNdEx = start + next
+			}
+			return iNdEx, nil
+		case 4:
+			return iNdEx, nil
+		case 5:
+			iNdEx += 4
+			return iNdEx, nil
+		default:
+			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
+		}
+	}
+	panic("unreachable")
+}
+
+var (
+	ErrInvalidLengthRpc = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowRpc   = fmt.Errorf("proto: integer overflow")
+)
+
 func init() { proto.RegisterFile("rpc.proto", fileDescriptorRpc) }
 
 var fileDescriptorRpc = []byte{
-	// 163 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2c, 0x2a, 0x48, 0xd6,
-	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0xad, 0xc8, 0x2e, 0x2a, 0x48, 0x96, 0xd2, 0x4d, 0xcf,
-	0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f, 0xcf, 0x4f, 0xcf, 0xd7, 0x07, 0xcb,
-	0x26, 0x95, 0xa6, 0x81, 0x79, 0x60, 0x0e, 0x98, 0x05, 0xd1, 0x25, 0x65, 0x80, 0xa4, 0xbc, 0x22,
-	0xb5, 0x20, 0x23, 0x3f, 0x2f, 0xa3, 0x10, 0xca, 0xd0, 0xcd, 0xd6, 0xaf, 0x00, 0xa1, 0x82, 0x24,
-	0xfd, 0x92, 0xca, 0x82, 0xd4, 0x62, 0x88, 0x0e, 0x23, 0x75, 0x2e, 0xf6, 0x08, 0xb0, 0x7c, 0xb6,
-	0x90, 0x0c, 0x17, 0x4b, 0x40, 0x66, 0x5e, 0xba, 0x10, 0x87, 0x5e, 0x45, 0xb6, 0x1e, 0x88, 0x25,
-	0x05, 0x61, 0xe5, 0xe7, 0xa5, 0x2b, 0x31, 0x38, 0x89, 0x9d, 0x78, 0x28, 0xc7, 0x70, 0xe2, 0x91,
-	0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x46, 0xb1, 0xa4, 0x17, 0x15, 0x24,
-	0x27, 0xb1, 0x81, 0xcd, 0x31, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x4e, 0x24, 0xf2, 0x5f, 0xbc,
-	0x00, 0x00, 0x00,
+	// 587 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0xd1, 0x8e, 0xd2, 0x40,
+	0x14, 0x65, 0xa0, 0x40, 0xf6, 0xb2, 0x12, 0x33, 0xab, 0xd8, 0x74, 0x23, 0x62, 0x8d, 0x09, 0x31,
+	0xd9, 0x62, 0xd0, 0x87, 0xd5, 0x44, 0x13, 0x59, 0xd7, 0x44, 0x9f, 0x48, 0xc5, 0xd5, 0xf8, 0x46,
+	0xe9, 0xd8, 0x6d, 0x16, 0x3a, 0x75, 0xa6, 0x24, 0x1a, 0xe3, 0x93, 0x9f, 0xe0, 0x4f, 0xf1, 0xe8,
+	0x17, 0x18, 0xe5, 0x4b, 0x4c, 0x67, 0xda, 0x6e, 0xdb, 0x2d, 0x95, 0xdd, 0x27, 0xb8, 0x73, 0xcf,
+	0x39, 0xf7, 0xf4, 0xde, 0xdb, 0x29, 0xec, 0x30, 0x7f, 0x66, 0xf8, 0x8c, 0x06, 0x14, 0xd7, 0xbf,
+	0x9c, 0x31, 0x7f, 0xa6, 0x1d, 0x38, 0x6e, 0x70, 0xba, 0xb4, 0x8c, 0x19, 0x5d, 0x0c, 0x1c, 0xea,
+	0xd0, 0x81, 0xc8, 0x5a, 0xcb, 0x4f, 0x22, 0x12, 0x81, 0xf8, 0x27, 0x59, 0xda, 0x61, 0x0a, 0x3e,
+	0x77, 0xad, 0x80, 0xdb, 0x56, 0xfc, 0x7b, 0xe0, 0xd0, 0xfc, 0x91, 0x6f, 0x0d, 0x02, 0x2e, 0x99,
+	0xfa, 0x5d, 0xa8, 0x1f, 0x33, 0x46, 0x19, 0x56, 0xa1, 0xb9, 0x20, 0x9c, 0x4f, 0x1d, 0xa2, 0xa2,
+	0x1e, 0xea, 0xef, 0x98, 0x71, 0xa8, 0xdf, 0x83, 0xe6, 0xd8, 0xf5, 0x1c, 0x93, 0x7c, 0xde, 0x06,
+	0xc4, 0x4b, 0x40, 0xdf, 0xa0, 0xfd, 0x9e, 0xb9, 0x01, 0x19, 0x53, 0xd7, 0x0b, 0x78, 0x28, 0x38,
+	0x80, 0x9a, 0xeb, 0x05, 0x2a, 0xea, 0xd5, 0xfa, 0xad, 0xe1, 0x2d, 0x23, 0x32, 0x68, 0x08, 0xc0,
+	0x6b, 0x2f, 0x98, 0x4c, 0x1d, 0x87, 0xd8, 0x23, 0x65, 0xf5, 0xfb, 0x4e, 0xc5, 0x0c, 0x91, 0xf8,
+	0x10, 0x1a, 0x36, 0x5d, 0x5a, 0x73, 0xa2, 0x56, 0x05, 0x47, 0xcb, 0x72, 0x5e, 0x8a, 0x5c, 0x86,
+	0x16, 0xe1, 0xf5, 0xc7, 0xb9, 0xe2, 0x1c, 0xeb, 0x50, 0x27, 0xe1, 0xb3, 0x0b, 0x9b, 0xad, 0xe1,
+	0xae, 0x21, 0x7a, 0x6f, 0x88, 0x7e, 0x98, 0x32, 0xa5, 0x7f, 0x8f, 0x58, 0x6f, 0x09, 0x73, 0x89,
+	0xb0, 0xfc, 0x30, 0x6d, 0x59, 0x4d, 0xca, 0x4b, 0x40, 0xa1, 0xe7, 0x27, 0x39, 0xcf, 0xfb, 0x39,
+	0x52, 0x89, 0xe9, 0xa7, 0xb9, 0xf2, 0x1c, 0xf7, 0x4b, 0x4c, 0x47, 0xe4, 0xc8, 0xfa, 0x2b, 0xb8,
+	0x3e, 0x66, 0xc4, 0x9f, 0xb2, 0x94, 0xf9, 0x21, 0x34, 0xb8, 0x08, 0x22, 0xff, 0x37, 0x12, 0x2b,
+	0xc7, 0x0b, 0x3f, 0xf8, 0x2a, 0x81, 0xb1, 0x07, 0x89, 0xd4, 0x1f, 0x5c, 0xd0, 0xe1, 0xb8, 0x93,
+	0xd1, 0x51, 0x12, 0xec, 0xf3, 0x04, 0x6b, 0xc7, 0x33, 0xc4, 0x6d, 0xa8, 0xba, 0xb6, 0xb0, 0xab,
+	0x98, 0x55, 0xd7, 0xc6, 0xbb, 0x80, 0x26, 0x6a, 0xb5, 0x87, 0xfa, 0x35, 0x13, 0x4d, 0xc2, 0xe8,
+	0x44, 0xad, 0xc9, 0xe8, 0x44, 0x7f, 0x01, 0x7b, 0x19, 0xbe, 0x6c, 0xcd, 0xb6, 0x12, 0x28, 0x94,
+	0xf8, 0x81, 0xa0, 0x23, 0x07, 0x9d, 0x16, 0x2a, 0xda, 0x36, 0xd9, 0xb9, 0xbc, 0xdf, 0xf2, 0x6d,
+	0x2b, 0xe0, 0x48, 0x8f, 0xb9, 0xc1, 0x8d, 0x36, 0x98, 0xb8, 0xcc, 0x00, 0xd5, 0x9c, 0x46, 0x32,
+	0xc6, 0x0b, 0xea, 0x57, 0x59, 0x8f, 0x1e, 0x74, 0x0b, 0x34, 0x8e, 0xe8, 0x7c, 0xb9, 0xf0, 0xa6,
+	0x2c, 0xac, 0xf2, 0xe6, 0x3f, 0x88, 0x4b, 0x54, 0x1b, 0xfe, 0x54, 0xa0, 0xf9, 0x81, 0xf8, 0xa7,
+	0xd4, 0x3b, 0xc3, 0x7d, 0x50, 0xc2, 0xbb, 0x02, 0xb7, 0xe3, 0x6e, 0xca, 0xdb, 0x45, 0xcb, 0xc6,
+	0x5c, 0xaf, 0xe0, 0x67, 0xd0, 0x4a, 0xbd, 0xb3, 0xf8, 0x66, 0x04, 0xc8, 0x5e, 0x22, 0x5a, 0xe1,
+	0x71, 0x9a, 0x2e, 0x8d, 0x67, 0xe9, 0x49, 0x33, 0xb5, 0xc2, 0xe3, 0x90, 0x7e, 0x04, 0xd7, 0x32,
+	0x8b, 0x8f, 0x73, 0x2b, 0x73, 0x2e, 0xb1, 0x21, 0x11, 0x8a, 0xbc, 0x83, 0xbd, 0x82, 0x45, 0xc0,
+	0xb7, 0x33, 0x9e, 0xf3, 0x9b, 0xaa, 0x95, 0xa6, 0x8b, 0x64, 0x23, 0x87, 0x85, 0xbc, 0x73, 0x9f,
+	0xa5, 0xe9, 0x50, 0x76, 0x01, 0xfb, 0x25, 0x23, 0xc7, 0xf7, 0x37, 0xf3, 0x53, 0x8b, 0xa3, 0x6d,
+	0x05, 0xe3, 0x7a, 0x65, 0xd4, 0x59, 0xfd, 0xed, 0x56, 0x56, 0xeb, 0x2e, 0xfa, 0xb5, 0xee, 0xa2,
+	0x3f, 0xeb, 0x2e, 0xfa, 0xa8, 0x38, 0xcc, 0x9f, 0x59, 0x0d, 0xf1, 0x71, 0x7a, 0xf4, 0x2f, 0x00,
+	0x00, 0xff, 0xff, 0xe1, 0x19, 0xa1, 0x4e, 0x19, 0x07, 0x00, 0x00,
 }
