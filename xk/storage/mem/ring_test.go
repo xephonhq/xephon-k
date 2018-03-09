@@ -1,15 +1,16 @@
 package mem
 
 import (
-	"testing"
 	"runtime"
-	"time"
-	"github.com/dyweb/gommon/util/testutil"
 	"sync"
+	"testing"
+	"time"
+
+	"github.com/dyweb/gommon/util/testutil"
 )
 
-func TestNewRing(t *testing.T) {
-	r := NewRing(runtime.NumCPU())
+func TestNewDoubleRing(t *testing.T) {
+	r := NewDoubleRing(runtime.NumCPU())
 	var i uint64
 	var j int64
 	var batchSize int64 = 10
@@ -34,11 +35,11 @@ func TestNewRing(t *testing.T) {
 }
 
 // NOTE: race
-func TestPartition_WritePoints(t *testing.T) {
+func TestDoublePartition_WritePoints(t *testing.T) {
 	var wg sync.WaitGroup
 	var batchSize int64 = 10
 	concurrency := runtime.NumCPU()
-	r := NewRing(runtime.NumCPU())
+	r := NewDoubleRing(runtime.NumCPU())
 	wg.Add(concurrency)
 	for c := 0; c < concurrency; c++ {
 		go func() {

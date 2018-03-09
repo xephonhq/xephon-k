@@ -2,53 +2,53 @@ package mem
 
 import "sync"
 
-// Ring is a simple cache without compression
-type Ring struct {
+{{ range .}}
+// {{.Name}}Ring is a simple cache without compression
+type {{.Name}}Ring struct {
 	numPartitions uint64
 	// TODO: benchmark performance of using pointer and struct https://segment.com/blog/allocation-efficiency-in-high-performance-go-services/
-	partitions []*Partition
+	partitions []*{{.Name}}Partition
 }
 
-// TODO: value for n?
-func NewRing(n int) *Ring {
-	r := &Ring{
+// TODO: default value for n?
+func New{{.Name}}Ring(n int) *{{.Name}}Ring {
+	r := &{{.Name}}Ring{
 		numPartitions: uint64(n),
-		partitions:    make([]*Partition, n),
+		partitions:    make([]*{{.Name}}Partition, n),
 	}
 	for i := 0; i < n; i++ {
-		r.partitions[i] = &Partition{
-			store: make(map[uint64]*Store),
+		r.partitions[i] = &{{.Name}}Partition{
+			store: make(map[uint64]*{{.Name}}Store),
 		}
 	}
 	return r
 }
 
-func (r *Ring) getPartition(hash uint64) *Partition {
+func (r *{{.Name}}Ring) getPartition(hash uint64) *{{.Name}}Partition {
 	return r.partitions[int(hash%r.numPartitions)]
 }
 
-type Partition struct {
+type {{.Name}}Partition struct {
 	mu    sync.RWMutex
-	store map[uint64]*Store
+	store map[uint64]*{{.Name}}Store
 }
 
-type Store struct {
+type {{.Name}}Store struct {
 	// TODO: metrics tags
-	// FIXME: only support float64? what about int, bool etc.?
 	mu     sync.RWMutex
 	times  []int64
-	values []float64
+	values []{{.Type}}
 	size   int
 }
 
-func NewStore(len int) *Store {
-	return &Store{
+func New{{.Name}}Store(len int) *{{.Name}}Store {
+	return &{{.Name}}Store{
 		times:  make([]int64, 0, len),
-		values: make([]float64, 0, len),
+		values: make([]{{.Type}}, 0, len),
 	}
 }
 
-func (p *Partition) WritePoints(hash uint64, times []int64, values []float64) {
+func (p *{{.Name}}Partition) WritePoints(hash uint64, times []int64, values []{{.Type}}) {
 	p.mu.RLock()
 	s := p.store[hash]
 	if s != nil {
@@ -62,7 +62,7 @@ func (p *Partition) WritePoints(hash uint64, times []int64, values []float64) {
 	}
 	p.mu.RUnlock()
 	p.mu.Lock()
-	s = NewStore(len(times))
+	s = New{{.Name}}Store(len(times))
 	s.size += len(times)
 	s.times = append(s.times, times...)
 	s.values = append(s.values, values...)
@@ -70,3 +70,4 @@ func (p *Partition) WritePoints(hash uint64, times []int64, values []float64) {
 	p.mu.Unlock()
 	return
 }
+{{ end }}

@@ -1,0 +1,9 @@
+gotmpls:
+  - src: ring_generated.go.tmpl
+    dst: ring_generated.go
+    go: true
+    data:
+      - Name: Int
+        Type: int64
+      - Name: Double
+        Type: float64
