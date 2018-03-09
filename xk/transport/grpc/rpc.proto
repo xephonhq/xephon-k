@@ -6,17 +6,109 @@ package xkrpc;
 option go_package = "grpc";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/xephonhq/xephon-k/xk/xkpb/types.proto";
-
+import "github.com/libtsdb/libtsdb-go/libtsdb/libtsdbpb/ts.proto";
 
 option (gogoproto.sizer_all) = true;
 option (gogoproto.marshaler_all) = true;
 option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 
+message Error {
+    string message = 1;
+}
 
+message PingReq {
+    string message = 1;
+}
+
+message PingRes {
+    string message = 1;
+}
+
+// raw, no prepare
+message WritePointsReq {
+    repeated libtsdb.PointIntTagged int = 1 [(gogoproto.nullable) = false];
+    repeated libtsdb.PointDoubleTagged double = 2 [(gogoproto.nullable) = false];
+}
+
+message WritePointsRes {
+    Error error = 1;
+}
+
+message WriteSeriesReq {
+    repeated libtsdb.SeriesIntTagged int = 1 [(gogoproto.nullable) = false];
+    repeated libtsdb.SeriesDoubleTagged double = 2 [(gogoproto.nullable) = false];
+}
+
+message WriteSeriesRes {
+    Error error = 1 [(gogoproto.nullable) = false];
+}
+
+// prepare
+message PrepareSeriesReq {
+    repeated libtsdb.EmptySeries series = 1 [(gogoproto.nullable) = false];
+}
+
+message PrepareSeriesRes {
+    repeated uint64 series = 1;
+}
+
+message PreparedPointInt {
+    uint64 id = 1;
+    int64 T = 2;
+    int64 V = 3;
+}
+
+message PreparedPointDouble {
+    uint64 id = 1;
+    int64 T = 2;
+    double V = 3;
+}
+
+message WritePreparedPointsReq {
+    repeated PreparedPointInt int = 1 [(gogoproto.nullable) = false];
+    repeated PreparedPointDouble double = 2 [(gogoproto.nullable) = false];
+}
+
+message WritePreparedPointsRes {
+    Error error = 1 [(gogoproto.nullable) = false];
+}
+
+message WritePreparedSeriesReq {
+
+}
+
+message WritePreparedSeriesRes {
+    Error error = 1 [(gogoproto.nullable) = false];
+}
+
+message WritePreparedSeriesColumnarReq {
+
+}
+
+message WritePreparedSeriesColumnarRes {
+    Error error = 1 [(gogoproto.nullable) = false];
+}
 
 service Xephonk {
-    rpc Ping (xk.Ping) returns (xk.Pong) {
+    rpc Ping (PingReq) returns (PingRes) {
+    }
+    // WritePoints is the most verbose one, but requires least effort on client side, just stream in point with tag
+    rpc WritePoints (WritePointsReq) returns (WritePointsRes) {
+    }
+    // WriteSereis groups points of same series together to reduce cost of duplicating meta
+    rpc WriteSeries (WriteSeriesReq) returns (WriteSeriesRes) {
+    }
+    // PrepareSeries gives each series a unique id, that can be used in this connection to omit passing full meta
+    rpc PrepareSeries (PrepareSeriesReq) returns (PrepareSeriesRes) {
+    }
+    // WritePreparedPoints don't group points by series, but only prepared id is needed, not need to pass full meta
+    rpc WritePreparedPoints (WritePreparedPointsReq) returns (WritePreparedPointsRes) {
+    }
+    // WritePreparedSeries not only use id for series, but also group points by series
+    rpc WritePreparedSeries (WritePreparedSeriesReq) returns (WritePreparedSeriesRes) {
+    }
+    // WritePreparedSeriesColumnar use columnar format so points in one series can be compressed by protobuf
+    rpc WritePreparedSeriesColumnar (WritePreparedSeriesColumnarReq) returns (WritePreparedSeriesColumnarRes) {
     }
 }

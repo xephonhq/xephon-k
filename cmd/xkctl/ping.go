@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	pb "github.com/xephonhq/xephon-k/xk/xkpb"
+	pb "github.com/xephonhq/xephon-k/xk/transport/grpc"
 )
 
 var pingCmd = &cobra.Command{
@@ -14,7 +14,7 @@ var pingCmd = &cobra.Command{
 	Long:  "Ping Xephonk server using gRPC",
 	Run: func(cmd *cobra.Command, args []string) {
 		mustCreateClient()
-		if res, err := client.Ping(context.Background(), &pb.Ping{Message: "ping from xkctl"}); err != nil {
+		if res, err := client.Ping(context.Background(), &pb.PingReq{Message: "ping from xkctl"}); err != nil {
 			log.Fatal(err)
 		} else {
 			log.Infof("ping finished central response is %s", res.Message)
