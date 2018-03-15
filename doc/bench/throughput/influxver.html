@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bechmark Result</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.4/echarts.min.js"></script>
+</head>
+<body>
+<!-- prepare a DOM container with width and height -->
+<div id="main" style="width: 800px;height:400px;"></div>
+<script type="text/javascript">
+    // based on prepared DOM, initialize echarts instance
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // specify chart configuration item and data
+    var option = {
+        title: {
+            text: 'Throughput of InfluxDB in different version'
+        },
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: true},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        tooltip: {},
+        legend: {
+            data: ['Requests/Second'],
+            top: 'bottom'
+        },
+        xAxis: {
+            data: ["1.0", "1.1", "1.2", "1.3", "1.4", "1.5"]
+        },
+        yAxis: {},
+        series: [{
+            name: 'Requests/Second',
+            type: 'line',
+            data: [4250, 4218, 2870, 7126, 6097, 7385]
+        }]
+    };
+
+    // use configuration item and data specified to show chart
+    myChart.setOption(option);
+</script>
+</body>
+</html>
