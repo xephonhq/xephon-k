@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Benchmark Result</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.4/echarts.min.js"></script>
+</head>
+<body>
+<!-- prepare a DOM container with width and height -->
+<div id="main" style="width: 800px;height:400px;"></div>
+<script type="text/javascript">
+    // based on prepared DOM, initialize echarts instance
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // specify chart configuration item and data
+    var option = {
+        title: {
+            text: 'Throughput of PostgreSQL in different version using TPC-C'
+        },
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: true},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        tooltip: {},
+        legend: {
+            data: ['Requests/Second'],
+            top: 'bottom'
+        },
+        xAxis: {
+            data: ["9.2", "9.3", "9.4", "9.5", "9.6", "10.1"]
+        },
+        yAxis: {},
+        series: [{
+            name: 'Requests/Second',
+            type: 'line',
+            data: [207, 228, 232, 345, 357, 375]
+        }]
+    };
+
+    // use configuration item and data specified to show chart
+    myChart.setOption(option);
+</script>
+</body>
+</html>
