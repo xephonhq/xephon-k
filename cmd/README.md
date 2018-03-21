@@ -9,4 +9,4 @@ Deprecated
 
 - xkb xephon-k version of xephon-b
 - xkd xephon-k server daemon
-- xkutil used to dump file
+- xkutil used to inspect on disk file
