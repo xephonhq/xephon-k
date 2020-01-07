@@ -19,6 +19,7 @@ It's a playground for comparing modern TSDB design and implementation with bench
 It is not for production use, but it can show you the internal and trade-off of many TSDBs. 
 A detailed (but not well organized) survey can be found in [doc/survey](doc/survey).
 
+- status: Under major rewrite, after libtsdb-go is stable and benchhub is usable (again)
 - [Slide: Xephon-K A Time Series Database with multiple backends](http://www.slideshare.net/ssuser7e134a/xephon-k-a-time-series-database-with-multiple-backends)
 - [Survey on existing Cassandra based TSDBs (now include TSDB with other backends)](doc/survey)
 <!-- - [Benchmark](doc/bench) -->
