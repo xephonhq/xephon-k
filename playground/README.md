@@ -1,6 +1,6 @@
 # Playground
 
-For testing language semantics and small benchmarks.
+For testing language semantics and do microbenchmark.
 Prototype and library examples are also put here.  
 
 ## Language
