@@ -12,7 +12,7 @@ func (srv *GrpcServer) GetLogger() *dlog.Logger {
 	return srv.log
 }
 
-func (srv *GrpcServer) LoggerIdentity(justCallMe func() *dlog.Identity) *dlog.Identity {
+func (srv *GrpcServer) LoggerIdentity(justCallMe func() dlog.Identity) dlog.Identity {
 	return justCallMe()
 }
 
@@ -24,7 +24,7 @@ func (srv *HttpServer) GetLogger() *dlog.Logger {
 	return srv.log
 }
 
-func (srv *HttpServer) LoggerIdentity(justCallMe func() *dlog.Identity) *dlog.Identity {
+func (srv *HttpServer) LoggerIdentity(justCallMe func() dlog.Identity) dlog.Identity {
 	return justCallMe()
 }
 
@@ -36,6 +36,6 @@ func (mgr *Manager) GetLogger() *dlog.Logger {
 	return mgr.log
 }
 
-func (mgr *Manager) LoggerIdentity(justCallMe func() *dlog.Identity) *dlog.Identity {
+func (mgr *Manager) LoggerIdentity(justCallMe func() dlog.Identity) dlog.Identity {
 	return justCallMe()
 }

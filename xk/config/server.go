@@ -1,7 +1,7 @@
 package config
 
 import (
-	iconfig "github.com/at15/go.ice/ice/config"
+	iconfig "github.com/dyweb/go.ice/config"
 )
 
 type ServerConfig struct {

@@ -5,7 +5,7 @@ import (
 	"os"
 	"runtime"
 
-	icli "github.com/at15/go.ice/ice/cli"
+	icli "github.com/dyweb/go.ice/cli"
 	"google.golang.org/grpc"
 
 	myrpc "github.com/xephonhq/xephon-k/xk/transport/grpc"

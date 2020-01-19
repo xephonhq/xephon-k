@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	igrpc "github.com/at15/go.ice/ice/transport/grpc"
-	ihttp "github.com/at15/go.ice/ice/transport/http"
+	igrpc "github.com/dyweb/go.ice/transport/grpc"
+	ihttp "github.com/dyweb/go.ice/transport/http"
 	"github.com/dyweb/gommon/errors"
 	dlog "github.com/dyweb/gommon/log"
 	"google.golang.org/grpc"

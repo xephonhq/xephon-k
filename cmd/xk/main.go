@@ -5,7 +5,7 @@ import (
 	"os"
 	"runtime"
 
-	icli "github.com/at15/go.ice/ice/cli"
+	icli "github.com/dyweb/go.ice/cli"
 
 	"github.com/xephonhq/xephon-k/xk/config"
 	"github.com/xephonhq/xephon-k/xk/util/logutil"
