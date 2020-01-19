@@ -4,18 +4,12 @@ git:
   depth: 3
 
 go:
-  - 1.9.x
-  - "1.10"
+  - "1.13"
   - tip
 
+# FIXME: run actual test when there is something to test ...
 install:
-  - go get -u github.com/golang/dep/cmd/dep
-  - dep version
-  - dep ensure
-  - pwd
+  - go version
 
 script:
-  - make install
-  - xk version --verbose
-  - xkctl version --verbose
-  - make test
+  - go version

@@ -6,7 +6,7 @@ package xkrpc;
 option go_package = "grpc";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/libtsdb/libtsdb-go/libtsdb/libtsdbpb/ts.proto";
+import "github.com/libtsdb/libtsdb-go/tspb/ts.proto";
 
 option (gogoproto.sizer_all) = true;
 option (gogoproto.marshaler_all) = true;
@@ -27,8 +27,8 @@ message PingRes {
 
 // raw, no prepare
 message WritePointsReq {
-    repeated libtsdb.PointIntTagged int = 1 [(gogoproto.nullable) = false];
-    repeated libtsdb.PointDoubleTagged double = 2 [(gogoproto.nullable) = false];
+    repeated tspb.PointIntTagged int = 1 [(gogoproto.nullable) = false];
+    repeated tspb.PointDoubleTagged double = 2 [(gogoproto.nullable) = false];
 }
 
 message WritePointsRes {
@@ -36,8 +36,8 @@ message WritePointsRes {
 }
 
 message WriteSeriesReq {
-    repeated libtsdb.SeriesIntTagged int = 1 [(gogoproto.nullable) = false];
-    repeated libtsdb.SeriesDoubleTagged double = 2 [(gogoproto.nullable) = false];
+    repeated tspb.SeriesIntTagged int = 1 [(gogoproto.nullable) = false];
+    repeated tspb.SeriesDoubleTagged double = 2 [(gogoproto.nullable) = false];
 }
 
 message WriteSeriesRes {
@@ -46,7 +46,7 @@ message WriteSeriesRes {
 
 // prepare
 message PrepareSeriesReq {
-    repeated libtsdb.EmptySeries series = 1 [(gogoproto.nullable) = false];
+    repeated tspb.EmptySeries series = 1 [(gogoproto.nullable) = false];
 }
 
 message PrepareSeriesRes {
